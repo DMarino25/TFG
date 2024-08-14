@@ -30,6 +30,7 @@ public class OauthAct extends AppCompatActivity {
     private static final String TAG = "OauthAct";
 
     private TextView gameName;
+
     private ImageView gameArtwork;
 
     @Override
