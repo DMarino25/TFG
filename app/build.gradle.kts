@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.multichat"
+    namespace = "com.example.GameApp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.multichat"
+        applicationId = "com.example.GameApp"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -44,6 +44,9 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.7.2")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.0")
+    implementation ("com.squareup.picasso:picasso:2.71828")
 
 
     // optional - needed for credentials support from play services, for devices running

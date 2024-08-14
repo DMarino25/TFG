@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Multichat"
+rootProject.name = "GameApp"
 include(":app")
  

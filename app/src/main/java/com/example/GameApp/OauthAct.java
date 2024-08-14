@@ -1,0 +1,98 @@
+package com.example.GameApp;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.example.GameApp.main.MainActivity;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class OauthAct extends AppCompatActivity {
+
+    private GoogleSignInClient mGoogleSignInClient;
+    private static final String TAG = "OauthAct";
+
+    private TextView gameName;
+    private ImageView gameArtwork;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_oauth);
+        gameName = findViewById(R.id.game_name);
+        gameArtwork = findViewById(R.id.game_artwork);
+
+        IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
+        String query = "fields name, artworks; where id = 1; limit 1;";
+        Call<List<Game>> call = apiService.getGames(query);
+
+        call.enqueue(new Callback<List<Game>>() {
+            @Override
+            public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Convierte la respuesta completa en una cadena JSON y la registra
+                    Gson gson = new Gson();
+                    String jsonResponse = gson.toJson(response.body());
+                    Log.d("API_RESPONSE_FULL_JSON", jsonResponse);
+
+                    if (!response.body().isEmpty()) {
+                        Game game = response.body().get(0);
+                        Log.d("API_RESPONSE", "Game name: " + game.getName());
+                        gameName.setText(game.getName());
+                    } else {
+                        Log.e("API_RESPONSE", "Response body is empty");
+                    }
+                } else {
+                    Log.e("API_RESPONSE", "Response not successful");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Game>> call, Throwable t) {
+                Log.e("API_CALL", "API call failed: " + t.getMessage());
+            }
+        });
+
+        // Configura el Google Sign-In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("840661236439-u1vskjpgspjrdqisaunnb2gkd7pa8eij.apps.googleusercontent.com") // Usa el mismo ID de cliente
+                .requestEmail()
+                .build();
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+        Button btnLogout = findViewById(R.id.btn_logout);
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                signOut();
+            }
+        });
+    }
+
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, task -> {
+                    // Cerrar sesión exitosa, vuelve a MainActivity
+                    Log.d(TAG, "Sign out successful");
+                    Intent intent = new Intent(OauthAct.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
+    }
+}

@@ -1,4 +1,4 @@
-package com.example.multichat;
+package com.example.GameApp;
 
 import org.junit.Test;
 
