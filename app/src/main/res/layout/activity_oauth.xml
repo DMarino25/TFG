@@ -46,14 +46,16 @@
                     android:src="@mipmap/ic_launcher"
                     android:scaleType="fitXY"
                     />
-                <TextView
+                <EditText
                     android:id="@+id/rgsshwj5frv4"
                     android:textColor="#000000"
                     android:textSize="36sp"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                     android:layout_weight="1"
-                    android:text="Cerca"
+                    android:hint="Cerca"
+                    android:inputType="text"
+                    android:onClick="showToastMessage"
                     />
             </LinearLayout>
             <TextView

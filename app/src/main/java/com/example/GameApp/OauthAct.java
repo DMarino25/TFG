@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.GameApp.main.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -18,6 +20,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -28,12 +32,17 @@ public class OauthAct extends AppCompatActivity {
     private static final String TAG = "OauthAct";
 
     private TextView gameName;
+
+    private EditText cercaText;
     private ImageView gameArtwork;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_oauth);
+
+        cercaText = findViewById(R.id.rgsshwj5frv4);
+
        /* gameName = findViewById(R.id.game_name);
         gameArtwork = findViewById(R.id.game_artwork);
 
@@ -85,6 +94,52 @@ public class OauthAct extends AppCompatActivity {
         });*/
     }
 
+    public void showToastMessage(View view) {
+        // Texto del EditText
+        String searchQuery = cercaText.getText().toString();
+
+        // Mostrar "toast" con el texto
+        if (searchQuery.isEmpty()) {
+            Toast.makeText(this, "Por favor, ingresa un nombre de juego.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
+
+        String query = "fields name, artworks; where name = \"" + searchQuery + "\"; limit 1;";
+        //String query = "fields name, artworks; where id = 1905; limit 1;";
+        RequestBody gameRequestBody = RequestBody.create(query, MediaType.parse("text/plain"));
+        Call<List<Game>> call = apiService.getGames(gameRequestBody);
+
+        call.enqueue(new Callback<List<Game>>() {
+            @Override
+            public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    // Obtener nombre del juego
+                    Game game = response.body().get(0);
+                    Log.d("API_RESPONSE", "Game name: " + game.getName());
+                    String gameName = game.getName();
+
+                    // Mostrar nombre del juego en Toast
+                    Toast.makeText(OauthAct.this, "Juego encontrado: " + gameName, Toast.LENGTH_LONG).show();
+
+                    // Registrar la respuesta completa en el log
+                    Gson gson = new Gson();
+                    String jsonResponse = gson.toJson(response.body());
+                    Log.d("API_RESPONSE_FULL_JSON", jsonResponse);
+                } else {
+                    Log.e("API_RESPONSE", "No se encontró ningún juego.");
+                    Toast.makeText(OauthAct.this, "No se encontró ningún juego.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Game>> call, Throwable t) {
+                Log.e("API_CALL", "Fallo la llamada a la API: " + t.getMessage());
+                Toast.makeText(OauthAct.this, "Error al buscar el juego.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     private void signOut() {
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, task -> {

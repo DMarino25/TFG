@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private GoogleSignInClient mGoogleSignInClient;
 
-    private Button enter, oauth;
+    private Button enter, oauth, skipAuth;
 
     private ActivityResultLauncher<Intent> signInLauncher;
 
@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         oauth = findViewById(R.id.button2);
+        skipAuth = findViewById(R.id.button_skip);
 
 
 
@@ -67,6 +68,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 signIn();
+            }
+        });
+
+        // Nuevo botón para skipear el OAuth
+        skipAuth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, OauthAct.class);
+                startActivity(intent);
             }
         });
     }
