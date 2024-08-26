@@ -12,7 +12,7 @@ public interface IGDBApi {
     @Headers({
             "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
             "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
-            "Content-Type: application/json"
+            "Content-Type: text/plain"
     })
     @POST("games")
     Call<List<Game>> getGames(@Body RequestBody body);
@@ -22,5 +22,5 @@ public interface IGDBApi {
             "Content-Type: text/plain"
     })
     @POST("artworks")
-    Call<List<Artwork>> getArtworks(@Body String body);
+    Call<List<Artwork>> getArtwork(@Body RequestBody body);
 }
