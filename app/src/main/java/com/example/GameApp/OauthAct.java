@@ -34,7 +34,7 @@ public class OauthAct extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_oauth);
-        gameName = findViewById(R.id.game_name);
+       /* gameName = findViewById(R.id.game_name);
         gameArtwork = findViewById(R.id.game_artwork);
 
         IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
@@ -82,7 +82,7 @@ public class OauthAct extends AppCompatActivity {
             public void onClick(View view) {
                 signOut();
             }
-        });
+        });*/
     }
 
     private void signOut() {
