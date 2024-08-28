@@ -1,39 +1,40 @@
 package com.example.GameApp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.GameApp.ClassObjectes.Cover;
+import com.example.GameApp.FragFolder.FragAjust;
+import com.example.GameApp.FragFolder.FragFav;
+import com.example.GameApp.FragFolder.FragForum;
+import com.example.GameApp.FragFolder.FragHome;
 import com.example.GameApp.main.MainActivity;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class OauthAct extends AppCompatActivity {
 
     private GoogleSignInClient mGoogleSignInClient;
     private List<Cover> coverList = new ArrayList<>();
+
+    private BottomNavigationView bottomNavigationView;
+    private Fragment fragments[];
     RecyclerView recyclerView;
     private CoverAdapter coverAdapter;
     private static final String TAG = "OauthAct";
@@ -46,45 +47,36 @@ public class OauthAct extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Fragmentos
+
+        fragments = new Fragment[4];
+
+        fragments[0]= new FragHome();
+        fragments[1] = new FragFav();
+        fragments[2] = new FragForum();
+        fragments[3] = new FragAjust();
         setContentView(R.layout.activity_oauth);
 
-        recyclerView = findViewById(R.id.recyclerView);
-
-        // Configurando el GridLayoutManager para 2 columnas
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
-        IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
-
-        // Consulta para obtener las portadas
-        String coversQuery = "fields id,game,height,image_id,url,width,checksum; limit 50;";
-        RequestBody coversRequestBody = RequestBody.create(coversQuery, MediaType.parse("text/plain"));
-
-        // Llamada a la API
-        Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody);
-
-        coversCall.enqueue(new Callback<List<Cover>>() {
+        bottomNavigationView = findViewById(R.id.menuNav);
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
-            public void onResponse(Call<List<Cover>> call, Response<List<Cover>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    coverList = response.body();
-
-                    // Crear y asignar el adaptador
-                    coverAdapter = new CoverAdapter(coverList);
-                    recyclerView.setAdapter(coverAdapter);
-                } else {
-                    Log.e(TAG, "Covers response not successful or empty");
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
+                if (id == R.id.home) {
+                    openFragment(fragments[0]);
+                } else if (id == R.id.transport) {
+                    openFragment(fragments[1]);
+                } else if (id == R.id.historial) {
+                    openFragment(fragments[2]);
+                } else if (id == R.id.profile) {
+                    openFragment(fragments[3]);
                 }
-            }
-
-            @Override
-            public void onFailure(Call<List<Cover>> call, Throwable t) {
-                Log.e(TAG, "Covers API call failed: " + t.getMessage());
+                return true;
             }
         });
-        recyclerView.setLayoutManager(gridLayoutManager);
 
-        // Suponiendo que ya tienes la lista de Covers
-        coverAdapter = new CoverAdapter(coverList);
-        recyclerView.setAdapter(coverAdapter);
+        // Configurando el GridLayoutManager para 2 columnas
+
 
         //cercaText = findViewById(R.id.rgsshwj5frv4);
 
@@ -164,52 +156,14 @@ public class OauthAct extends AppCompatActivity {
         });*/
     }
 
-    public void showToastMessage(View view) {
-        // Texto del EditText
-        String searchQuery = cercaText.getText().toString();
 
-        // Mostrar "toast" con el texto
-        if (searchQuery.isEmpty()) {
-            Toast.makeText(this, "Por favor, ingresa un nombre de juego.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
-
-        String query = "fields name, artworks; where name = \"" + searchQuery + "\"; limit 1;";
-        //String query = "fields name, artworks; where id = 1905; limit 1;";
-        RequestBody gameRequestBody = RequestBody.create(query, MediaType.parse("text/plain"));
-        Call<List<Game>> call = apiService.getGames(gameRequestBody);
-
-        call.enqueue(new Callback<List<Game>>() {
-            @Override
-            public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    // Obtener nombre del juego
-                    Game game = response.body().get(0);
-                    Log.d("API_RESPONSE", "Game name: " + game.getName());
-                    String gameName = game.getName();
-
-                    // Mostrar nombre del juego en Toast
-                    Toast.makeText(OauthAct.this, "Juego encontrado: " + gameName, Toast.LENGTH_LONG).show();
-
-                    // Registrar la respuesta completa en el log
-                    Gson gson = new Gson();
-                    String jsonResponse = gson.toJson(response.body());
-                    Log.d("API_RESPONSE_FULL_JSON", jsonResponse);
-                } else {
-                    Log.e("API_RESPONSE", "No se encontró ningún juego.");
-                    Toast.makeText(OauthAct.this, "No se encontró ningún juego.", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Game>> call, Throwable t) {
-                Log.e("API_CALL", "Fallo la llamada a la API: " + t.getMessage());
-                Toast.makeText(OauthAct.this, "Error al buscar el juego.", Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void openFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragmentContainerView2, fragment);
+        fragmentTransaction.commit();
     }
+
     private void signOut() {
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, task -> {

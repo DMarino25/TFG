@@ -1,61 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#FFFFFF"
-    android:clipChildren="false"
-    android:clipToPadding="false"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".OauthAct">
 
 
-    <LinearLayout
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fragmentContainerView2"
+        android:name="com.example.GameApp.FragFolder.FragHome"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:background="#B0D9D9D9"
-        android:paddingVertical="7dp"
-        android:paddingHorizontal="15dp"
-        android:layout_marginBottom="16dp">
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Icono de búsqueda -->
-        <ImageView
-            android:id="@+id/reoan5be9kgj"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:src="@mipmap/ic_launcher"
-            android:scaleType="fitXY" />
-
-        <!-- Campo de texto para la búsqueda -->
-        <EditText
-            android:id="@+id/rgsshwj5frv4"
-            android:textColor="#000000"
-            android:textSize="18sp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Cerca"
-            android:inputType="text"
-            android:onClick="showToastMessage"
-            android:gravity="center_vertical" />
-
-    </LinearLayout>
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/menuNav"
+            android:layout_width="match_parent"
+            android:layout_height="93dp"
+            android:layout_gravity="bottom"
+            app:labelVisibilityMode="labeled"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:menu="@menu/menuxml" />
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="363dp"
-
-        android:padding="8dp"
-
-        />
 
 
-</LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 

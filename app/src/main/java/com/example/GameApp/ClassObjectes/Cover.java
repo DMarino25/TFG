@@ -1,4 +1,4 @@
-package com.example.GameApp;
+package com.example.GameApp.ClassObjectes;
 
 public class Cover {
     private int id;

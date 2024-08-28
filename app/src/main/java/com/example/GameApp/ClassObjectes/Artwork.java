@@ -1,4 +1,4 @@
-package com.example.GameApp;
+package com.example.GameApp.ClassObjectes;
 
 public class Artwork {
     private int id;

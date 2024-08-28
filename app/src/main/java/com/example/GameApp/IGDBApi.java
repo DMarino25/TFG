@@ -1,5 +1,9 @@
 package com.example.GameApp;
 
+import com.example.GameApp.ClassObjectes.Artwork;
+import com.example.GameApp.ClassObjectes.Cover;
+import com.example.GameApp.ClassObjectes.Game;
+
 import java.util.List;
 
 import okhttp3.RequestBody;
