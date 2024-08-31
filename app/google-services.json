@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "789851307396",
-    "project_id": "multichat-3c70f",
-    "storage_bucket": "multichat-3c70f.appspot.com"
+    "project_number": "26786737807",
+    "project_id": "gameapp-c4851",
+    "storage_bucket": "gameapp-c4851.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:789851307396:android:1707b5db90768fc23bb1d1",
+        "mobilesdk_app_id": "1:26786737807:android:df49457044bd51287a8afa",
         "android_client_info": {
           "package_name": "com.example.GameApp"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "789851307396-muesvpbqidugjaochgtrftov5k2065co.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCuVrU6KEYbu-zOC2PIqiQg4QMJB3aivdg"
+          "current_key": "AIzaSyDAxQLZtM7tNBBu5fEEBtNO3Nkevp7S8I8"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "789851307396-muesvpbqidugjaochgtrftov5k2065co.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

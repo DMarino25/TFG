@@ -21,6 +21,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private GoogleSignInClient mGoogleSignInClient;
 
     private Button enter, oauth, skipAuth;
+    private DatabaseReference mDatabase;
+
 
     private ActivityResultLauncher<Intent> signInLauncher;
 
@@ -35,6 +39,24 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //FirebaseDatabase database = FirebaseDatabase.getInstance("https://gameapp-c4851-default-rtdb.europe-west1.firebasedatabase.app");
+       // DatabaseReference myRef = database.getReference("mensajePrueba");
+
+        // Escribir un valor en la base de datos
+       // myRef.setValue("¡Hola, Firebase!");
+
+        /*
+        myRef.setValue("¡Hola, Firebase!")
+                .addOnSuccessListener(aVoid -> {
+                    // Se escribió correctamente
+                    System.out.println("Datos escritos exitosamente.");
+                })
+                .addOnFailureListener(e -> {
+                    // Hubo un error al escribir
+                    System.out.println("Error al escribir los datos.");
+                });
+        */
 
 
         oauth = findViewById(R.id.button2);

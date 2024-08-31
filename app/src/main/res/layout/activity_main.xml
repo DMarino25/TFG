@@ -1,34 +1,171 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#FFFFFF"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".main.MainActivity">
+    android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Auth"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.588" />
+    <ScrollView
+        android:clipToPadding="false"
+        android:id="@+id/r68nugaygo6u"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#E2D4E7"
+        android:paddingTop="51dp"
+        android:paddingBottom="169dp">
 
-    <Button
-        android:id="@+id/button_skip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="151dp"
-        android:layout_marginTop="21dp"
-        android:layout_marginEnd="151dp"
-        android:layout_marginBottom="212dp"
-        android:text="Skip Auth"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/r9j221rqd9x9w"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginBottom="33dp"
+                android:layout_marginHorizontal="88dp"
+                android:src="@drawable/logo"
+                android:scaleType="fitXY" />
+
+            <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/rg46w7qbhjf"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/sc1b0ccsw2cr8bffffff"
+                android:paddingVertical="18dp"
+                android:paddingHorizontal="6dp"
+                android:layout_marginBottom="26dp"
+                android:layout_marginHorizontal="45dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/r2u82rgvt426"
+                    android:textColor="#AEAEb2"
+                    android:textSize="20sp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="Usuario" />
+            </LinearLayout>
+
+            <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/ryysm4twwsr8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/sc1b0ccsw2cr8bffffff"
+                android:paddingVertical="17dp"
+                android:paddingHorizontal="6dp"
+                android:layout_marginBottom="25dp"
+                android:layout_marginHorizontal="45dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/rtb0z1odqlgo"
+                    android:textColor="#AEAEb2"
+                    android:textSize="20sp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="Contraseña" />
+            </LinearLayout>
+
+            <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/rg2o2vxjyn5g"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:background="@drawable/cr8b65558f"
+                android:paddingVertical="14dp"
+                android:layout_marginBottom="27dp"
+                android:layout_marginHorizontal="119dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/rgbds0pz75ut"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="Iniciar Sesión" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/rgan0pzbtku"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginBottom="43dp"
+                android:layout_marginStart="45dp"
+                android:text="¿Has perdido la contraseña?" />
+
+            <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/rygkgs8l95oc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:background="@drawable/cr8b4285f4"
+                android:paddingVertical="14dp"
+                android:layout_marginBottom="27dp"
+                android:layout_marginHorizontal="91dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/rtba4i9az09p"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:text="Iniciar Sesión con Google" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/r5hwwy42ajc9"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginStart="45dp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="¿No tienes una cuenta? Regístrate" />
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Auth"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.588" />
+
+            <Button
+                android:id="@+id/button_skip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="151dp"
+                android:layout_marginTop="21dp"
+                android:layout_marginEnd="151dp"
+                android:layout_marginBottom="212dp"
+                android:text="Skip Auth"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/button2" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
