@@ -84,7 +84,12 @@ public class FragHome extends Fragment {
                     }
 
 
-                    String gamesQuery = "fields id,name; where id = (" + TextUtils.join(",", gameIds) + ");";
+                    StringBuilder gamesQueryBuilder = new StringBuilder();
+                    gamesQueryBuilder.append("fields id, name; where id = (");
+                    gamesQueryBuilder.append(TextUtils.join(",", gameIds));
+                    gamesQueryBuilder.append("); limit ").append(gameIds.size()).append(";");
+
+                    String gamesQuery = gamesQueryBuilder.toString();
                     RequestBody gamesRequestBody = RequestBody.create(gamesQuery, MediaType.parse("text/plain"));
 
                     Call<List<Game>> gamesCall = apiService.getGames(gamesRequestBody);
@@ -92,21 +97,34 @@ public class FragHome extends Fragment {
                         @Override
                         public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
                             if (response.isSuccessful() && response.body() != null) {
+                                List<Cover> filteredCoverList = new ArrayList<>();
+
                                 for (Cover cover : coverList) {
+                                    boolean gameFound = false;
                                     for (Game game : response.body()) {
                                         if (cover.getGame() == game.getId()) {
-                                            cover.setGameName(game.getName()); // Asignar el nombre
+                                            if (game.getName() != null && !game.getName().isEmpty()) {
+                                                cover.setGameName(game.getName()); // Asignar nombre si está disponible
+                                            } else {
+                                                cover.setGameName("Nom no disponible");
+                                            }
+                                            gameFound = true;
                                             break;
                                         }
-                                        else{
-                                            cover.setGameName("Nom no disponible");
-                                        }
+                                    }
+
+                                    // Solo añadir a la lista filtrada si tiene un nombre y una portada
+                                    if (gameFound && cover.getUrl() != null && !cover.getUrl().isEmpty()) {
+                                        filteredCoverList.add(cover);
                                     }
                                 }
 
-                                // Una vez tenemos las portadas y los nombres, asignamos el adaptador
-                                coverAdapter = new CoverAdapter(coverList);
+                                Log.d(TAG, "Cantidad de juegos filtrados: " + filteredCoverList.size());
+
+                                // Asignar el adaptador con la lista filtrada
+                                coverAdapter = new CoverAdapter(filteredCoverList);
                                 recyclerView.setAdapter(coverAdapter);
+
                             } else {
                                 Log.e(TAG, "Games response not successful or empty");
                             }
@@ -117,7 +135,6 @@ public class FragHome extends Fragment {
                             Log.e(TAG, "Games API call failed: " + t.getMessage());
                         }
                     });
-
                 } else {
                     Log.e(TAG, "Covers response not successful or empty");
                 }
@@ -130,6 +147,7 @@ public class FragHome extends Fragment {
         });
 
         return v;
+
     }
 
 

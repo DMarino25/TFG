@@ -5,11 +5,13 @@
     android:orientation="vertical"
     android:padding="8dp">
 
+
     <ImageView
         android:id="@+id/coverImageView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop" />
+        android:layout_height="180dp"
+    android:scaleType="centerCrop" />
+
 
     <TextView
         android:id="@+id/gameTitle"
@@ -18,13 +20,11 @@
         android:gravity="center_horizontal"
         android:text="TextView"
         android:textColor="#FFFFFF"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:maxLines="1"
         android:ellipsize="end"
         android:padding="8dp"
-        android:background="#80000000"
-        />
-
-
+        android:background="#CC000000"
+    />
 </LinearLayout>
