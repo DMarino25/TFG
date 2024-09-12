@@ -11,5 +11,20 @@
         android:layout_height="200dp"
         android:scaleType="centerCrop" />
 
+    <TextView
+        android:id="@+id/gameTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="TextView"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:padding="8dp"
+        android:background="#80000000"
+        />
+
 
 </LinearLayout>

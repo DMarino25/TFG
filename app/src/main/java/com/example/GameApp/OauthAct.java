@@ -11,7 +11,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,6 +37,7 @@ public class OauthAct extends AppCompatActivity {
     private List<Cover> coverList = new ArrayList<>();
 
     private BottomNavigationView bottomNavigationView;
+    private ImageButton missatge;
     private Fragment fragments[];
     RecyclerView recyclerView;
     private CoverAdapter coverAdapter;
@@ -43,6 +47,7 @@ public class OauthAct extends AppCompatActivity {
 
     private EditText cercaText;
     private ImageView gameArtwork;
+    private float dX, dY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +63,8 @@ public class OauthAct extends AppCompatActivity {
         setContentView(R.layout.activity_oauth);
 
         bottomNavigationView = findViewById(R.id.menuNav);
+        missatge = findViewById(R.id.missatges);
+
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -70,6 +77,29 @@ public class OauthAct extends AppCompatActivity {
                     openFragment(fragments[2]);
                 } else if (id == R.id.profile) {
                     openFragment(fragments[3]);
+                }
+                return true;
+            }
+        });
+        missatge = findViewById(R.id.missatges);
+
+        missatge.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        dX = v.getX() - event.getRawX();
+                        dY = v.getY() - event.getRawY();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        v.animate()
+                                .x(event.getRawX() + dX)
+                                .y(event.getRawY() + dY)
+                                .setDuration(0)
+                                .start();
+                        break;
+                    default:
+                        return false;
                 }
                 return true;
             }

@@ -16,78 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-            <LinearLayout
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/r144b7h7pobue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:background="#FFFFFF"
-                android:paddingVertical="5dp"
-                android:paddingHorizontal="26dp"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/rw60sxmw7kgr"
-                    android:textColor="#000000"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="13dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:text="9:41"
-                    />
-                <TextView
-                    android:id="@+id/rrm6nnq0amrk"
-                    android:textColor="#000000"
-                    android:textSize="12sp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:text="Mon Jun 10"
-                    />
-                <LinearLayout
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/r4ycv2jt8e3e"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                </LinearLayout>
-                <ImageView
-                    android:id="@+id/r8zuk7bqpcja"
-                    android:layout_width="16dp"
-                    android:layout_height="10dp"
-                    android:layout_marginEnd="5dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="fitXY"
-                    />
-                <ImageView
-                    android:id="@+id/roflot25koeq"
-                    android:layout_width="14dp"
-                    android:layout_height="9dp"
-                    android:layout_marginEnd="5dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="fitXY"
-                    />
-                <TextView
-                    android:id="@+id/rvtu6zqcssh"
-                    android:textColor="#000000"
-                    android:textSize="12sp"
-                    android:layout_marginEnd="5dp"
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:text="100%"
-                    />
-                <ImageView
-                    android:id="@+id/r8u5iqpwy3bd"
-                    android:layout_width="26dp"
-                    android:layout_height="12dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="fitXY"
-                    />
-            </LinearLayout>
+
             <LinearLayout
                 xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:tools="http://schemas.android.com/tools"
@@ -124,7 +53,7 @@
                     android:layout_marginEnd="82dp"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:text="Favoritos"
+                    android:text="Favorits"
                     />
                 <LinearLayout
                     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -286,7 +215,7 @@
                             android:textSize="16sp"
                             android:layout_height="wrap_content"
                             android:layout_width="wrap_content"
-                            android:text="Eliminar favorito"
+                            android:text="Eliminar favorit"
                             />
                     </LinearLayout>
                 </LinearLayout>
@@ -374,7 +303,7 @@
                             android:textSize="16sp"
                             android:layout_height="wrap_content"
                             android:layout_width="wrap_content"
-                            android:text="Eliminar favorito"
+                            android:text="Eliminar favorit"
                             />
                     </LinearLayout>
                 </LinearLayout>
@@ -462,7 +391,7 @@
                             android:textSize="16sp"
                             android:layout_height="wrap_content"
                             android:layout_width="wrap_content"
-                            android:text="Eliminar favorito"
+                            android:text="Eliminar favorit"
                             />
                     </LinearLayout>
                 </LinearLayout>
@@ -546,7 +475,7 @@
                             android:textSize="16sp"
                             android:layout_height="wrap_content"
                             android:layout_width="wrap_content"
-                            android:text="Eliminar favorito"
+                            android:text="Eliminar favorit"
                             />
                     </LinearLayout>
                 </LinearLayout>

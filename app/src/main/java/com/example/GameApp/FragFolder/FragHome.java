@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +26,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -40,20 +43,11 @@ import retrofit2.Response;
  */
 public class FragHome extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private List<Cover> coverList = new ArrayList<>();
 
-    private BottomNavigationView bottomNavigationView;
-    private Fragment fragments[];
-    RecyclerView recyclerView;
+    private RecyclerView recyclerView;
     private CoverAdapter coverAdapter;
     private static final String TAG = "OauthAct";
-
-    private TextView gameName;
-
-    private EditText cercaText;
-    private ImageView gameArtwork;
 
     public FragHome() {
         // Required empty public constructor
@@ -66,26 +60,64 @@ public class FragHome extends Fragment {
         View v = inflater.inflate(R.layout.fragment_frag_home, container, false);
 
         recyclerView = v.findViewById(R.id.recyclerView);
-
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
+        recyclerView.setLayoutManager(gridLayoutManager);
+
         IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
 
-        // Consulta para obtener las portadas
+
         String coversQuery = "fields id,game,height,image_id,url,width,checksum; limit 50;";
         RequestBody coversRequestBody = RequestBody.create(coversQuery, MediaType.parse("text/plain"));
 
-        // Llamada a la API
-        Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody);
 
+        Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody);
         coversCall.enqueue(new Callback<List<Cover>>() {
             @Override
             public void onResponse(Call<List<Cover>> call, Response<List<Cover>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                if (response.isSuccessful() && response.body() != null) {
                     coverList = response.body();
 
-                    // Crear y asignar el adaptador
-                    coverAdapter = new CoverAdapter(coverList);
-                    recyclerView.setAdapter(coverAdapter);
+
+                    List<Integer> gameIds = new ArrayList<>();
+                    for (Cover cover : coverList) {
+                        gameIds.add(cover.getGame());
+                    }
+
+
+                    String gamesQuery = "fields id,name; where id = (" + TextUtils.join(",", gameIds) + ");";
+                    RequestBody gamesRequestBody = RequestBody.create(gamesQuery, MediaType.parse("text/plain"));
+
+                    Call<List<Game>> gamesCall = apiService.getGames(gamesRequestBody);
+                    gamesCall.enqueue(new Callback<List<Game>>() {
+                        @Override
+                        public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                for (Cover cover : coverList) {
+                                    for (Game game : response.body()) {
+                                        if (cover.getGame() == game.getId()) {
+                                            cover.setGameName(game.getName()); // Asignar el nombre
+                                            break;
+                                        }
+                                        else{
+                                            cover.setGameName("Nom no disponible");
+                                        }
+                                    }
+                                }
+
+                                // Una vez tenemos las portadas y los nombres, asignamos el adaptador
+                                coverAdapter = new CoverAdapter(coverList);
+                                recyclerView.setAdapter(coverAdapter);
+                            } else {
+                                Log.e(TAG, "Games response not successful or empty");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<Game>> call, Throwable t) {
+                            Log.e(TAG, "Games API call failed: " + t.getMessage());
+                        }
+                    });
+
                 } else {
                     Log.e(TAG, "Covers response not successful or empty");
                 }
@@ -96,19 +128,16 @@ public class FragHome extends Fragment {
                 Log.e(TAG, "Covers API call failed: " + t.getMessage());
             }
         });
-        recyclerView.setLayoutManager(gridLayoutManager);
 
-        // Suponiendo que ya tienes la lista de Covers
-        coverAdapter = new CoverAdapter(coverList);
-        recyclerView.setAdapter(coverAdapter);
         return v;
     }
+
+
     public void showToastMessage(View view) {
-        // Texto del EditText
-        String searchQuery = cercaText.getText().toString();
+        // Texto del EditTextString searchQuery = cercaText.getText().toString();
 
         // Mostrar "toast" con el texto
-        if (searchQuery.isEmpty()) {
+       /* if (searchQuery.isEmpty()) {
             Toast.makeText(getContext(), "Por favor, ingresa un nombre de juego.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -147,6 +176,6 @@ public class FragHome extends Fragment {
                 Log.e("API_CALL", "Fallo la llamada a la API: " + t.getMessage());
                 Toast.makeText(getContext(), "Error al buscar el juego.", Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
     }
 }

@@ -9,6 +9,7 @@ public class Cover {
     private int width;
     private String checksum;
 
+
     public Cover(int id, int game, int height, String imageId, String url, int width, String checksum) {
         this.id = id;
         this.game = game;
@@ -18,7 +19,7 @@ public class Cover {
         this.width = width;
         this.checksum = checksum;
     }
-
+    private String gameName;
     // Getters y setters
 
     public int getId() {
@@ -28,6 +29,8 @@ public class Cover {
     public int getGame() {
         return game;
     }
+
+
 
     public int getHeight() {
         return height;
@@ -48,4 +51,6 @@ public class Cover {
     public String getChecksum() {
         return checksum;
     }
+    public String getGameName() { return gameName; }
+    public void setGameName(String gameName) { this.gameName = gameName; }
 }
