@@ -74,6 +74,13 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();  // Inicialización de Firestore
 
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            Intent intent = new Intent(MainActivity.this, OauthAct.class);
+            startActivity(intent);
+            finish();
+        }
+
         // Configuramos Google Sign-In
         GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))  // Asegúrate de que este ID sea correcto

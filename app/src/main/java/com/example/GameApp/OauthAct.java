@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,6 +50,7 @@ public class OauthAct extends AppCompatActivity {
     private ImageView gameArtwork;
     private float dX, dY;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,11 +94,36 @@ public class OauthAct extends AppCompatActivity {
                         dY = v.getY() - event.getRawY();
                         break;
                     case MotionEvent.ACTION_MOVE:
+                        float newX = event.getRawX() + dX;
+                        float newY = event.getRawY() + dY;
+                        int upperBound = findViewById(R.id.fragmentContainerView2).getTop();
+                        int lowerBound = findViewById(R.id.menuNav).getTop() - v.getHeight();
+                        int leftBound = 0; // Límite izquierdo de la pantalla
+                        int rightBound = ((View) v.getParent()).getWidth() - v.getWidth();
+
+                        if (newY < upperBound) {
+                            newY = upperBound;
+                        }
+                        if (newY > lowerBound) {
+                            newY = lowerBound;
+                        }
+                        if (newX < leftBound) {
+                            newX = leftBound;
+                        }
+                        if (newX > rightBound) {
+                            newX = rightBound;
+                        }
+
                         v.animate()
-                                .x(event.getRawX() + dX)
-                                .y(event.getRawY() + dY)
+                                .x(newX)
+                                .y(newY)
                                 .setDuration(0)
                                 .start();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (v instanceof View) {
+                            v.performClick();
+                        }
                         break;
                     default:
                         return false;
@@ -104,6 +131,8 @@ public class OauthAct extends AppCompatActivity {
                 return true;
             }
         });
+
+
 
         // Configurando el GridLayoutManager para 2 columnas
 
