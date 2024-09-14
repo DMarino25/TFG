@@ -33,13 +33,14 @@
             android:layout_marginHorizontal="45dp"
             android:orientation="vertical">
 
+            <!-- Hint visible y texto en color diferente -->
             <EditText
                 android:id="@+id/nameInici"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Usuari"
-                android:textColor="#AEAEb2"
-                android:textSize="20sp" />
+                android:hint="Usuari"
+            android:textColor="#000000"
+            android:textSize="20sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -53,13 +54,17 @@
             android:layout_marginHorizontal="45dp"
             android:orientation="vertical">
 
+            <!-- Campo de contraseña con hint y texto oculto -->
             <EditText
                 android:id="@+id/contrasenyaInici"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Contrasenya"
-                android:textColor="#AEAEb2"
-                android:textSize="20sp" />
+                android:hint="Contrasenya"
+
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:inputType="textPassword"
+           />
         </LinearLayout>
 
         <LinearLayout
@@ -123,9 +128,6 @@
         </LinearLayout>
 
         <LinearLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/IniciGoogle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

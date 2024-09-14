@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> startRegisterAct;
     private GoogleSignInClient googleSignInClient;
     private FirebaseAuth auth;
+    private EditText usuari, contrasenya;
     private FirebaseFirestore firestore;  // Añadido Firestore
 
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
@@ -80,7 +82,54 @@ public class MainActivity extends AppCompatActivity {
         googleSignInClient = GoogleSignIn.getClient(this, options);
 
         LinearLayout iniciGoogle = findViewById(R.id.IniciGoogle);
+        LinearLayout iniciNormal = findViewById(R.id.IniciSessio);
         TextView registre = findViewById(R.id.Registre);
+        usuari = findViewById(R.id.nameInici);
+        contrasenya = findViewById(R.id.contrasenyaInici);
+        iniciNormal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String strUserName = usuari.getText().toString();  // Aquí el nombre de usuario
+                String strPassword = contrasenya.getText().toString();
+
+                if (strUserName.isEmpty() || strPassword.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Completa tots els camps", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Primero busca el correo asociado al nombre de usuario en Firestore
+                    firestore.collection("users")
+                            .whereEqualTo("name", strUserName)
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                                    // Obtiene el primer documento (debería ser único)
+                                    String email = task.getResult().getDocuments().get(0).getString("email");
+
+                                    // Ahora usa el correo electrónico para iniciar sesión con Firebase Authentication
+                                    auth.signInWithEmailAndPassword(email, strPassword)
+                                            .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                                    if (task.isSuccessful()) {
+                                                        // Inicio de sesión exitoso
+                                                        FirebaseUser user = auth.getCurrentUser();
+                                                        if (user != null) {
+                                                            Toast.makeText(MainActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                                                            Intent intent = new Intent(MainActivity.this, OauthAct.class);
+                                                            startActivity(intent);
+                                                        }
+                                                    } else {
+                                                        // Si el inicio de sesión falla, muestra un mensaje
+                                                        Toast.makeText(MainActivity.this, "Error en el inicio de sesión: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                                    }
+                                                }
+                                            });
+                                } else {
+                                    Toast.makeText(MainActivity.this, "Usuario no encontrado", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            }
+        });
 
         iniciGoogle.setOnClickListener(v -> {
             String webClientId = getString(R.string.default_web_client_id);
