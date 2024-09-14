@@ -1,7 +1,9 @@
 package com.example.GameApp.main;
 
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -9,129 +11,163 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.GameApp.OauthAct;
-
 import com.example.GameApp.R;
+import com.example.GameApp.RegistreUsuari;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private GoogleSignInClient mGoogleSignInClient;
+    private ActivityResultLauncher<Intent> startRegisterAct;
+    private GoogleSignInClient googleSignInClient;
+    private FirebaseAuth auth;
+    private FirebaseFirestore firestore;  // Añadido Firestore
 
-    private Button enter, oauth, skipAuth;
-    private DatabaseReference mDatabase;
+    private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
 
+                if (result.getResultCode() == RESULT_OK) {
+                    // Resultado exitoso
+                    Intent data = result.getData();
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                    handleSignInResult(task);
+                } else {
+                    // Registro de fallo
+                    Log.w(TAG, "signInResult: failed code=" + result.getResultCode());
 
-    private ActivityResultLauncher<Intent> signInLauncher;
+                    // Imprime el Intent que se devolvió
+                    Toast.makeText(MainActivity.this, "Sign in failed", Toast.LENGTH_LONG).show();
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //FirebaseDatabase database = FirebaseDatabase.getInstance("https://gameapp-c4851-default-rtdb.europe-west1.firebasedatabase.app");
-       // DatabaseReference myRef = database.getReference("mensajePrueba");
+        // Inicializamos Firebase y Firestore
+        FirebaseApp.initializeApp(this);
+        auth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();  // Inicialización de Firestore
 
-        // Escribir un valor en la base de datos
-       // myRef.setValue("¡Hola, Firebase!");
-
-        /*
-        myRef.setValue("¡Hola, Firebase!")
-                .addOnSuccessListener(aVoid -> {
-                    // Se escribió correctamente
-                    System.out.println("Datos escritos exitosamente.");
-                })
-                .addOnFailureListener(e -> {
-                    // Hubo un error al escribir
-                    System.out.println("Error al escribir los datos.");
-                });
-        */
-
-
-        oauth = findViewById(R.id.button2);
-        skipAuth = findViewById(R.id.button_skip);
-
-
-
-        // Configura el Google Sign-In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("840661236439-u1vskjpgspjrdqisaunnb2gkd7pa8eij.apps.googleusercontent.com") // Asegúrate de que esta ID coincida con tu ID de cliente en la consola de Google
+        // Configuramos Google Sign-In
+        GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))  // Asegúrate de que este ID sea correcto
                 .requestEmail()
                 .build();
+        googleSignInClient = GoogleSignIn.getClient(this, options);
 
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        LinearLayout iniciGoogle = findViewById(R.id.IniciGoogle);
+        TextView registre = findViewById(R.id.Registre);
 
-        // Configura el ActivityResultLauncher
-        signInLauncher = registerForActivityResult(
+        iniciGoogle.setOnClickListener(v -> {
+            String webClientId = getString(R.string.default_web_client_id);
+            Log.d(TAG, "default_web_client_id: " + webClientId);
+            Intent signInIntent = googleSignInClient.getSignInIntent();
+            // Imprimir el contenido del Intent como URI
+            Log.d(TAG, "SignIn Intent URI: " + signInIntent.toUri(Intent.URI_INTENT_SCHEME));
+
+            Bundle extras = signInIntent.getExtras();
+            if (extras != null) {
+                for (String key : extras.keySet()) {
+                    Object value = extras.get(key);
+                    Log.d(TAG, String.format("Extras Key: %s, Value: %s", key, value));
+                }
+            }
+            signInLauncher.launch(signInIntent);
+        });
+        registre.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), RegistreUsuari.class);
+                startRegisterAct.launch(intent);
+            }
+        });
+        startRegisterAct = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
-                        Intent data = result.getData();
-                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                        handleSignInResult(task);
-                    } else {
-                        Log.w(TAG, "signInResult:failed code=" + result.getResultCode());
-                        Toast.makeText(MainActivity.this, "Sign in failed", Toast.LENGTH_LONG).show();
+
                     }
-                });
-
-        oauth.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signIn();
-            }
-        });
-
-        // Nuevo botón para skipear el OAuth
-        skipAuth.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, OauthAct.class);
-                startActivity(intent);
-            }
-        });
-    }
-
-    private void signIn() {
-        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        signInLauncher.launch(signInIntent);
+                }
+        );
+        Button skipAuth = findViewById(R.id.button_skip);
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            Log.d(TAG, "signInResult:success, account: " + account.getDisplayName());
-            Intent intent = new Intent(MainActivity.this, OauthAct.class);
-            startActivity(intent);
+            if (account != null) {
+                AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+                signInWithGoogle(credential);
+            }
         } catch (ApiException e) {
-            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
-            Log.e(TAG, "Exception: ", e);
-            Toast.makeText(MainActivity.this, "Sign in failed: " + getErrorMessage(e.getStatusCode()), Toast.LENGTH_LONG).show();
+            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode(), e);
+            Toast.makeText(MainActivity.this, "Google Sign-In Failed", Toast.LENGTH_LONG).show();
         }
     }
 
-    private String getErrorMessage(int statusCode) {
-        switch (statusCode) {
-            case GoogleSignInStatusCodes.SIGN_IN_CANCELLED:
-                return "Sign in was cancelled.";
-            case GoogleSignInStatusCodes.SIGN_IN_FAILED:
-                return "Sign in failed.";
-            case GoogleSignInStatusCodes.NETWORK_ERROR:
-                return "Network error.";
-            // Añade más casos según sea necesario
-            default:
-                return "Unknown error.";
-        }
+    private void signInWithGoogle(AuthCredential credential) {
+        auth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "Firebase authentication successful");
+                    Toast.makeText(MainActivity.this, "Signed In Successfully", Toast.LENGTH_SHORT).show();
+
+                    // Obtener el usuario autenticado
+                    if (auth.getCurrentUser() != null) {
+                        saveUserInFirestore(auth.getCurrentUser());  // Guardar en Firestore
+                    }
+
+                    Intent intent = new Intent(MainActivity.this, OauthAct.class);
+                    startActivity(intent);
+                } else {
+                    Log.e(TAG, "Firebase authentication failed: " + task.getException().getMessage());
+                    Toast.makeText(MainActivity.this, "Firebase Authentication Failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void saveUserInFirestore(FirebaseUser user) {
+        // Crear un objeto Map para almacenar la información del usuario
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("uid", user.getUid());
+        userMap.put("name", user.getDisplayName());
+        userMap.put("email", user.getEmail());
+        userMap.put("photoUrl", user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null);
+
+        // Guardar los datos en Firestore en la colección "users" con el UID como ID del documento
+        firestore.collection("users").document(user.getUid())
+                .set(userMap)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Usuario guardado en Firestore con éxito");
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error al guardar el usuario en Firestore", e);
+                });
     }
 }

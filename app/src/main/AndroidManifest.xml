@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -15,11 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GameApp"
         tools:targetApi="31">
-
+        <activity
+            android:name=".RegistreUsuari"
+            android:exported="false" />
         <activity
             android:name=".OauthAct"
             android:exported="false" />
-
         <activity
             android:name=".main.MainActivity"
             android:exported="true">

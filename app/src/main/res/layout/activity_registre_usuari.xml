@@ -1,0 +1,124 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#E2D4E7"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/rbv26eb7x9zk"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginBottom="35dp"
+            android:layout_marginHorizontal="88dp"
+            android:src="@mipmap/ic_launcher"
+            android:scaleType="fitXY" />
+
+        <TextView
+            android:id="@+id/r6cba3ma60dv"
+            android:textColor="#6D4F96"
+            android:textSize="24sp"
+            android:layout_marginBottom="30dp"
+            android:layout_marginStart="87dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Crear un compte" />
+
+        <LinearLayout
+            android:id="@+id/rhvs98wx1qpc"
+            android:layout_width="269dp"
+            android:layout_height="50dp"
+            android:layout_marginHorizontal="37dp"
+            android:layout_marginBottom="25dp"
+            android:background="@drawable/sc1b0ccsw2cr8bffffff"
+            android:orientation="vertical"
+            android:paddingHorizontal="1dp"
+            android:paddingVertical="17dp">
+
+            <EditText
+                android:id="@+id/nouCorreu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Correu electrònic"
+                android:textColor="#6D4F96"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rgi2jqf9fd0s"
+            android:layout_width="269dp"
+            android:layout_height="50dp"
+            android:background="@drawable/sc1b0ccsw2cr8bffffff"
+            android:paddingVertical="17dp"
+            android:paddingHorizontal="6dp"
+            android:layout_marginBottom="26dp"
+            android:layout_marginHorizontal="37dp"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/nouUsuari"
+                android:textSize="20sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:hint="Usuari" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/r1fnebvohl5x"
+            android:layout_width="269dp"
+            android:layout_height="50dp"
+            android:background="@drawable/sc1b0ccsw2cr8bffffff"
+            android:paddingVertical="16dp"
+            android:paddingHorizontal="6dp"
+            android:layout_marginBottom="37dp"
+            android:layout_marginHorizontal="37dp"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/novaContrasenya"
+                android:textColor="#6D4F96"
+                android:textSize="20sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:hint="Contrasenya" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/registre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:background="@drawable/cr8b65558f"
+            android:paddingVertical="14dp"
+            android:layout_marginBottom="38dp"
+            android:layout_marginHorizontal="119dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/r68gwuqdtkrm"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="Registrar" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/returnInici"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:layout_marginStart="45dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Ja tienes un compte? Inicia sessió" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "26786737807",
+    "firebase_url": "https://gameapp-c4851-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "gameapp-c4851",
     "storage_bucket": "gameapp-c4851.appspot.com"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.example.GameApp"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "26786737807-rqpl7m0vsosdnpo5uleofl33qm5vggnr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.GameApp",
+            "certificate_hash": "6447be35151628c2b95ea8d8a28a8cc1c0d14599"
+          }
+        },
+        {
+          "client_id": "26786737807-eklik3b4bobpkopivq8do99qfmavv8vt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDAxQLZtM7tNBBu5fEEBtNO3Nkevp7S8I8"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "26786737807-eklik3b4bobpkopivq8do99qfmavv8vt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
