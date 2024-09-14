@@ -84,193 +84,29 @@
                         />
                 </LinearLayout>
             </LinearLayout>
+
             <LinearLayout
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/ra8zgwaz9oh"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="695dp"
                 android:background="#E2D4E7"
+                android:orientation="vertical"
                 android:paddingTop="43dp"
-                android:paddingBottom="23dp"
-                android:orientation="vertical">
-                <LinearLayout
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/rxu2igmshey8"
+                android:paddingBottom="23dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerViewForums"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="#BBA5D7"
-                    android:paddingVertical="12dp"
-                    android:paddingHorizontal="9dp"
-                    android:layout_marginBottom="8dp"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/rgmdhhdmmz6"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:layout_marginBottom="6dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text="League of Legends 2"
-                        />
-                    <LinearLayout
-                        xmlns:android="http://schemas.android.com/apk/res/android"
-                        xmlns:tools="http://schemas.android.com/tools"
-                        xmlns:app="http://schemas.android.com/apk/res-auto"
-                        android:id="@+id/r2i7g9cuwjxd"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="5dp"
-                        android:orientation="horizontal">
-                        <ImageView
-                            android:id="@+id/rt409kwam8gg"
-                            android:layout_width="30dp"
-                            android:layout_height="27dp"
-                            android:layout_marginEnd="7dp"
-                            android:src="@mipmap/ic_launcher"
-                            android:scaleType="fitXY"
-                            />
-                        <TextView
-                            android:id="@+id/rv330hhoxkp"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="JohnDoe123"
-                            />
-                        <LinearLayout
-                            xmlns:android="http://schemas.android.com/apk/res/android"
-                            xmlns:tools="http://schemas.android.com/tools"
-                            xmlns:app="http://schemas.android.com/apk/res-auto"
-                            android:id="@+id/rqud6oiexr7k"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-                        </LinearLayout>
-                        <TextView
-                            android:id="@+id/r2dvf9736rtz"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="15 Ago 2024"
-                            />
-                    </LinearLayout>
-                    <TextView
-                        android:id="@+id/rou3l7es2l7"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:layout_marginBottom="14dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text="💬 23   👁️ 567"
-                        />
-                    <TextView
-                        android:id="@+id/r4hmoz17qh89"
-                        android:textColor="#000000"
-                        android:textSize="12sp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text="¿Qué piensas de los nuevos campeones? A mí personalmente ..."
-                        />
-                </LinearLayout>
-                <LinearLayout
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/r7mnevcmjuyf"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="#BBA5D7"
-                    android:paddingVertical="13dp"
-                    android:paddingHorizontal="9dp"
-                    android:layout_marginBottom="307dp"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/rp3nygbv66n"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:layout_marginBottom="5dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text="Nuevo mapa LoL2"
-                        />
-                    <LinearLayout
-                        xmlns:android="http://schemas.android.com/apk/res/android"
-                        xmlns:tools="http://schemas.android.com/tools"
-                        xmlns:app="http://schemas.android.com/apk/res-auto"
-                        android:id="@+id/rengau329vuu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="5dp"
-                        android:orientation="horizontal">
-                        <ImageView
-                            android:id="@+id/rbel4kdk297n"
-                            android:layout_width="30dp"
-                            android:layout_height="27dp"
-                            android:layout_marginEnd="7dp"
-                            android:src="@mipmap/ic_launcher"
-                            android:scaleType="fitXY"
-                            />
-                        <TextView
-                            android:id="@+id/r42mpbsaqo8q"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="321eoDnhoJ"
-                            />
-                        <LinearLayout
-                            xmlns:android="http://schemas.android.com/apk/res/android"
-                            xmlns:tools="http://schemas.android.com/tools"
-                            xmlns:app="http://schemas.android.com/apk/res-auto"
-                            android:id="@+id/ro06xpwq66e"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-                        </LinearLayout>
-                        <TextView
-                            android:id="@+id/rhr71uqvtax4"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:layout_height="wrap_content"
-                            android:layout_width="wrap_content"
-                            android:text="13 Sep 2024"
-                            />
-                    </LinearLayout>
-                    <TextView
-                        android:id="@+id/r43qylruq1m6"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:layout_marginBottom="14dp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text="💬 12   👁️ 321"
-                        />
-                    <TextView
-                        android:id="@+id/ryo9gc30ryg"
-                        android:textColor="#000000"
-                        android:textSize="12sp"
-                        android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        android:text="¿Cómo te adaptas a las nuevas características del mapa? Com..."
-                        />
-                </LinearLayout>
+                    android:layout_height="wrap_content" />
+
                 <ImageView
                     android:id="@+id/rafgf7136ewk"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:layout_marginHorizontal="18dp"
-                    android:src="@mipmap/ic_launcher"
                     android:scaleType="fitXY"
-                    />
+                    android:src="@mipmap/ic_launcher" />
+
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
