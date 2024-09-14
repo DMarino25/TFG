@@ -26,15 +26,14 @@
             android:textColor="#6D4F96"
             android:textSize="24sp"
             android:layout_marginBottom="30dp"
-            android:layout_marginStart="87dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="Crear un compte" />
 
         <LinearLayout
             android:id="@+id/rhvs98wx1qpc"
-            android:layout_width="269dp"
-            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="37dp"
             android:layout_marginBottom="25dp"
             android:background="@drawable/sc1b0ccsw2cr8bffffff"
@@ -44,17 +43,18 @@
 
             <EditText
                 android:id="@+id/nouCorreu"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Correu electrònic"
                 android:textColor="#6D4F96"
-                android:textSize="20sp" />
+                android:textSize="16sp"
+                android:padding="10dp" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/rgi2jqf9fd0s"
-            android:layout_width="269dp"
-            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/sc1b0ccsw2cr8bffffff"
             android:paddingVertical="17dp"
             android:paddingHorizontal="6dp"
@@ -64,16 +64,17 @@
 
             <EditText
                 android:id="@+id/nouUsuari"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:hint="Usuari" />
+                android:layout_width="match_parent"
+                android:hint="Usuari"
+                android:padding="10dp" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/r1fnebvohl5x"
-            android:layout_width="269dp"
-            android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/sc1b0ccsw2cr8bffffff"
             android:paddingVertical="16dp"
             android:paddingHorizontal="6dp"
@@ -84,10 +85,11 @@
             <EditText
                 android:id="@+id/novaContrasenya"
                 android:textColor="#6D4F96"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:hint="Contrasenya" />
+                android:layout_width="match_parent"
+                android:hint="Contrasenya"
+                android:padding="10dp" />
         </LinearLayout>
 
         <LinearLayout
