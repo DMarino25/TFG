@@ -219,7 +219,7 @@
                     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                         xmlns:app="http://schemas.android.com/apk/res-auto"
                         xmlns:tools="http://schemas.android.com/tools"
-                        android:id="@+id/rkx7fn8mklwk"
+                        android:id="@+id/logout"
                         android:layout_width="121dp"
                         android:layout_height="wrap_content"
                         android:background="@drawable/cr100b65558f"
@@ -230,10 +230,10 @@
                         android:paddingVertical="14dp">
 
                         <TextView
-                            android:id="@+id/rk6vlnkpcj3"
+                            android:id="@+id/rkx7fn8mklwk"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Cerrar Sesión"
+                            android:text="Tanca Sessó"
                             android:textColor="#FFFFFF"
                             android:textSize="14sp" />
                     </LinearLayout>

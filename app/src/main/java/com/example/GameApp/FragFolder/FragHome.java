@@ -83,7 +83,6 @@ public class FragHome extends Fragment {
                         gameIds.add(cover.getGame());
                     }
 
-
                     StringBuilder gamesQueryBuilder = new StringBuilder();
                     gamesQueryBuilder.append("fields id, name; where id = (");
                     gamesQueryBuilder.append(TextUtils.join(",", gameIds));
@@ -113,7 +112,6 @@ public class FragHome extends Fragment {
                                         }
                                     }
 
-                                    // Solo añadir a la lista filtrada si tiene un nombre y una portada
                                     if (gameFound && cover.getUrl() != null && !cover.getUrl().isEmpty()) {
                                         filteredCoverList.add(cover);
                                     }
@@ -121,8 +119,7 @@ public class FragHome extends Fragment {
 
                                 Log.d(TAG, "Cantidad de juegos filtrados: " + filteredCoverList.size());
 
-                                // Asignar el adaptador con la lista filtrada
-                                coverAdapter = new CoverAdapter(filteredCoverList);
+                                coverAdapter = new CoverAdapter(getContext(),filteredCoverList);
                                 recyclerView.setAdapter(coverAdapter);
 
                             } else {

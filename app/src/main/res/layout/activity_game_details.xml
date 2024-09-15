@@ -1,0 +1,165 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#EFE2F6"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Botón de regreso -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:gravity="start|center_vertical">
+
+        <ImageView
+            android:id="@+id/flecha"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/flecha"
+            android:contentDescription="Volver atrás" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/cr6bc1b0cc">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <!-- Portada del juego -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/portada"
+                android:layout_width="250dp"
+                android:layout_height="350dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="10dp"
+                android:src="@mipmap/ic_launcher"
+                android:scaleType="fitXY" />
+
+            <!-- Título del juego -->
+            <TextView
+                android:id="@+id/titol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dark Souls III"
+                android:textColor="#000000"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_gravity="center_horizontal"
+                />
+
+            <!-- Descripción del juego -->
+            <TextView
+                android:id="@+id/descripció"
+                android:padding="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dark Souls 3 es un desafiante juego de rol y acción..."
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:layout_marginBottom="20dp" />
+
+            <!-- Género -->
+            <TextView
+                android:id="@+id/genre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="#a895b5"
+                android:padding="16dp"
+                android:text="🎮 Género: Acción, RPG"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <!-- Plataformas -->
+            <TextView
+                android:id="@+id/platform"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="#a895b5"
+                android:padding="16dp"
+                android:text="🕹️ Plataformas: PS4, Xbox One, PC"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <!-- Desarrolladores -->
+            <TextView
+                android:id="@+id/developers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="#a895b5"
+                android:padding="16dp"
+                android:text="🏢 Desarrollador: FromSoftware"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <!-- Fecha de lanzamiento -->
+            <TextView
+                android:id="@+id/launching"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="#a895b5"
+                android:padding="16dp"
+                android:text="📅 Fecha de Lanzamiento: 12 de abril de 2016"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <!-- Calificación -->
+            <TextView
+                android:id="@+id/score"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:background="#a895b5"
+                android:padding="16dp"
+                android:text="⭐ Calificación: 9/10"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <!-- Etiquetas -->
+            <TextView
+                android:id="@+id/tags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:background="#a895b5"
+                android:padding="16dp"
+                android:text="🏷️ Etiquetas: Multijugador, Mundo abierto"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+
+            <!-- Mi valoración -->
+            <TextView
+                android:id="@+id/rhy78tsh76j"
+                android:padding="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mi valoración:"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:layout_marginBottom="10dp" />
+
+            <!-- Estrellas de valoración (puedes agregar un componente de RatingBar si prefieres) -->
+            <ImageView
+                android:id="@+id/r8u5hdvodcko"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:layout_marginHorizontal="100dp"
+                android:src="@mipmap/ic_launcher"
+                android:scaleType="fitXY" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -1,5 +1,8 @@
 package com.example.GameApp;
 
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +21,19 @@ import java.util.Map;
 
 public class CoverAdapter extends RecyclerView.Adapter<CoverAdapter.CoverViewHolder> {
     private List<Cover> coverList;
+    private Context context;
+    private CoverViewHolder lastItem = null;
+    private int selectedItem;
+    Cover selectedCover;
+    private OnItemClickListener onClickListener;
 
-    public CoverAdapter(List<Cover> coverList) {
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    public CoverAdapter(Context context, List<Cover> coverList) {
         this.coverList = coverList;
+        this.context = context;
     }
 
     @NonNull
@@ -41,6 +54,28 @@ public class CoverAdapter extends RecyclerView.Adapter<CoverAdapter.CoverViewHol
 
         // Mostrar el nombre del juego
         holder.gameName.setText(cover.getGameName());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (onClickListener != null) {
+                    onClickListener.onItemClick(position);
+                }
+                else {
+                    Intent intent = new Intent(context, GameDetails.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("coverId", coverList.get(position).getId());
+                    context.startActivity(intent);
+                    lastItem = holder;
+                    setSelectedItem(position);
+                }
+            }
+        });
+    }
+
+    private void setSelectedItem(int position) {
+        this.selectedItem = position;
+        selectedCover = coverList.get(selectedItem);
     }
 
     @Override
@@ -59,3 +94,4 @@ public class CoverAdapter extends RecyclerView.Adapter<CoverAdapter.CoverViewHol
         }
     }
 }
+
