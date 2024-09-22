@@ -1,9 +1,11 @@
 package com.example.GameApp;
 
 import com.example.GameApp.ClassObjectes.Artwork;
+import com.example.GameApp.ClassObjectes.Companies;
 import com.example.GameApp.ClassObjectes.Cover;
 import com.example.GameApp.ClassObjectes.Game;
 import com.example.GameApp.ClassObjectes.Genres;
+import com.example.GameApp.ClassObjectes.InvolvedCompanies;
 import com.example.GameApp.ClassObjectes.Platforms;
 
 import java.util.List;
@@ -36,6 +38,20 @@ public interface IGDBApi {
     })
     @POST("platforms")
     Call<List<Platforms>> getPlatforms(@Body RequestBody body);
+    @Headers({
+            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
+            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
+            "Content-Type: text/plain"
+    })
+    @POST("involved_companies")
+    Call<List<InvolvedCompanies>> getInvolvedCompanies(@Body RequestBody body);
+    @Headers({
+            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
+            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
+            "Content-Type: text/plain"
+    })
+    @POST("companies")
+    Call<List<Companies>> getCompanies(@Body RequestBody body);
     @Headers({
             "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
             "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",

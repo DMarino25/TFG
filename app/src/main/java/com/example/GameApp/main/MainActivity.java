@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             result -> {
 
                 if (result.getResultCode() == RESULT_OK) {
-                    // Resultado exitoso
+
                     Intent data = result.getData();
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                     handleSignInResult(task);
@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
                     // Registro de fallo
                     Log.w(TAG, "signInResult: failed code=" + result.getResultCode());
 
-                    // Imprime el Intent que se devolvió
                     Toast.makeText(MainActivity.this, "Sign in failed", Toast.LENGTH_LONG).show();
                 }
             });
@@ -83,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Configuramos Google Sign-In
         GoogleSignInOptions options = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))  // Asegúrate de que este ID sea correcto
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, options);
@@ -102,22 +101,19 @@ public class MainActivity extends AppCompatActivity {
                 if (strUserName.isEmpty() || strPassword.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Completa tots els camps", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Primero busca el correo asociado al nombre de usuario en Firestore
+
                     firestore.collection("users")
                             .whereEqualTo("name", strUserName)
                             .get()
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                                    // Obtiene el primer documento (debería ser único)
                                     String email = task.getResult().getDocuments().get(0).getString("email");
 
-                                    // Ahora usa el correo electrónico para iniciar sesión con Firebase Authentication
                                     auth.signInWithEmailAndPassword(email, strPassword)
                                             .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                                     if (task.isSuccessful()) {
-                                                        // Inicio de sesión exitoso
                                                         FirebaseUser user = auth.getCurrentUser();
                                                         if (user != null) {
                                                             Toast.makeText(MainActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
@@ -140,18 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
         iniciGoogle.setOnClickListener(v -> {
             String webClientId = getString(R.string.default_web_client_id);
-            Log.d(TAG, "default_web_client_id: " + webClientId);
             Intent signInIntent = googleSignInClient.getSignInIntent();
-            // Imprimir el contenido del Intent como URI
-            Log.d(TAG, "SignIn Intent URI: " + signInIntent.toUri(Intent.URI_INTENT_SCHEME));
-
-            Bundle extras = signInIntent.getExtras();
-            if (extras != null) {
-                for (String key : extras.keySet()) {
-                    Object value = extras.get(key);
-                    Log.d(TAG, String.format("Extras Key: %s, Value: %s", key, value));
-                }
-            }
             signInLauncher.launch(signInIntent);
         });
         registre.setOnClickListener(new View.OnClickListener() {
@@ -193,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Firebase authentication successful");
                     Toast.makeText(MainActivity.this, "Signed In Successfully", Toast.LENGTH_SHORT).show();
 
-                    // Obtener el usuario autenticado
                     if (auth.getCurrentUser() != null) {
                         saveUserInFirestore(auth.getCurrentUser());  // Guardar en Firestore
                     }
@@ -209,14 +193,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveUserInFirestore(FirebaseUser user) {
-        // Crear un objeto Map para almacenar la información del usuario
+
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("uid", user.getUid());
         userMap.put("name", user.getDisplayName());
         userMap.put("email", user.getEmail());
         userMap.put("photoUrl", user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null);
 
-        // Guardar los datos en Firestore en la colección "users" con el UID como ID del documento
         firestore.collection("users").document(user.getUid())
                 .set(userMap)
                 .addOnSuccessListener(aVoid -> {

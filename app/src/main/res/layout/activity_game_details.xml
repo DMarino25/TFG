@@ -117,17 +117,6 @@
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
-            <!-- Calificación -->
-            <TextView
-                android:id="@+id/score"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:background="#a895b5"
-                android:padding="16dp"
-                android:text="⭐ Calificación: 9/10"
-                android:textColor="#000000"
-                android:textSize="14sp" />
 
             <!-- Etiquetas -->
             <TextView
@@ -137,7 +126,7 @@
                 android:layout_marginBottom="20dp"
                 android:background="#a895b5"
                 android:padding="16dp"
-                android:text="🏷️ Etiquetas: Multijugador, Mundo abierto"
+                android:text="🏷️ Tags: Multijugador, Mundo abierto"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
