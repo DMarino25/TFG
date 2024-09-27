@@ -3,6 +3,7 @@ package com.example.GameApp.ClassObjectes;
 import com.google.firebase.Timestamp;
 
 public class Forum {
+    private String id;
     private String title;
     private String description;
     private String userId;
@@ -21,6 +22,8 @@ public class Forum {
         this.lastModifiedDate = lastModifiedDate;
     }
 
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public String getTitle() {
         return title;
     }

@@ -1,5 +1,6 @@
 package com.example.GameApp.FragFolder;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,6 +58,17 @@ public class FragForum extends Fragment {
         forumList = new ArrayList<>();
         forumAdapter = new ForumAdapter(forumList, forum -> {
             // Navigate on forum click
+            Intent intent = new Intent(getActivity(), ForumDetailsActivity.class);
+
+            intent.putExtra("forumId", forum.getId());
+            // Pasar los detalles del foro a la nueva actividad
+            intent.putExtra("forumTitle", forum.getTitle());
+            intent.putExtra("forumDescription", forum.getDescription());
+            intent.putExtra("userName", forum.getUserName());
+            intent.putExtra("userProfilePhoto", forum.getUserProfilePhoto());
+            intent.putExtra("lastModifiedDate", forum.getFormattedDate());
+
+            startActivity(intent);
         });
 
         recyclerView.setAdapter(forumAdapter);
@@ -110,6 +122,7 @@ public class FragForum extends Fragment {
                                                 // Setters to our forum
                                                 forum.setUserName(userName);
                                                 forum.setUserProfilePhoto(userProfilePhoto);
+                                                forum.setId(document.getId());
 
                                                 forumList.add(forum);
 
