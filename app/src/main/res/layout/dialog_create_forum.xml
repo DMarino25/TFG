@@ -1,0 +1,118 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/forum_creation_layout"
+    android:layout_width="317dp"
+    android:layout_height="408dp"
+    android:background="#BBA5D7"
+    android:paddingVertical="31dp"
+    android:paddingHorizontal="23dp"
+    android:layout_marginTop="154dp"
+    android:orientation="vertical">
+
+    <!-- Título del foro -->
+    <!--TextView
+        android:id="@+id/title_label"
+        android:textColor="#1E1E1E"
+        android:textSize="16sp"
+        android:layout_marginBottom="9dp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Títol del fòrum" /-->
+
+    <!-- Input para el título -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:hint="Títol del fòrum">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/titleEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Descripción del foro -->
+    <!--TextView
+        android:id="@+id/description_label"
+        android:textColor="#1E1E1E"
+        android:textSize="16sp"
+        android:layout_marginBottom="17dp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Descripció" /-->
+
+    <!-- Input para la descripción -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="58dp"
+        android:hint="Descripció">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/descriptionEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:paddingTop="13dp"
+            android:paddingBottom="106dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Botones Aceptar y Cancelar >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        < Botón Aceptar >
+        <LinearLayout
+            android:id="@+id/accept_button"
+            android:layout_width="121dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:background="@drawable/button_background"
+            android:paddingVertical="15dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/acceptText"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="Aceptar" />
+        </LinearLayout>
+
+        < Espacio entre los botones >
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <- Botón Cancelar ->
+        <LinearLayout
+            android:id="@+id/cancel_button"
+            android:layout_width="121dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:background="@drawable/button_background"
+            android:paddingVertical="14dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/cancelText"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="Cancelar" />
+        </LinearLayout>
+    </LinearLayout>
+    -->
+
+</LinearLayout>

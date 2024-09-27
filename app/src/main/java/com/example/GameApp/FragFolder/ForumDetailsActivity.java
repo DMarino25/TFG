@@ -1,6 +1,7 @@
 package com.example.GameApp.FragFolder;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -63,49 +65,56 @@ public class ForumDetailsActivity extends AppCompatActivity {
 
     private void loadForumDetails() {
         // Cargar detalles del foro desde Firebase Firestore
-        db.collection("forums").document(forumId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        // Obtener los detalles del foro
-                        String title = documentSnapshot.getString("title");
-                        String description = documentSnapshot.getString("description");
-                        String authorName = documentSnapshot.getString("userId");
-                        String authorImage = documentSnapshot.getString("authorImage");
-                        String date = documentSnapshot.getString("date");
+        String title = getIntent().getStringExtra("forumTitle");
+        String description = getIntent().getStringExtra("forumDescription");
+        String authorName = getIntent().getStringExtra("userName");
+        String userProfilePhoto = getIntent().getStringExtra("userProfilePhoto");
+        String date = getIntent().getStringExtra("lastModifiedDate");
 
-                        // Actualizar las vistas con los detalles del foro
-                        forumTitleTextView.setText(title);
-                        forumDescriptionTextView.setText(description);
-                        forumAuthorTextView.setText(authorName);
-                        forumDateTextView.setText(date);
+        // Actualizar las vistas con los detalles del foro
+        forumTitleTextView.setText(title);
+        forumDescriptionTextView.setText(description);
+        forumAuthorTextView.setText(authorName);
+        forumDateTextView.setText(date);
 
-                        // Cargar la imagen de perfil con Glide
-                        Glide.with(this)
-                                .load(authorImage)
-                                .circleCrop()
-                                .into(forumAuthorImageView);
-                    }
-                });
+        // Cargar la imagen de perfil con Glide
+        Glide.with(this)
+                .load(userProfilePhoto)
+                .circleCrop()
+                .into(forumAuthorImageView);
     }
 
     private void loadComments() {
-        // Cargar los comentarios desde Firebase Firestore
-        CollectionReference commentsRef = db.collection("comments");
-
-        commentsRef.whereEqualTo("forumId", forumId).get()
+        // Cargar los comentarios desde el subdocumento "comments" dentro de cada "forum"
+        db.collection("forums").document(forumId).collection("comments").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String authorName = document.getString("userId");
-                        String authorImage = document.getString("authorImage");
-                        String commentText = document.getString("content");
+                        String userIdComment = document.getString("userIdComment");
+                        String content = document.getString("content");
 
-                        // Crear un nuevo objeto Comment
-                        Comment comment = new Comment(authorName, authorImage, commentText);
-                        commentList.add(comment);
+                        // Realizar una consulta para encontrar el usuario cuyo "userId" coincida con "userIdComment"
+                        db.collection("users")
+                                .whereEqualTo("userId", userIdComment)
+                                .get()
+                                .addOnSuccessListener(userQuerySnapshot -> {
+                                    if (!userQuerySnapshot.isEmpty()) {
+                                        // Asumimos que solo hay un usuario con este "userId", así que cogemos el primer documento
+                                        DocumentSnapshot userDocument = userQuerySnapshot.getDocuments().get(0);
+
+                                        // Obtener la imagen de perfil del usuario desde el documento de "users"
+                                        String userProfilePhoto = userDocument.getString("userProfilePhoto");
+
+                                        // Crear un nuevo objeto Comment con la información del usuario y el comentario
+                                        Comment comment = new Comment(userIdComment, userProfilePhoto, content);
+                                        commentList.add(comment);
+
+                                        // Notificar al adaptador que los datos han cambiado
+                                        commentsAdapter.notifyDataSetChanged();
+                                    }
+                                });
                     }
-
-                    // Notificar al adaptador que los datos han cambiado
-                    commentsAdapter.notifyDataSetChanged();
                 });
     }
+
+
 }

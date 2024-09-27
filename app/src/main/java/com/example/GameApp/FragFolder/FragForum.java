@@ -1,5 +1,6 @@
 package com.example.GameApp.FragFolder;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,41 +12,36 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
+import java.util.Map;
 import com.example.GameApp.ClassObjectes.Forum;
 import com.example.GameApp.ForumAdapter;
 import com.example.GameApp.R;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragForum#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class FragForum extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private RecyclerView recyclerView;
     private ForumAdapter forumAdapter;
     private List<Forum> forumList;
     private FirebaseFirestore db;
+    private FloatingActionButton fabCreateForum;
 
     public FragForum() {
-        // Required empty public constructor
+        // Constructor vacío
     }
-
-
-    // TODO: Rename and change types and number of parameters
 
     @Nullable
     @Override
@@ -55,92 +51,103 @@ public class FragForum extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerViewForums);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Inicializamos la lista de foros y el adaptador
         forumList = new ArrayList<>();
         forumAdapter = new ForumAdapter(forumList, forum -> {
-            // Navigate on forum click
+            // Al hacer clic en un foro, abrimos la pantalla de detalles
             Intent intent = new Intent(getActivity(), ForumDetailsActivity.class);
-
             intent.putExtra("forumId", forum.getId());
-            // Pasar los detalles del foro a la nueva actividad
             intent.putExtra("forumTitle", forum.getTitle());
             intent.putExtra("forumDescription", forum.getDescription());
             intent.putExtra("userName", forum.getUserName());
             intent.putExtra("userProfilePhoto", forum.getUserProfilePhoto());
             intent.putExtra("lastModifiedDate", forum.getFormattedDate());
-
             startActivity(intent);
         });
 
         recyclerView.setAdapter(forumAdapter);
-
         db = FirebaseFirestore.getInstance();
-        loadForumsFromFirestore();
 
+        // Botón flotante para crear un nuevo foro
+        fabCreateForum = view.findViewById(R.id.createForumButton);
+        fabCreateForum.setOnClickListener(v -> showCreateForumDialog());
+
+        loadForumsFromFirestore();
         return view;
     }
 
     private void loadForumsFromFirestore() {
-        // SELECT * FROM forums;
-        db.collection("forums")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d("FragForum", "Data fetch successful");
+        db.collection("forums").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                forumList.clear();  // Limpiar la lista antes de agregar los datos
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Forum forum = document.toObject(Forum.class);
+                    String userId = forum.getUserId();
 
-                        // Clear list so we don't have duplicates
-                        forumList.clear();
-
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Forum forum = document.toObject(Forum.class);
-                            Log.d("FragForum", "Forum fetched: " + forum.toString());
-
-                            // Get userId from the forum so we can search for more information in users Collection
-                            String userId = forum.getUserId();
-
-                            // Set formattedDate into forum
-                            Timestamp lastModifiedDate = forum.getLastModifiedDate();
-                            if (lastModifiedDate != null) {
-                                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                                String formattedDate = sdf.format(lastModifiedDate.toDate());
-                                Log.d("FragForum", "Formatted Date: " + formattedDate);
-                                forum.setFormattedDate(formattedDate);
-                            }
-
-                            // Query "users" collection to obtain more data from the userId
-                            db.collection("users")
-                                    .whereEqualTo("userId", userId)
-                                    .get()
-                                    .addOnCompleteListener(userTask -> {
-                                        if (userTask.isSuccessful()) {
-                                            if (!userTask.getResult().isEmpty()) {
-                                                DocumentSnapshot userDocument = userTask.getResult().getDocuments().get(0);
-
-                                                // Get userName and userProfilePhoto
-                                                String userName = userDocument.getString("userName");
-                                                String userProfilePhoto = userDocument.getString("userProfilePhoto");
-
-                                                // Setters to our forum
-                                                forum.setUserName(userName);
-                                                forum.setUserProfilePhoto(userProfilePhoto);
-                                                forum.setId(document.getId());
-
-                                                forumList.add(forum);
-
-                                                Log.d("FragForum", "User data added: " + userName);
-                                                Log.d("FragForum", "User Profile Photo added: " + userProfilePhoto);
-
-                                                forumAdapter.notifyDataSetChanged();
-                                            } else {
-                                                Log.d("FragForum", "No user document found for userId: " + userId);
-                                            }
-                                        } else {
-                                            Log.e("FragForum", "Error fetching user document", userTask.getException());
-                                        }
-                                    });
-                        }
-                    } else {
-                        Log.e("FragForum", "Error fetching forums", task.getException());
+                    // Formatear fecha
+                    Timestamp lastModifiedDate = forum.getLastModifiedDate();
+                    if (lastModifiedDate != null) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        String formattedDate = sdf.format(lastModifiedDate.toDate());
+                        forum.setFormattedDate(formattedDate);
                     }
-                });
+
+                    // Consulta adicional para obtener los detalles del usuario
+                    db.collection("users").whereEqualTo("userId", userId).get().addOnCompleteListener(userTask -> {
+                        if (userTask.isSuccessful()) {
+                            if (!userTask.getResult().isEmpty()) {
+                                DocumentSnapshot userDocument = userTask.getResult().getDocuments().get(0);
+                                String userName = userDocument.getString("userName");
+                                String userProfilePhoto = userDocument.getString("userProfilePhoto");
+
+                                forum.setUserName(userName);
+                                forum.setUserProfilePhoto(userProfilePhoto);
+                                forum.setId(document.getId());
+
+                                forumList.add(forum);
+                                forumAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void showCreateForumDialog() {
+        // Crear y mostrar el popup para crear un foro nuevo
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_create_forum, null);
+        TextInputEditText titleEditText = dialogView.findViewById(R.id.titleEditText);
+        TextInputEditText descriptionEditText = dialogView.findViewById(R.id.descriptionEditText);
+        Log.d("FragForum", "FHOLA: ");
+
+        new AlertDialog.Builder(getContext())
+
+                .setView(dialogView)
+                .setPositiveButton("Crear", (dialog, which) -> {
+                    String title = titleEditText.getText().toString().trim();
+                    String description = descriptionEditText.getText().toString().trim();
+
+                    if (!title.isEmpty() && !description.isEmpty()) {
+                        createForum(title, description);
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void createForum(String title, String description) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Map<String, Object> forum = new HashMap<>();
+        forum.put("userId", userId);
+        forum.put("title", title);
+        forum.put("description", description);
+        forum.put("creationDate", Timestamp.now());
+        forum.put("commentCount", 0);
+
+        db.collection("forums").add(forum).addOnSuccessListener(documentReference -> {
+            Log.d("FragForum", "Foro creado con ID: " + documentReference.getId());
+            loadForumsFromFirestore();
+        });
     }
 }
