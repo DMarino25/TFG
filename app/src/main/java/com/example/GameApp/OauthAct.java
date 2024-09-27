@@ -67,6 +67,22 @@ public class OauthAct extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.menuNav);
         missatge = findViewById(R.id.missatges);
 
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                int id = menuItem.getItemId();
+                if (id == R.id.home) {
+                    openFragment(fragments[0]);
+                } else if (id == R.id.transport) {
+                    openFragment(fragments[1]);
+                } else if (id == R.id.historial) {
+                    openFragment(fragments[2]);
+                } else if (id == R.id.profile) {
+                    openFragment(fragments[3]);
+                }
+                return true;
+            }
+        });
 
 
 
