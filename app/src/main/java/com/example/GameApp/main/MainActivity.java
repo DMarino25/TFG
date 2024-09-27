@@ -118,7 +118,9 @@ public class MainActivity extends AppCompatActivity {
                                                         if (user != null) {
                                                             Toast.makeText(MainActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
                                                             Intent intent = new Intent(MainActivity.this, OauthAct.class);
+                                                            initializeUserFavoritesCollection(user.getUid());
                                                             startActivity(intent);
+
                                                         }
                                                     } else {
                                                         // Si el inicio de sesión falla, muestra un mensaje
@@ -180,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
                     if (auth.getCurrentUser() != null) {
                         saveUserInFirestore(auth.getCurrentUser());  // Guardar en Firestore
+                        initializeUserFavoritesCollection(auth.getCurrentUser().getUid());
                     }
 
                     Intent intent = new Intent(MainActivity.this, OauthAct.class);
@@ -208,5 +211,16 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.w(TAG, "Error al guardar el usuario en Firestore", e);
                 });
+    }
+    private void initializeUserFavoritesCollection(String userId) {
+        Map<String, Object> emptyFavorite = new HashMap<>();
+        emptyFavorite.put("title", "");      // Título vacío
+        emptyFavorite.put("cover_url", "");  // URL de portada vacío
+        emptyFavorite.put("rating", 0);      // Rating en 0
+
+        firestore.collection("users").document(userId).collection("favorits")
+                .add(emptyFavorite)
+                .addOnSuccessListener(documentReference -> Log.d(TAG, "Colección de favoritos con ID: " + documentReference.getId()))
+                .addOnFailureListener(e -> Log.w(TAG, "Error al crear la colecció de favoritos ", e));
     }
 }

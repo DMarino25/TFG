@@ -6,11 +6,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.GameApp.ClassObjectes.Companies;
 import com.example.GameApp.ClassObjectes.Cover;
 import com.example.GameApp.ClassObjectes.Game;
 import com.example.GameApp.ClassObjectes.Genres;
@@ -34,6 +34,9 @@ import retrofit2.Response;
 public class GameDetails extends AppCompatActivity {
 
     private static final String TAG = "GameDetails";
+    private ImageView starUnselected;
+    private ImageView starSelected;
+    private boolean isStarSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,7 @@ public class GameDetails extends AppCompatActivity {
         TextView companiesView = findViewById(R.id.developers);
         TextView releaseView = findViewById(R.id.launching);
         TextView tagsView = findViewById(R.id.tags);
+        LinearLayout ratingStarsContainer = findViewById(R.id.rating_stars_container);
 
         back.setOnClickListener(v -> finish());
 
@@ -60,6 +64,19 @@ public class GameDetails extends AppCompatActivity {
             Toast.makeText(this, "Error: No se pudo cargar la información del juego.", Toast.LENGTH_LONG).show();
             return;
         }
+
+        starUnselected = findViewById(R.id.star_unselected);
+        starSelected = findViewById(R.id.star_selected);
+
+        // Configuración inicial de visibilidad de las estrellas
+        starUnselected.setVisibility(View.VISIBLE);
+        starSelected.setVisibility(View.GONE);
+        ratingStarsContainer.setVisibility(View.GONE); // Las estrellas de valoración están ocultas inicialmente
+
+        starUnselected.setOnClickListener(v -> cambiaStar());
+        starSelected.setOnClickListener(v -> cambiaStar());
+
+        back.setOnClickListener(v -> finish());
 
         Log.d(TAG, "Cover ID recibido: " + coverId);
 
@@ -90,8 +107,8 @@ public class GameDetails extends AppCompatActivity {
                 Toast.makeText(GameDetails.this, "Error al obtener los detalles del cover.", Toast.LENGTH_LONG).show();
             }
         });
-    }
 
+    }
     private void getGameDetails(int gameId, ShapeableImageView coverImage, TextView titol, TextView descripcio, TextView genresView, TextView platformsView, TextView companiesView, TextView releaseView, TextView tagsView) {
         IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
 
@@ -190,4 +207,48 @@ public class GameDetails extends AppCompatActivity {
             }
         });
     }
+
+    // Método para alternar las estrellas de selección
+    private void cambiaStar() {
+        if (isStarSelected) {
+            starSelected.setVisibility(View.GONE);
+            starUnselected.setVisibility(View.VISIBLE);
+        } else {
+            starSelected.setVisibility(View.VISIBLE);
+            starUnselected.setVisibility(View.GONE);
+        }
+        isStarSelected = !isStarSelected;
+
+        // Mostrar u ocultar las estrellas de valoración
+        cambiaRatingStar(starSelected);
+    }
+
+
+    public void cambiaRatingStar(View view) {
+        LinearLayout ratingStarsContainer = findViewById(R.id.rating_stars_container);
+        if (ratingStarsContainer.getVisibility() == View.GONE) {
+            ratingStarsContainer.setVisibility(View.VISIBLE);
+        } else {
+            ratingStarsContainer.setVisibility(View.GONE);
+        }
+    }
+
+    // Método para manejar la valoración del juego con las estrellas
+    public void rateGame(View view) {
+
+        int rating = Integer.parseInt(view.getContentDescription().toString().split(" ")[1]);
+        Toast.makeText(this, "Has valorado el juego con " + rating + " estrellas", Toast.LENGTH_SHORT).show();
+
+        for (int i = 1; i <= 5; i++) {
+            ImageView star = findViewById(getResources().getIdentifier("star_" + i, "id", getPackageName()));
+            if (i <= rating) {
+
+                star.setImageResource(R.drawable.star);
+            } else {
+
+                star.setImageResource(R.drawable.estrella_con);
+            }
+        }
+    }
 }
+

@@ -7,44 +7,147 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Botón de regreso -->
-    <LinearLayout
+    <!-- Contenedor para el botón de regreso (sin la estrella) -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:orientation="horizontal"
-        android:gravity="start|center_vertical">
+        android:background="#EFE2F6"
+        >
 
+        <!-- Botón de regreso -->
         <ImageView
             android:id="@+id/flecha"
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:layout_alignParentStart="true"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
             android:src="@drawable/flecha"
             android:contentDescription="Volver atrás" />
-    </LinearLayout>
+    </RelativeLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@drawable/cr6bc1b0cc">
+        android:background="#D6C3E6"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <!-- Portada del juego -->
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/portada"
-                android:layout_width="250dp"
-                android:layout_height="350dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="10dp"
-                android:src="@mipmap/ic_launcher"
-                android:scaleType="fitXY" />
+            <!-- Contenedor para la portada y la estrella -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:background="#D6C3E6"
+                >
+
+                <!-- Portada del juego -->
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/portada"
+                    android:layout_width="250dp"
+                    android:layout_height="350dp"
+                    android:layout_centerHorizontal="true"
+                    android:src="@mipmap/ic_launcher"
+                    android:scaleType="fitXY" />
+
+                <!-- Contenedor para la estrella de favoritos (parte superior derecha de la portada) -->
+                <FrameLayout
+                    android:id="@+id/star_container"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="8dp"
+                    >
+
+                    <!-- Estrella sin seleccionar (visible por defecto) -->
+                    <ImageView
+                        android:id="@+id/star_unselected"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/estrella_con"
+                        android:contentDescription="Estrella sin seleccionar"
+                        android:visibility="visible"
+                        android:layout_marginEnd="4dp"
+                        android:onClick="toggleStar" />
+
+                    <!-- Estrella seleccionada (invisible por defecto) -->
+                    <ImageView
+                        android:id="@+id/star_selected"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/star"
+                        android:contentDescription="Estrella seleccionada"
+                        android:visibility="gone"
+                        android:layout_marginEnd="4dp"
+                        android:onClick="toggleStar" />
+                </FrameLayout>
+
+                <!-- Contenedor para las 5 estrellas de valoración debajo de la portada -->
+                <LinearLayout
+                    android:id="@+id/rating_stars_container"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@id/portada"
+                    android:layout_marginTop="16dp">
+
+                    <!-- Estrellas de valoración (5 estrellas) -->
+                    <ImageView
+                        android:id="@+id/star_1"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_margin="4dp"
+                        android:src="@drawable/estrella_con"
+                        android:contentDescription="Estrella 1"
+                        android:onClick="rateGame" />
+
+                    <ImageView
+                        android:id="@+id/star_2"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_margin="4dp"
+                        android:src="@drawable/estrella_con"
+                        android:contentDescription="Estrella 2"
+                        android:onClick="rateGame" />
+
+                    <ImageView
+                        android:id="@+id/star_3"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_margin="4dp"
+                        android:src="@drawable/estrella_con"
+                        android:contentDescription="Estrella 3"
+                        android:onClick="rateGame" />
+
+                    <ImageView
+                        android:id="@+id/star_4"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_margin="4dp"
+                        android:src="@drawable/estrella_con"
+                        android:contentDescription="Estrella 4"
+                        android:onClick="rateGame" />
+
+                    <ImageView
+                        android:id="@+id/star_5"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_margin="4dp"
+                        android:src="@drawable/estrella_con"
+                        android:contentDescription="Estrella 5"
+                        android:onClick="rateGame" />
+                </LinearLayout>
+            </RelativeLayout>
 
             <!-- Título del juego -->
             <TextView
@@ -56,7 +159,7 @@
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:layout_gravity="center_horizontal"
-                />
+                android:layout_marginTop="16dp" />
 
             <!-- Descripción del juego -->
             <TextView
@@ -117,7 +220,6 @@
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
-
             <!-- Etiquetas -->
             <TextView
                 android:id="@+id/tags"
@@ -129,26 +231,6 @@
                 android:text="🏷️ Tags: Multijugador, Mundo abierto"
                 android:textColor="#000000"
                 android:textSize="14sp" />
-
-            <!-- Mi valoración -->
-            <TextView
-                android:id="@+id/rhy78tsh76j"
-                android:padding="16dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mi valoración:"
-                android:textColor="#000000"
-                android:textSize="16sp"
-                android:layout_marginBottom="10dp" />
-
-            <!-- Estrellas de valoración (puedes agregar un componente de RatingBar si prefieres) -->
-            <ImageView
-                android:id="@+id/r8u5hdvodcko"
-                android:layout_width="match_parent"
-                android:layout_height="24dp"
-                android:layout_marginHorizontal="100dp"
-                android:src="@mipmap/ic_launcher"
-                android:scaleType="fitXY" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
