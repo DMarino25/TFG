@@ -111,21 +111,9 @@ public class RegistreUsuari extends AppCompatActivity {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(RegistreUsuari.this, "Usuario guardado en Firestore", Toast.LENGTH_SHORT).show();
 
-                    initializeUserFavoritesCollection(user.getUid());
                 })
                 .addOnFailureListener(e -> Toast.makeText(RegistreUsuari.this, "Error al guardar en Firestore", Toast.LENGTH_SHORT).show());
     }
 
-    // Método para inicializar la subcolección de favoritos
-    private void initializeUserFavoritesCollection(String userId) {
-        Map<String, Object> emptyFavorite = new HashMap<>();
-        emptyFavorite.put("title", "");      // Título vacío
-        emptyFavorite.put("cover_url", "");  // URL de portada vacío
-        emptyFavorite.put("rating", 0);      // Rating en 0
 
-        firestore.collection("users").document(userId).collection("favorits")
-                .add(emptyFavorite)
-                .addOnSuccessListener(documentReference -> Log.d(TAG, "Colecció de favorits amb ID: " + documentReference.getId()))
-                .addOnFailureListener(e -> Log.w(TAG, "Error al crear la colecció de favorits ", e));
-    }
 }

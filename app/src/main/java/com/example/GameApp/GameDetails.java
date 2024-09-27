@@ -13,17 +13,14 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.GameApp.ClassObjectes.Cover;
 import com.example.GameApp.ClassObjectes.Game;
-import com.example.GameApp.ClassObjectes.Genres;
-import com.example.GameApp.ClassObjectes.InvolvedCompanies;
-import com.example.GameApp.ClassObjectes.Keywords;
-import com.example.GameApp.ClassObjectes.Platforms;
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -37,22 +34,32 @@ public class GameDetails extends AppCompatActivity {
     private ImageView starUnselected;
     private ImageView starSelected;
     private boolean isStarSelected = false;
+    private int currentRating = 0;  // Rating actual del juego
+    private String favoriteId = null;  // ID del favorito en Firestore
+    private FirebaseFirestore firestore;
+    private FirebaseUser currentUser;
+    private Game currentGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_details);
 
+        // Inicializar Firestore y obtener el usuario actual
+        firestore = FirebaseFirestore.getInstance();
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser == null) {
+            Toast.makeText(this, "Por favor, inicia sesión para gestionar favoritos.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         // Referencias a las vistas en el layout
         ShapeableImageView coverImage = findViewById(R.id.portada);
         TextView descripcio = findViewById(R.id.descripció);
         TextView titol = findViewById(R.id.titol);
         ImageView back = findViewById(R.id.flecha);
-        TextView genresView = findViewById(R.id.genre);
-        TextView platformsView = findViewById(R.id.platform);
-        TextView companiesView = findViewById(R.id.developers);
-        TextView releaseView = findViewById(R.id.launching);
-        TextView tagsView = findViewById(R.id.tags);
         LinearLayout ratingStarsContainer = findViewById(R.id.rating_stars_container);
 
         back.setOnClickListener(v -> finish());
@@ -73,10 +80,8 @@ public class GameDetails extends AppCompatActivity {
         starSelected.setVisibility(View.GONE);
         ratingStarsContainer.setVisibility(View.GONE); // Las estrellas de valoración están ocultas inicialmente
 
-        starUnselected.setOnClickListener(v -> cambiaStar());
-        starSelected.setOnClickListener(v -> cambiaStar());
-
-        back.setOnClickListener(v -> finish());
+        starUnselected.setOnClickListener(v -> toggleFavorite());
+        starSelected.setOnClickListener(v -> toggleFavorite());
 
         Log.d(TAG, "Cover ID recibido: " + coverId);
 
@@ -92,33 +97,22 @@ public class GameDetails extends AppCompatActivity {
             public void onResponse(Call<List<Cover>> call, Response<List<Cover>> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     int gameId = response.body().get(0).getGame();
-
-                    Log.d(TAG, "Game ID obtenido: " + gameId);
-                    getGameDetails(gameId, coverImage, titol, descripcio, genresView, platformsView, companiesView, releaseView, tagsView);
+                    getGameDetails(gameId, coverImage, titol, descripcio);
                 } else {
-                    Log.e(TAG, "Cover details not successful or empty");
                     Toast.makeText(GameDetails.this, "No se pudieron cargar los detalles del cover.", Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Cover>> call, Throwable t) {
-                Log.e(TAG, "API call for cover failed: " + t.getMessage());
                 Toast.makeText(GameDetails.this, "Error al obtener los detalles del cover.", Toast.LENGTH_LONG).show();
             }
         });
-
     }
-    private void getGameDetails(int gameId, ShapeableImageView coverImage, TextView titol, TextView descripcio, TextView genresView, TextView platformsView, TextView companiesView, TextView releaseView, TextView tagsView) {
+
+    private void getGameDetails(int gameId, ShapeableImageView coverImage, TextView titol, TextView descripcio) {
         IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
-
-        // Modificar la consulta para obtener los nombres directamente
-        StringBuilder gameQueryBuilder = new StringBuilder();
-        gameQueryBuilder.append("fields name, summary,first_release_date, cover.url, genres.name, platforms.name, involved_companies.company.name, involved_companies.developer, keywords.name; ");
-        gameQueryBuilder.append("where id = ").append(gameId).append(";");
-
-        String gameQuery = gameQueryBuilder.toString();
-
+        String gameQuery = "fields name, summary, first_release_date, cover.url; where id = " + gameId + ";";
         RequestBody gameRequestBody = RequestBody.create(gameQuery, MediaType.parse("text/plain"));
 
         Call<List<Game>> gameCall = apiService.getGames(gameRequestBody);
@@ -126,105 +120,100 @@ public class GameDetails extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    Game game = response.body().get(0); // Obtener el primer resultado de la lista
-
-                    // Manejo simplificado de nombres y descripciones
-                    titol.setText(game.getName() != null ? game.getName() : "Títul no disponible");
-                    descripcio.setText(game.getSummary() != null ? game.getSummary() : "Descripció no disponible");
-
-                    if (game.getCover() != null && game.getCover().getUrl() != null) {
-                        String imageUrl = "https:" + game.getCover().getUrl(); // URL completa de la portada
+                    currentGame = response.body().get(0); // Guardar el juego actual
+                    titol.setText(currentGame.getName());
+                    descripcio.setText(currentGame.getSummary() != null ? currentGame.getSummary() : "Descripción no disponible");
+                    if (currentGame.getCover() != null && currentGame.getCover().getUrl() != null) {
+                        String imageUrl = "https:" + currentGame.getCover().getUrl();
                         Glide.with(GameDetails.this).load(imageUrl).into(coverImage);
                     }
-                    if (game.getFirstReleaseDate() > 0) {
-                        long timestamp = game.getFirstReleaseDate() * 1000L;
-                        Date date = new Date(timestamp);
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                        String releaseDate = sdf.format(date);
-                        releaseView.setText("📅 Data de llançament: " + releaseDate);
-                    } else {
-                        releaseView.setText("Data de llançament no disponible");
-                    }
-
-                    // Manejar géneros
-                    if (game.getGenres() != null && !game.getGenres().isEmpty()) {
-                        List<String> genreNames = new ArrayList<>();
-                        for (Genres genre : game.getGenres()) {
-                            genreNames.add(genre.getName());
-                        }
-                        genresView.setText("🎮 Gèneres: " + android.text.TextUtils.join(", ", genreNames));
-                    } else {
-                        genresView.setText("Gèneres no disponibles");
-                    }
-
-                    // Manejar plataformas
-                    if (game.getPlatforms() != null && !game.getPlatforms().isEmpty()) {
-                        List<String> platformNames = new ArrayList<>();
-                        for (Platforms platform : game.getPlatforms()) {
-                            platformNames.add(platform.getName());
-                        }
-                        platformsView.setText("🕹️ Plataformes: " + android.text.TextUtils.join(", ", platformNames));
-                    } else {
-                        platformsView.setText("Plataformes no disponibles");
-                    }
-                    if (game.getKeywords() != null && !game.getKeywords().isEmpty()) {
-                        List<String> keywordNames = new ArrayList<>();
-                        for (Keywords keyword : game.getKeywords()) {
-                            keywordNames.add(keyword.getName());
-                        }
-                        tagsView.setText("🏷️ Tags: " + android.text.TextUtils.join(", ", keywordNames));
-                    } else {
-                        tagsView.setText("Tags no disponibles");
-                    }
-
-                    // Manejar compañías desarrolladoras
-                    if (game.getInvolvedCompanies() != null && !game.getInvolvedCompanies().isEmpty()) {
-                        List<String> developerNames = new ArrayList<>();
-                        for (InvolvedCompanies ic : game.getInvolvedCompanies()) {
-                            if (ic.isDeveloper() && ic.getCompany() != null) {
-                                developerNames.add(ic.getCompany().getName());
-                            }
-                        }
-                        if (!developerNames.isEmpty()) {
-                            companiesView.setText("🏢 Desenvolupadors: " + android.text.TextUtils.join(", ", developerNames));
-                        } else {
-                            companiesView.setText("Desenvolupadors no disponibles");
-                        }
-                    } else {
-                        companiesView.setText("Desenvolupadors no disponibles");
-                    }
-
+                    checkIfFavorite(); // Verificar si el juego ya está en favoritos
                 } else {
-                    Log.e(TAG, "Game details not successful or empty");
                     Toast.makeText(GameDetails.this, "No se pudieron cargar los detalles del juego.", Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Log.e(TAG, "API call for game failed: " + t.getMessage());
                 Toast.makeText(GameDetails.this, "Error al obtener los detalles del juego.", Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    // Método para alternar las estrellas de selección
+    private void checkIfFavorite() {
+        firestore.collection("users").document(currentUser.getUid()).collection("favorits")
+                .whereEqualTo("title", currentGame.getName())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                        // El juego ya está en favoritos
+                        isStarSelected = true;
+                        favoriteId = task.getResult().getDocuments().get(0).getId();
+                        starSelected.setVisibility(View.VISIBLE);
+                        starUnselected.setVisibility(View.GONE);
+                        currentRating = task.getResult().getDocuments().get(0).getLong("rating").intValue(); // Obtener rating actual
+                        setRatingStars(currentRating); // Establecer la visualización de las estrellas
+                        cambiaRatingStar(null); // Mostrar las estrellas de calificación
+                    } else {
+                        // El juego no está en favoritos
+                        isStarSelected = false;
+                        favoriteId = null;
+                        starSelected.setVisibility(View.GONE);
+                        starUnselected.setVisibility(View.VISIBLE);
+                        setRatingStars(0); // Reiniciar las estrellas de calificación a 0
+                    }
+                });
+    }
+
+    private void toggleFavorite() {
+        if (currentGame == null) {
+            Toast.makeText(this, "No se puede agregar a favoritos. Información del juego no cargada.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (isStarSelected) {
+            if (favoriteId != null) {
+                firestore.collection("users").document(currentUser.getUid()).collection("favorits")
+                        .document(favoriteId).delete()
+                        .addOnSuccessListener(aVoid -> {
+                            favoriteId = null;
+                            Toast.makeText(GameDetails.this, "Eliminado de favoritos", Toast.LENGTH_SHORT).show();
+                            isStarSelected = false;
+                            setRatingStars(0); // Restablecer el rating visualmente a 0
+                            cambiaStar(); // Cambiar la estrella seleccionada
+                        })
+                        .addOnFailureListener(e -> Toast.makeText(GameDetails.this, "Error al eliminar de favoritos", Toast.LENGTH_SHORT).show());
+            }
+        } else {
+            Map<String, Object> favoriteData = new HashMap<>();
+            favoriteData.put("title", currentGame.getName());
+            favoriteData.put("cover_url", currentGame.getCover() != null ? "https:" + currentGame.getCover().getUrl() : "");
+            favoriteData.put("rating", currentRating);
+
+            firestore.collection("users").document(currentUser.getUid()).collection("favorits")
+                    .add(favoriteData)
+                    .addOnSuccessListener(documentReference -> {
+                        favoriteId = documentReference.getId();
+                        Toast.makeText(GameDetails.this, "Añadido a favoritos", Toast.LENGTH_SHORT).show();
+                        isStarSelected = true;
+                        cambiaStar(); // Cambiar la estrella seleccionada
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(GameDetails.this, "Error al agregar a favoritos", Toast.LENGTH_SHORT).show());
+        }
+    }
+
     private void cambiaStar() {
         if (isStarSelected) {
-            starSelected.setVisibility(View.GONE);
-            starUnselected.setVisibility(View.VISIBLE);
-        } else {
             starSelected.setVisibility(View.VISIBLE);
             starUnselected.setVisibility(View.GONE);
+        } else {
+            starSelected.setVisibility(View.GONE);
+            starUnselected.setVisibility(View.VISIBLE);
         }
-        isStarSelected = !isStarSelected;
-
-        // Mostrar u ocultar las estrellas de valoración
         cambiaRatingStar(starSelected);
     }
 
-
-    public void cambiaRatingStar(View view) {
+    private void cambiaRatingStar(View view) {
         LinearLayout ratingStarsContainer = findViewById(R.id.rating_stars_container);
         if (ratingStarsContainer.getVisibility() == View.GONE) {
             ratingStarsContainer.setVisibility(View.VISIBLE);
@@ -233,22 +222,27 @@ public class GameDetails extends AppCompatActivity {
         }
     }
 
-    // Método para manejar la valoración del juego con las estrellas
-    public void rateGame(View view) {
-
-        int rating = Integer.parseInt(view.getContentDescription().toString().split(" ")[1]);
-        Toast.makeText(this, "Has valorado el juego con " + rating + " estrellas", Toast.LENGTH_SHORT).show();
-
+    private void setRatingStars(int rating) {
         for (int i = 1; i <= 5; i++) {
             ImageView star = findViewById(getResources().getIdentifier("star_" + i, "id", getPackageName()));
             if (i <= rating) {
-
-                star.setImageResource(R.drawable.star);
+                star.setImageResource(R.drawable.star); // Estrella llena
             } else {
-
-                star.setImageResource(R.drawable.estrella_con);
+                star.setImageResource(R.drawable.estrella_con); // Estrella vacía
             }
         }
     }
-}
 
+    public void rateGame(View view) {
+        currentRating = Integer.parseInt(view.getContentDescription().toString().split(" ")[1]);
+        Toast.makeText(this, "Has valorado el juego con " + currentRating + " estrellas", Toast.LENGTH_SHORT).show();
+        setRatingStars(currentRating); // Actualizar visualización de estrellas
+
+        if (favoriteId != null) {
+            firestore.collection("users").document(currentUser.getUid()).collection("favorits")
+                    .document(favoriteId).update("rating", currentRating)
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "Rating actualizado en favoritos"))
+                    .addOnFailureListener(e -> Toast.makeText(GameDetails.this, "Error al actualizar el rating", Toast.LENGTH_SHORT).show());
+        }
+    }
+}

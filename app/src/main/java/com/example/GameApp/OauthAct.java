@@ -67,70 +67,7 @@ public class OauthAct extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.menuNav);
         missatge = findViewById(R.id.missatges);
 
-        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                int id = menuItem.getItemId();
-                if (id == R.id.home) {
-                    openFragment(fragments[0]);
-                } else if (id == R.id.transport) {
-                    openFragment(fragments[1]);
-                } else if (id == R.id.historial) {
-                    openFragment(fragments[2]);
-                } else if (id == R.id.profile) {
-                    openFragment(fragments[3]);
-                }
-                return true;
-            }
-        });
-        missatge = findViewById(R.id.missatges);
 
-        missatge.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        dX = v.getX() - event.getRawX();
-                        dY = v.getY() - event.getRawY();
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        float newX = event.getRawX() + dX;
-                        float newY = event.getRawY() + dY;
-                        int upperBound = findViewById(R.id.fragmentContainerView2).getTop();
-                        int lowerBound = findViewById(R.id.menuNav).getTop() - v.getHeight();
-                        int leftBound = 0; // Límite izquierdo de la pantalla
-                        int rightBound = ((View) v.getParent()).getWidth() - v.getWidth();
-
-                        if (newY < upperBound) {
-                            newY = upperBound;
-                        }
-                        if (newY > lowerBound) {
-                            newY = lowerBound;
-                        }
-                        if (newX < leftBound) {
-                            newX = leftBound;
-                        }
-                        if (newX > rightBound) {
-                            newX = rightBound;
-                        }
-
-                        v.animate()
-                                .x(newX)
-                                .y(newY)
-                                .setDuration(0)
-                                .start();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        if (v instanceof View) {
-                            v.performClick();
-                        }
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
-        });
 
 
 
