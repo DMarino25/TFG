@@ -10,6 +10,7 @@
 
     <!-- Contenedor del post principal del foro -->
     <LinearLayout
+        android:id="@+id/userInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -73,6 +74,18 @@
         </LinearLayout>
 
     </LinearLayout>
+    <TextView
+        android:id="@+id/replyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Responder"
+        android:textColor="#007BFF"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="8dp"
+        android:layout_marginTop="8dp"/>
+
 
     <!-- RecyclerView para los comentarios -->
     <androidx.recyclerview.widget.RecyclerView

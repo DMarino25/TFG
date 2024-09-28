@@ -97,11 +97,13 @@ public class FragForum extends Fragment {
 
                             // Obtener la fecha y formatearla
                             Timestamp lastModifiedDate = forum.getLastModifiedDate();
-                            if (lastModifiedDate != null) {
+                            String formattedDate = formatLastModifiedDate(lastModifiedDate);
+                            forum.setFormattedDate(formattedDate);
+                            /*if (lastModifiedDate != null) {
                                 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                                 String formattedDate = sdf.format(lastModifiedDate.toDate());
                                 forum.setFormattedDate(formattedDate);
-                            }
+                            }*/
 
                             // Establecemos el ID del documento para futuras referencias
                             forum.setId(document.getId());
@@ -220,18 +222,33 @@ public class FragForum extends Fragment {
                 forum.setDislikeCount(dislikeCount);
                 forum.setUserLikes(userLikes);
 
-                // Actualizar en Firestore
-                db.collection("forums").document(forumId)
-                        .set(forum)
+                Map<String, Object> updateData = new HashMap<>();
+                updateData.put("likeCount", likeCount);
+                updateData.put("dislikeCount", dislikeCount);
+                updateData.put("userLikes", userLikes);
+
+                // Actualizar solo los campos especificados en Firestore
+                db.collection("forums")
+                        .document(forumId)
+                        .update(updateData)
                         .addOnSuccessListener(aVoid -> {
                             listener.onForumUpdated(forum);  // Devolver el foro actualizado a la UI
+                        })
+                        .addOnFailureListener(e -> {
+                            // Error en la actualización
                         });
-
 
             }
         });
     }
 
+    public static String formatLastModifiedDate(Timestamp lastModifiedDate) {
+        if (lastModifiedDate != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            return sdf.format(lastModifiedDate.toDate());
+        }
+        return null; // Retorna null si lastModifiedDate es null
+    }
 
 
 

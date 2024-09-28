@@ -33,12 +33,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
         Comment comment = commentList.get(position);
 
-        holder.authorTextView.setText(comment.getAuthorName());
+        holder.authorTextView.setText(comment.getCommentUserName());
         holder.commentTextView.setText(comment.getCommentText());
 
         // Cargar la imagen de perfil con Glide
         Glide.with(holder.itemView.getContext())
-                .load(comment.getAuthorImage())
+                .load(comment.getCommentUserPicture())
                 .circleCrop()
                 .into(holder.authorImageView);
     }
