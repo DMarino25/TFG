@@ -29,14 +29,15 @@ import java.util.Map;
 import com.example.GameApp.ClassObjectes.Forum;
 import com.example.GameApp.ForumAdapter;
 import com.example.GameApp.R;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class FragForum extends Fragment {
 
     private RecyclerView recyclerView;
-    private ForumAdapter forumAdapter;
+    private static ForumAdapter forumAdapter;
     private List<Forum> forumList;
-    private FirebaseFirestore db;
+    private static FirebaseFirestore db;
     private FloatingActionButton fabCreateForum;
 
     public FragForum() {
@@ -77,49 +78,53 @@ public class FragForum extends Fragment {
     }
 
     private void loadForumsFromFirestore() {
-        db.collection("forums").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                forumList.clear();  // Limpiar la lista antes de agregar los datos
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    Forum forum = document.toObject(Forum.class);
-                    String userId = forum.getUserId();
+        // SELECT * FROM forums ORDER BY lastModifiedDate DESC;
+        db.collection("forums")
+                .orderBy("lastModifiedDate", Query.Direction.DESCENDING)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("FragForum", "Data fetch successful");
 
-                    // Formatear fecha
-                    Timestamp lastModifiedDate = forum.getLastModifiedDate();
-                    if (lastModifiedDate != null) {
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                        String formattedDate = sdf.format(lastModifiedDate.toDate());
-                        forum.setFormattedDate(formattedDate);
-                    }
+                        // Limpiar la lista de foros para evitar duplicados
+                        forumList.clear();
 
-                    // Consulta adicional para obtener los detalles del usuario
-                    db.collection("users").whereEqualTo("userId", userId).get().addOnCompleteListener(userTask -> {
-                        if (userTask.isSuccessful()) {
-                            if (!userTask.getResult().isEmpty()) {
-                                DocumentSnapshot userDocument = userTask.getResult().getDocuments().get(0);
-                                String userName = userDocument.getString("userName");
-                                String userProfilePhoto = userDocument.getString("userProfilePhoto");
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Forum forum = document.toObject(Forum.class);
+                            Log.d("FragForum", "Forum fetched: " + forum.toString());
 
-                                forum.setUserName(userName);
-                                forum.setUserProfilePhoto(userProfilePhoto);
-                                forum.setId(document.getId());
-
-                                forumList.add(forum);
-                                forumAdapter.notifyDataSetChanged();
+                            // Obtener la fecha y formatearla
+                            Timestamp lastModifiedDate = forum.getLastModifiedDate();
+                            if (lastModifiedDate != null) {
+                                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                                String formattedDate = sdf.format(lastModifiedDate.toDate());
+                                forum.setFormattedDate(formattedDate);
                             }
+
+                            // Establecemos el ID del documento para futuras referencias
+                            forum.setId(document.getId());
+
+                            // Añadimos el foro a la lista
+                            forumList.add(forum);
+
+                            Log.d("FragForum", "Forum added: " + forum.getTitle() + " by " + forum.getUserName());
                         }
-                    });
-                }
-            }
-        });
+
+                        // Notificar al adaptador que los datos han cambiado
+                        forumAdapter.notifyDataSetChanged();
+                    } else {
+                        Log.e("FragForum", "Error fetching forums", task.getException());
+                    }
+                });
     }
+
+
 
     private void showCreateForumDialog() {
         // Crear y mostrar el popup para crear un foro nuevo
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_create_forum, null);
         TextInputEditText titleEditText = dialogView.findViewById(R.id.titleEditText);
         TextInputEditText descriptionEditText = dialogView.findViewById(R.id.descriptionEditText);
-        Log.d("FragForum", "FHOLA: ");
 
         new AlertDialog.Builder(getContext())
 
@@ -137,17 +142,104 @@ public class FragForum extends Fragment {
     }
 
     private void createForum(String title, String description) {
+        // Obtén el userId actual
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Map<String, Object> forum = new HashMap<>();
-        forum.put("userId", userId);
-        forum.put("title", title);
-        forum.put("description", description);
-        forum.put("creationDate", Timestamp.now());
-        forum.put("commentCount", 0);
 
-        db.collection("forums").add(forum).addOnSuccessListener(documentReference -> {
-            Log.d("FragForum", "Foro creado con ID: " + documentReference.getId());
-            loadForumsFromFirestore();
+        // Consulta la información del usuario actual en la colección "users"
+        db.collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Obtén userName y userProfilePhoto del documento de usuario
+                        String userName = documentSnapshot.getString("userName");
+                        String userProfilePhoto = documentSnapshot.getString("userProfilePhoto");
+
+                        // Crea el mapa del nuevo foro con la información del usuario
+                        Map<String, Object> forum = new HashMap<>();
+                        forum.put("userName", userName);
+                        forum.put("userProfilePhoto", userProfilePhoto);
+                        forum.put("title", title);
+                        forum.put("description", description);
+                        forum.put("creationDate", Timestamp.now());
+                        forum.put("lastModifiedDate", Timestamp.now());
+                        forum.put("commentCount", 0);
+                        forum.put("likeCount", 0);
+                        forum.put("dislikeCount", 0);
+                        forum.put("userLikes", new HashMap<String, Boolean>());
+
+                        // Agrega el nuevo foro a la colección "forums"
+                        db.collection("forums").add(forum).addOnSuccessListener(documentReference -> {
+                            Log.d("FragForum", "Foro creado con ID: " + documentReference.getId());
+                            loadForumsFromFirestore();  // Recargar foros después de crear uno nuevo
+                        });
+                    } else {
+                        Log.e("FragForum", "Usuario no encontrado en la colección 'users'");
+                    }
+                });
+    }
+
+    public static void updateForumLikesInFirestore(String forumId, boolean isLike) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        db.collection("forums").document(forumId).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Map<String, Boolean> userLikes = (Map<String, Boolean>) documentSnapshot.get("userLikes");
+
+                // Obtener los contadores actuales
+                int likeCount = documentSnapshot.getLong("likeCount").intValue();
+                int dislikeCount = documentSnapshot.getLong("dislikeCount").intValue();
+
+                // Verifica el estado actual del usuario
+                if (userLikes.containsKey(userId)) {
+                    boolean currentState = userLikes.get(userId);
+                    // Si ya le gustó y se intenta dar like, quitamos el like.
+                    if (currentState && isLike){
+                        userLikes.remove(userId);
+                        likeCount--;
+                    }
+                    // Si ya no le gustó y se intenta dar dislike, quitamo el dislike.
+                    else if (!currentState && !isLike){
+                        userLikes.remove(userId);
+                        dislikeCount--;
+                    }
+                    // Si le gustó y se intenta dar dislike, actualizar
+                    else if (currentState && !isLike) {
+                        //userLikes.remove(userId);
+                        userLikes.put(userId, false);
+                        likeCount--;
+                        dislikeCount++;
+                    } else if(!currentState && isLike) {
+                        // Si no le gustó y se intenta dar like, actualizar
+                        userLikes.put(userId, true);
+                        likeCount++;
+                        dislikeCount--;
+                    }
+                } else {
+                    // Si no ha votado, agregar el like o dislike
+                    userLikes.put(userId, isLike);
+                    if (isLike) likeCount++;
+                    else dislikeCount++;
+                }
+
+                    // Actualizar en Firestore
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("userLikes", userLikes);
+                    updates.put("likeCount", likeCount);
+                    updates.put("dislikeCount", dislikeCount);
+
+                    db.collection("forums").document(forumId)
+                            .update(updates)
+                            .addOnSuccessListener(aVoid -> Log.d("FragForum", "Like/Dislike updated successfully"))
+                            .addOnFailureListener(e -> Log.e("FragForum", "Error updating Like/Dislike", e));
+
+                    forumAdapter.notifyDataSetChanged();
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("FragForum", "Error fetching forum document", e);
         });
     }
+
+
+
 }
