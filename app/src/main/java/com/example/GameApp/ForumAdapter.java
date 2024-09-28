@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.ImageView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.GameApp.ClassObjectes.Forum;
 import java.util.List;
@@ -40,7 +41,6 @@ public class ForumAdapter extends RecyclerView.Adapter<ForumAdapter.ForumViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ForumViewHolder holder, int position) {
-
         Forum forum = forumList.get(position);
 
         holder.titleTextView.setText(forum.getTitle());
@@ -53,74 +53,53 @@ public class ForumAdapter extends RecyclerView.Adapter<ForumAdapter.ForumViewHol
                 .circleCrop()
                 .into(holder.userProfileImageView);
 
-        // Setear los contadores de like/dislike
+        // Actualizar los contadores
         holder.likeCount.setText(String.valueOf(forum.getLikeCount()));
         holder.dislikeCount.setText(String.valueOf(forum.getDislikeCount()));
 
-        // Inicializar colores según los contadores
-        //setLikeDislikeColors(holder, forum);
+        // Controlar si el usuario ya ha dado like o dislike
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Boolean userLikeState = forum.getUserLikes().get(userId);
 
-        // Lógica para los botones de like/dislike
+        // Actualizar colores para mostrar el estado actual
+        updateLikeDislikeUI(holder, userLikeState);
+
+
+        // Lógica para el botón de "Like"
         holder.likeButton.setOnClickListener(v -> {
-            /*String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            boolean isCurrentlyLiked = forum.getUserLikes().get(userId) != null && forum.getUserLikes().get(userId);
+            updateForumLikesInFirestore(forum.getId(), true, updatedForum -> {
+                forum.setLikeCount(updatedForum.getLikeCount());
+                forum.setDislikeCount(updatedForum.getDislikeCount());
+                forum.setUserLikes(updatedForum.getUserLikes());
 
-            // Actualizar el like/dislike
-            if (isCurrentlyLiked) {
-                // Si el usuario ya ha dado like, quitar el like
-                //forum.getUserLikes().remove(userId);
-                forum.setLikeCount(forum.getLikeCount() - 1);
-            } else {
-                // Si el usuario ha dado dislike, añadir el like y quitar dislike
-                //forum.getUserLikes().put(userId, true);
-                forum.setLikeCount(forum.getLikeCount() + 1);
-                // Si también tiene dislike, quitar el dislike
-                if (forum.getUserLikes().get(userId) != null && forum.getUserLikes().get(userId) == false) {
-                    //forum.getUserLikes().remove(userId); // Quitar dislike
-                    forum.setDislikeCount(forum.getDislikeCount() - 1);
-                }
-            }*/
-
-            // Actualizar la interfaz
-            //forumAdapter.notifyDataSetChanged();
-            // Llamar a Firestore para guardar el estado
-            updateForumLikesInFirestore(forum.getId(), true);
-
+                // Actualizar la UI después de que Firestore confirme los cambios
+                holder.likeCount.setText(String.valueOf(forum.getLikeCount()));
+                holder.dislikeCount.setText(String.valueOf(forum.getDislikeCount()));
+                setLikeDislikeColors(holder, forum);  // Actualizar colores
+            });
         });
 
-
+        // Lógica para el botón de "Dislike"
         holder.dislikeButton.setOnClickListener(v -> {
-            /*String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-            boolean isCurrentlyDisliked = forum.getUserLikes().get(userId) != null && !forum.getUserLikes().get(userId);
+            updateForumLikesInFirestore(forum.getId(), false, updatedForum -> {
+                forum.setLikeCount(updatedForum.getLikeCount());
+                forum.setDislikeCount(updatedForum.getDislikeCount());
+                forum.setUserLikes(updatedForum.getUserLikes());
 
-            // Actualizar el like/dislike
-            if (!isCurrentlyDisliked) {
-                // Si el usuario ya ha dado dislike, quitar el dislike
-                //forum.getUserLikes().remove(userId);
-                forum.setDislikeCount(forum.getDislikeCount() - 1);
-            } else {
-                // Si el usuario no ha dado dislike, añadir el dislike
-                //forum.getUserLikes().put(userId, false);
-                forum.setDislikeCount(forum.getDislikeCount() + 1);
-                // Si también tiene like, quitar el like
-                if (forum.getUserLikes().get(userId) != null && forum.getUserLikes().get(userId) == true) {
-                    //forum.getUserLikes().remove(userId); // Quitar like
-                    forum.setLikeCount(forum.getLikeCount() - 1);
-                }
-            }*/
-
-            // Actualizar la interfaz
-            //forumAdapter.notifyDataSetChanged();
-            // Llamar a Firestore para guardar el estado
-            updateForumLikesInFirestore(forum.getId(), false);
+                // Actualizar la UI después de que Firestore confirme los cambios
+                holder.likeCount.setText(String.valueOf(forum.getLikeCount()));
+                holder.dislikeCount.setText(String.valueOf(forum.getDislikeCount()));
+                setLikeDislikeColors(holder, forum);  // Actualizar colores
+            });
         });
-        Log.d("FragForum", "Like:"+forum.getLikeCount()+"//Dislike:"+forum.getDislikeCount());
+
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onForumClick(forum);
             }
         });
     }
+
 
     @Override
     public int getItemCount() {
@@ -147,17 +126,23 @@ public class ForumAdapter extends RecyclerView.Adapter<ForumAdapter.ForumViewHol
 
     // Método para cambiar el color de los botones de like y dislike
     private void setLikeDislikeColors(@NonNull ForumViewHolder holder, Forum forum) {
-        // Asigna el color dependiendo del estado del foro
-        if (forum.getLikeCount() > 0) {
-            //holder.likeButton.setColorFilter(Integer.parseInt("4CAF50"));
-        } else {
-            //holder.likeButton.setColorFilter(Integer.parseInt("808080"));
-        }
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Boolean userLikeStatus = forum.getUserLikes().get(userId);
 
-        if (forum.getDislikeCount() > 0) {
-            //holder.dislikeButton.setColorFilter(Integer.parseInt("F44336"));
+        updateLikeDislikeUI(holder, userLikeStatus);
+    }
+
+    // Método para actualizar la UI según el estado del like/dislike
+    private void updateLikeDislikeUI(@NonNull ForumViewHolder holder, Boolean userLikeState) {
+        if (userLikeState != null && userLikeState) {
+            holder.likeButton.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.green));
+            holder.dislikeButton.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.gray));
+        } else if (userLikeState != null && !userLikeState) {
+            holder.likeButton.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.gray));
+            holder.dislikeButton.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.red));
         } else {
-            //holder.dislikeButton.setColorFilter(Integer.parseInt("808080"));
+            holder.likeButton.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.gray));
+            holder.dislikeButton.setColorFilter(ContextCompat.getColor(holder.itemView.getContext(), R.color.gray));
         }
     }
 }

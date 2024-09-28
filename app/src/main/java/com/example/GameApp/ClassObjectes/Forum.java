@@ -66,4 +66,6 @@ public class Forum {
     public void setDislikeCount(int dislikeCount) { this.dislikeCount = dislikeCount; }
 
     public Map<String, Boolean> getUserLikes() { return userLikes; }
+
+    public void setUserLikes(Map<String, Boolean> userLikes) { this.userLikes = userLikes; }
 }

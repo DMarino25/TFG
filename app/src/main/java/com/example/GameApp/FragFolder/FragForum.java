@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.GameApp.OnForumUpdatedListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -179,66 +181,57 @@ public class FragForum extends Fragment {
                 });
     }
 
-    public static void updateForumLikesInFirestore(String forumId, boolean isLike) {
+    public static void updateForumLikesInFirestore(String forumId, boolean isLike, OnForumUpdatedListener listener) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         db.collection("forums").document(forumId).get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                Map<String, Boolean> userLikes = (Map<String, Boolean>) documentSnapshot.get("userLikes");
+                Forum forum = documentSnapshot.toObject(Forum.class);
+                Map<String, Boolean> userLikes = forum.getUserLikes();
 
                 // Obtener los contadores actuales
-                int likeCount = documentSnapshot.getLong("likeCount").intValue();
-                int dislikeCount = documentSnapshot.getLong("dislikeCount").intValue();
+                int likeCount = forum.getLikeCount();
+                int dislikeCount = forum.getDislikeCount();
 
-                // Verifica el estado actual del usuario
                 if (userLikes.containsKey(userId)) {
                     boolean currentState = userLikes.get(userId);
-                    // Si ya le gustó y se intenta dar like, quitamos el like.
-                    if (currentState && isLike){
+                    if (currentState && isLike) {
                         userLikes.remove(userId);
                         likeCount--;
-                    }
-                    // Si ya no le gustó y se intenta dar dislike, quitamo el dislike.
-                    else if (!currentState && !isLike){
+                    } else if (!currentState && !isLike) {
                         userLikes.remove(userId);
                         dislikeCount--;
-                    }
-                    // Si le gustó y se intenta dar dislike, actualizar
-                    else if (currentState && !isLike) {
-                        //userLikes.remove(userId);
+                    } else if (currentState && !isLike) {
                         userLikes.put(userId, false);
                         likeCount--;
                         dislikeCount++;
-                    } else if(!currentState && isLike) {
-                        // Si no le gustó y se intenta dar like, actualizar
+                    } else if (!currentState && isLike) {
                         userLikes.put(userId, true);
                         likeCount++;
                         dislikeCount--;
                     }
                 } else {
-                    // Si no ha votado, agregar el like o dislike
                     userLikes.put(userId, isLike);
                     if (isLike) likeCount++;
                     else dislikeCount++;
                 }
 
-                    // Actualizar en Firestore
-                    Map<String, Object> updates = new HashMap<>();
-                    updates.put("userLikes", userLikes);
-                    updates.put("likeCount", likeCount);
-                    updates.put("dislikeCount", dislikeCount);
+                forum.setLikeCount(likeCount);
+                forum.setDislikeCount(dislikeCount);
+                forum.setUserLikes(userLikes);
 
-                    db.collection("forums").document(forumId)
-                            .update(updates)
-                            .addOnSuccessListener(aVoid -> Log.d("FragForum", "Like/Dislike updated successfully"))
-                            .addOnFailureListener(e -> Log.e("FragForum", "Error updating Like/Dislike", e));
+                // Actualizar en Firestore
+                db.collection("forums").document(forumId)
+                        .set(forum)
+                        .addOnSuccessListener(aVoid -> {
+                            listener.onForumUpdated(forum);  // Devolver el foro actualizado a la UI
+                        });
 
-                    forumAdapter.notifyDataSetChanged();
+
             }
-        }).addOnFailureListener(e -> {
-            Log.e("FragForum", "Error fetching forum document", e);
         });
     }
+
 
 
 
