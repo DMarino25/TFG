@@ -160,8 +160,8 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         // Obtén userName y userProfilePhoto del documento de usuario
-                        String userName = documentSnapshot.getString("userName");
-                        String userProfilePhoto = documentSnapshot.getString("userProfilePhoto");
+                        String userName = documentSnapshot.getString("name");
+                        String userProfilePhoto = documentSnapshot.getString("photoUrl");
 
                         // Crear el nuevo comentario
                         Comment newComment = new Comment(userName, userProfilePhoto, commentText, Timestamp.now());
@@ -235,7 +235,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     // Procesar la respuesta
                     Log.d("ToxicityCheck", "responseData: " + responseData);
                     handleToxicityResponse(responseData, commentText, forumId);
-                }
+                }else Log.d("ToxicityCheck", "response is not successful: " + response);
             } catch (IOException e) {
                 Log.e("PerspectiveAPI", "Error en la conexión: ", e);
             }

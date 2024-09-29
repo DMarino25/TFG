@@ -156,8 +156,8 @@ public class FragForum extends Fragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         // Obtén userName y userProfilePhoto del documento de usuario
-                        String userName = documentSnapshot.getString("userName");
-                        String userProfilePhoto = documentSnapshot.getString("userProfilePhoto");
+                        String userName = documentSnapshot.getString("name");
+                        String userProfilePhoto = documentSnapshot.getString("photoUrl");
 
                         // Crea el mapa del nuevo foro con la información del usuario
                         Map<String, Object> forum = new HashMap<>();
