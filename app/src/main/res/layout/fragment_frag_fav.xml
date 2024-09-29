@@ -7,7 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Contenido previamente dentro del ScrollView -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -61,7 +60,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Contenedor de filtro y búsqueda -->
         <LinearLayout
             android:id="@+id/r0vkjdtxiwrk9"
             android:layout_width="match_parent"
@@ -106,15 +104,13 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Nuevo LinearLayout con fondo "#E2D4E7" -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:background="#E2D4E7"
             android:orientation="vertical"
-            android:paddingBottom="122dp">
-
+            android:paddingBottom="0dp">
 
             <TextView
                 android:id="@+id/no_favorites_text"
@@ -127,11 +123,11 @@
                 android:visibility="gone"
                 android:layout_marginTop="16dp" />
 
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/favList"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
         </LinearLayout>
 
