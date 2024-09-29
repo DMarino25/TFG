@@ -19,6 +19,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
 
         // Cargar detalles del foro y comentarios
         loadForumDetails();
-        loadComments();
+        setupCommentListener();
     }
 
     private void loadForumDetails() {
@@ -167,6 +168,30 @@ public class ForumDetailsActivity extends AppCompatActivity {
                                     // Ocurrió un error
                                     Log.e("FragForum", "Error al añadir comentario", e);
                                 });
+                    }
+                });
+    }
+
+    private void setupCommentListener() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("forums")
+                .document(forumId)
+                .collection("comments")
+                .orderBy("lastModifiedDate", Query.Direction.DESCENDING) // Ordenar por fecha en orden descendente
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null) {
+                        Log.e("ForumDetails", "Error al obtener los comentarios: ", e);
+                        return;
+                    }
+
+                    if (snapshots != null && !snapshots.isEmpty()) {
+                        commentList.clear();
+                        for (DocumentSnapshot document : snapshots.getDocuments()) {
+                            Comment comment = document.toObject(Comment.class);
+                            commentList.add(comment);
+                        }
+                        commentsAdapter.notifyDataSetChanged(); // Actualizar el RecyclerView
                     }
                 });
     }

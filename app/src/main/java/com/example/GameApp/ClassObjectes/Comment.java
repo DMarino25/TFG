@@ -10,6 +10,8 @@ public class Comment {
     private Timestamp lastModifiedDate;
     private String _formattedDate; // Equals lastModifiedDate formatted and in String
 
+    public Comment() {
+    }
     public Comment(String commentUserName, String commentUserPicture, String commentText, Timestamp lastModifiedDate) {
         this.commentUserName = commentUserName;
         this.commentUserPicture = commentUserPicture;
