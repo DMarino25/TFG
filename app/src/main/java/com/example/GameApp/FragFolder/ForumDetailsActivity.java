@@ -257,6 +257,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
             // Umbral para considerar el comentario como tóxico
             if (score < 0.7) {
                 // El comentario no es tóxico, se añade
+                commentText = commentText + " Puntuación de toxicidad: " + score;
                 addCommentToFirestore(commentText, forumId);
             } else {
                 // El comentario es tóxico, manejar la respuesta según sea necesario
