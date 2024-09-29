@@ -2,6 +2,7 @@ package com.example.GameApp.FragFolder;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,7 +22,6 @@ import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 public class FragFav extends Fragment {
 
@@ -31,23 +31,22 @@ public class FragFav extends Fragment {
     private FirebaseFirestore firestore;
     private FirebaseUser currentUser;
     private TextView noFavoritesText;
+    private ListenerRegistration favoritesListener; // Nueva variable
 
     public FragFav() {
-        // Required empty public constructor
+        // Constructor vacío requerido
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View v = inflater.inflate(R.layout.fragment_frag_fav, container, false);
-
 
         firestore = FirebaseFirestore.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (currentUser == null) {
-            Toast.makeText(getContext(), "Por favor, inicia sessió per a veure els teus favorits.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Por favor, inicia sesión para ver tus favoritos.", Toast.LENGTH_LONG).show();
             return v;
         }
 
@@ -60,42 +59,60 @@ public class FragFav extends Fragment {
         favAdapter = new FavAdapter(getContext(), favoriteGames);
         favList.setAdapter(favAdapter);
 
-        loadFavorites();
+        // Ya no es necesario llamar a loadFavorites()
+        // loadFavorites();
 
         return v;
     }
 
-    private void loadFavorites() {
-        firestore.collection("users").document(currentUser.getUid()).collection("favorits")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        favoriteGames.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            FavoriteGame favoriteGame = document.toObject(FavoriteGame.class);
-                            favoriteGames.add(favoriteGame);
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (currentUser != null) {
+            favoritesListener = firestore.collection("users").document(currentUser.getUid()).collection("favorits")
+                    .addSnapshotListener((snapshots, e) -> {
+                        if (e != null) {
+                            Toast.makeText(getContext(), "Error al obtener los favoritos.", Toast.LENGTH_LONG).show();
+                            return;
                         }
 
-                        // Ordenar la lista por rating de mayor a menor
-                        Collections.sort(favoriteGames, new Comparator<FavoriteGame>() {
-                            @Override
-                            public int compare(FavoriteGame o1, FavoriteGame o2) {
-                                return Integer.compare(o2.getRating(), o1.getRating());
+                        if (snapshots != null) {
+                            favoriteGames.clear();
+                            for (DocumentSnapshot document : snapshots.getDocuments()) {
+                                FavoriteGame favoriteGame = document.toObject(FavoriteGame.class);
+                                favoriteGames.add(favoriteGame);
                             }
-                        });
 
-                        favAdapter.notifyDataSetChanged();
+                            // Ordenar la lista por rating de mayor a menor
+                            Collections.sort(favoriteGames, (o1, o2) -> Integer.compare(o2.getRating(), o1.getRating()));
 
-                        if (favoriteGames.isEmpty()) {
-                            favList.setVisibility(View.GONE);
-                            noFavoritesText.setVisibility(View.VISIBLE);
-                        } else {
-                            favList.setVisibility(View.VISIBLE);
-                            noFavoritesText.setVisibility(View.GONE);
+                            favAdapter.notifyDataSetChanged();
+
+                            // Comprobar si la lista está vacía
+                            checkIfFavoritesEmpty();
                         }
-                    } else {
-                        Toast.makeText(getContext(), "Error al obtenir favorits.", Toast.LENGTH_LONG).show();
-                    }
-                });
+                    });
+        }
     }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (favoritesListener != null) {
+            favoritesListener.remove();
+            favoritesListener = null;
+        }
+    }
+
+    private void checkIfFavoritesEmpty() {
+        if (favoriteGames.isEmpty()) {
+            favList.setVisibility(View.GONE);
+            noFavoritesText.setVisibility(View.VISIBLE);
+        } else {
+            favList.setVisibility(View.VISIBLE);
+            noFavoritesText.setVisibility(View.GONE);
+        }
+    }
+
+
 }
