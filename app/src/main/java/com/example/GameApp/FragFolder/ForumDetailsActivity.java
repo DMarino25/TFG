@@ -22,12 +22,22 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.example.GameApp.ClassObjectes.Comment;
 import com.example.GameApp.CommentsAdapter;
 import com.example.GameApp.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class ForumDetailsActivity extends AppCompatActivity {
 
@@ -130,7 +140,8 @@ public class ForumDetailsActivity extends AppCompatActivity {
             String commentText = input.getText().toString();
             if (!commentText.isEmpty()) {
                 // Lógica para añadir el comentario a Firestore
-                addCommentToFirestore(commentText, forumId);
+                Log.d("ToxicityCheck", "commentText: " + commentText);
+                checkCommentToxicity(commentText, forumId);
             }
         });
 
@@ -196,5 +207,64 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 });
     }
 
+    private void checkCommentToxicity(String commentText, String forumId) {
+        // Crear un nuevo hilo para evitar bloquear la UI
+        new Thread(() -> {
+            OkHttpClient client = new OkHttpClient();
+            String apiKey = "AIzaSyCNGsAwGpJF2DOTricV1hFDCLuixbpEFpU"; // API Key
+
+            // URL de la API Perspective
+            String url = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + apiKey;
+
+            // Crear el cuerpo de la solicitud JSON
+            String json = "{\n" +
+                    "  'comment': { 'text': '" + commentText + "' },\n" +
+                    "  'requestedAttributes': { 'TOXICITY': {} }\n" +
+                    "}";
+            Log.d("ToxicityCheck", "json: " + json);
+            RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    // Procesar la respuesta
+                    Log.d("ToxicityCheck", "responseData: " + responseData);
+                    handleToxicityResponse(responseData, commentText, forumId);
+                }
+            } catch (IOException e) {
+                Log.e("PerspectiveAPI", "Error en la conexión: ", e);
+            }
+        }).start();
+    }
+
+    private void handleToxicityResponse(String responseData, String commentText, String forumId) {
+        // Analizar la respuesta JSON para determinar si el comentario es tóxico
+        try {
+            JSONObject jsonObject = new JSONObject(responseData);
+            JSONObject attribute = jsonObject.getJSONObject("attributeScores");
+            JSONObject toxicityScore = attribute.getJSONObject("TOXICITY");
+
+            // Acceder al valor dentro del objeto summaryScore
+            JSONObject summaryScore = toxicityScore.getJSONObject("summaryScore");
+            double score = summaryScore.getDouble("value");
+
+            Log.d("ToxicityCheck", "Puntuación de toxicidad: " + score);
+            // Umbral para considerar el comentario como tóxico
+            if (score < 0.7) {
+                // El comentario no es tóxico, se añade
+                addCommentToFirestore(commentText, forumId);
+            } else {
+                // El comentario es tóxico, manejar la respuesta según sea necesario
+                Log.d("ToxicityCheck", "El comentario es tóxico y no se añadirá.");
+            }
+        } catch (JSONException e) {
+            Log.e("ToxicityCheckError", "Error al analizar la respuesta: ", e);
+        }
+    }
 
 }
