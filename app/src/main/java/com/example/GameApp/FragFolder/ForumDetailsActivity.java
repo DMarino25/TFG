@@ -1,11 +1,14 @@
 package com.example.GameApp.FragFolder;
 
+import static java.security.AccessController.getContext;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -260,6 +263,8 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 commentText = commentText + " Puntuación de toxicidad: " + score;
                 addCommentToFirestore(commentText, forumId);
             } else {
+                runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "Missatge no pèrmes.", Toast.LENGTH_SHORT).show());
+
                 // El comentario es tóxico, manejar la respuesta según sea necesario
                 Log.d("ToxicityCheck", "El comentario es tóxico y no se añadirá.");
             }
