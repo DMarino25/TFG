@@ -1,15 +1,15 @@
 package com.example.GameApp.FragFolder;
 
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,16 +22,19 @@ import com.google.firebase.firestore.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class FragFav extends Fragment {
 
     private RecyclerView favList;
     private FavAdapter favAdapter;
-    private ArrayList<FavoriteGame> favoriteGames;
+    private ArrayList<FavoriteGame> favoriteGames; // Lista completa de favoritos
     private FirebaseFirestore firestore;
     private FirebaseUser currentUser;
     private TextView noFavoritesText;
-    private ListenerRegistration favoritesListener; // Nueva variable
+    private ListenerRegistration favoritesListener;
+    private EditText cercadora;
+    private ImageView go;
 
     public FragFav() {
         // Constructor vacío requerido
@@ -44,9 +47,11 @@ public class FragFav extends Fragment {
 
         firestore = FirebaseFirestore.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        go = v.findViewById(R.id.go2);
+        cercadora = v.findViewById(R.id.cerca2);
 
         if (currentUser == null) {
-            Toast.makeText(getContext(), "Por favor, inicia sesión para ver tus favoritos.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), "Inicia sessió per a veure els favorits.", Toast.LENGTH_LONG).show();
             return v;
         }
 
@@ -54,13 +59,17 @@ public class FragFav extends Fragment {
         noFavoritesText = v.findViewById(R.id.no_favorites_text);
 
         favoriteGames = new ArrayList<>();
-
         favList.setLayoutManager(new LinearLayoutManager(getContext()));
-        favAdapter = new FavAdapter(getContext(), favoriteGames);
+        favAdapter = new FavAdapter(getContext(), new ArrayList<FavoriteGame>());
         favList.setAdapter(favAdapter);
 
-        // Ya no es necesario llamar a loadFavorites()
-        // loadFavorites();
+        go.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String searchQuery = cercadora.getText().toString().trim();
+                filtraJocs(searchQuery);
+            }
+        });
 
         return v;
     }
@@ -70,26 +79,33 @@ public class FragFav extends Fragment {
         super.onStart();
         if (currentUser != null) {
             favoritesListener = firestore.collection("users").document(currentUser.getUid()).collection("favorits")
-                    .addSnapshotListener((snapshots, e) -> {
-                        if (e != null) {
-                            Toast.makeText(getContext(), "Error al obtener los favoritos.", Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
-                        if (snapshots != null) {
-                            favoriteGames.clear();
-                            for (DocumentSnapshot document : snapshots.getDocuments()) {
-                                FavoriteGame favoriteGame = document.toObject(FavoriteGame.class);
-                                favoriteGames.add(favoriteGame);
+                    .addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(QuerySnapshot snapshots, com.google.firebase.firestore.FirebaseFirestoreException e) {
+                            if (e != null) {
+                                Toast.makeText(getContext(), "Error al obtener los favoritos.", Toast.LENGTH_LONG).show();
+                                return;
                             }
 
-                            // Ordenar la lista por rating de mayor a menor
-                            Collections.sort(favoriteGames, (o1, o2) -> Integer.compare(o2.getRating(), o1.getRating()));
+                            if (snapshots != null) {
+                                favoriteGames.clear();
+                                for (DocumentSnapshot document : snapshots.getDocuments()) {
+                                    FavoriteGame favoriteGame = document.toObject(FavoriteGame.class);
+                                    favoriteGames.add(favoriteGame);
+                                }
 
-                            favAdapter.notifyDataSetChanged();
+                                Collections.sort(favoriteGames, new java.util.Comparator<FavoriteGame>() {
+                                    @Override
+                                    public int compare(FavoriteGame o1, FavoriteGame o2) {
+                                        return Integer.compare(o2.getRating(), o1.getRating());
+                                    }
+                                });
 
-                            // Comprobar si la lista está vacía
-                            checkIfFavoritesEmpty();
+                                String currentSearchQuery = cercadora.getText().toString().trim();
+                                filtraJocs(currentSearchQuery);
+
+                                checkIfFavoritesEmpty();
+                            }
                         }
                     });
         }
@@ -105,7 +121,7 @@ public class FragFav extends Fragment {
     }
 
     private void checkIfFavoritesEmpty() {
-        if (favoriteGames.isEmpty()) {
+        if (favAdapter.getItemCount() == 0) {
             favList.setVisibility(View.GONE);
             noFavoritesText.setVisibility(View.VISIBLE);
         } else {
@@ -114,5 +130,20 @@ public class FragFav extends Fragment {
         }
     }
 
+    private void filtraJocs(String query) {
+        ArrayList<FavoriteGame> filteredList = new ArrayList<>();
 
+        if (TextUtils.isEmpty(query)) {
+            filteredList.addAll(favoriteGames);
+        } else {
+            for (FavoriteGame game : favoriteGames) {
+                if (game.getTitle() != null && game.getTitle().toLowerCase().contains(query.toLowerCase())) {
+                    filteredList.add(game);
+                }
+            }
+        }
+        favAdapter.updateList(filteredList);
+
+        checkIfFavoritesEmpty();
+    }
 }

@@ -47,28 +47,50 @@ public class FragHome extends Fragment {
 
     private RecyclerView recyclerView;
     private CoverAdapter coverAdapter;
-    private static final String TAG = "OauthAct";
+    private static final String TAG = "FragHome"; // Ajuste del tag
+    private IGDBApi apiService;
 
     public FragHome() {
-        // Required empty public constructor
+        // Constructor vacío requerido
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         View v = inflater.inflate(R.layout.fragment_frag_home, container, false);
 
         recyclerView = v.findViewById(R.id.recyclerView);
+        EditText cercadora = v.findViewById(R.id.cercadora1);
+        ImageView go = v.findViewById(R.id.go);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
-        IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
+        apiService = ApiController.getClient().create(IGDBApi.class);
 
+        loadInitialGames();
 
+        go.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String searchGame = cercadora.getText().toString().trim();
+                if (!searchGame.isEmpty()) {
+
+                    searchGames(searchGame);
+                } else {
+                    loadInitialGames();
+                }
+            }
+        });
+
+        return v;
+
+    }
+
+    private void loadInitialGames() {
         String coversQuery = "fields id,game,height,image_id,url,width,checksum; limit 50;";
         RequestBody coversRequestBody = RequestBody.create(coversQuery, MediaType.parse("text/plain"));
-
 
         Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody);
         coversCall.enqueue(new Callback<List<Cover>>() {
@@ -76,7 +98,6 @@ public class FragHome extends Fragment {
             public void onResponse(Call<List<Cover>> call, Response<List<Cover>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     coverList = response.body();
-
 
                     List<Integer> gameIds = new ArrayList<>();
                     for (Cover cover : coverList) {
@@ -103,7 +124,7 @@ public class FragHome extends Fragment {
                                     for (Game game : response.body()) {
                                         if (cover.getGame() == game.getId()) {
                                             if (game.getName() != null && !game.getName().isEmpty()) {
-                                                cover.setGameName(game.getName()); // Asignar nombre si está disponible
+                                                cover.setGameName(game.getName());
                                             } else {
                                                 cover.setGameName("Nom no disponible");
                                             }
@@ -119,78 +140,105 @@ public class FragHome extends Fragment {
 
                                 Log.d(TAG, "Cantidad de juegos filtrados: " + filteredCoverList.size());
 
-                                coverAdapter = new CoverAdapter(getContext(),filteredCoverList);
+                                coverAdapter = new CoverAdapter(getContext(), filteredCoverList);
                                 recyclerView.setAdapter(coverAdapter);
 
                             } else {
-                                Log.e(TAG, "Games response not successful or empty");
+                                Log.e(TAG, "Respuesta de juegos no exitosa o vacía");
                             }
                         }
 
                         @Override
                         public void onFailure(Call<List<Game>> call, Throwable t) {
-                            Log.e(TAG, "Games API call failed: " + t.getMessage());
+                            Log.e(TAG, "Falló la llamada a la API de juegos: " + t.getMessage());
                         }
                     });
                 } else {
-                    Log.e(TAG, "Covers response not successful or empty");
+                    Log.e(TAG, "Respuesta de covers no exitosa o vacía");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Cover>> call, Throwable t) {
-                Log.e(TAG, "Covers API call failed: " + t.getMessage());
+                Log.e(TAG, "Falló la llamada a la API de covers: " + t.getMessage());
             }
         });
-
-        return v;
-
     }
 
+    private void searchGames(String searchGame) {
+        String gamesQuery = "search \"" + searchGame + "\"; fields id,name; limit 50;";
+        RequestBody gamesRequestBody = RequestBody.create(gamesQuery, MediaType.parse("text/plain"));
 
-    public void showToastMessage(View view) {
-        // Texto del EditTextString searchQuery = cercaText.getText().toString();
-
-        // Mostrar "toast" con el texto
-       /* if (searchQuery.isEmpty()) {
-            Toast.makeText(getContext(), "Por favor, ingresa un nombre de juego.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
-
-        String query = "fields name, artworks; where name = \"" + searchQuery + "\"; limit 1;";
-        //String query = "fields name, artworks; where id = 1905; limit 1;";
-        RequestBody gameRequestBody = RequestBody.create(query, MediaType.parse("text/plain"));
-        Call<List<Game>> call = apiService.getGames(gameRequestBody);
-
-        call.enqueue(new Callback<List<Game>>() {
+        Call<List<Game>> gamesCall = apiService.getGames(gamesRequestBody);
+        gamesCall.enqueue(new Callback<List<Game>>() {
             @Override
             public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    // Obtener nombre del juego
-                    Game game = response.body().get(0);
-                    Log.d("API_RESPONSE", "Game name: " + game.getName());
-                    String gameName = game.getName();
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Game> gamesList = response.body();
+                    List<Integer> gameIds = new ArrayList<>();
+                    Map<Integer, String> gameNamesMap = new HashMap<>();
 
-                    // Mostrar nombre del juego en Toast
-                    Toast.makeText(getContext(), "Juego encontrado: " + gameName, Toast.LENGTH_LONG).show();
+                    for (Game game : gamesList) {
+                        gameIds.add(game.getId());
+                        gameNamesMap.put(game.getId(), game.getName());
+                    }
 
-                    // Registrar la respuesta completa en el log
-                    Gson gson = new Gson();
-                    String jsonResponse = gson.toJson(response.body());
-                    Log.d("API_RESPONSE_FULL_JSON", jsonResponse);
+                    if (gameIds.isEmpty()) {
+                        Toast.makeText(getContext(), "No se encontraron juegos", Toast.LENGTH_SHORT).show();
+                        coverList.clear();
+                        coverAdapter.notifyDataSetChanged();
+                        return;
+                    }
+
+                    String coversQuery = "fields id,game,height,image_id,url,width,checksum; where game = (" + TextUtils.join(",", gameIds) + ");";
+                    RequestBody coversRequestBody = RequestBody.create(coversQuery, MediaType.parse("text/plain"));
+
+                    Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody);
+                    coversCall.enqueue(new Callback<List<Cover>>() {
+                        @Override
+                        public void onResponse(Call<List<Cover>> call, Response<List<Cover>> response) {
+                            if (response.isSuccessful() && response.body() != null) {
+                                coverList = response.body();
+                                List<Cover> filteredCoverList = new ArrayList<>();
+
+                                for (Cover cover : coverList) {
+                                    int gameId = cover.getGame();
+                                    String gameName = gameNamesMap.get(gameId);
+                                    if (gameName != null && !gameName.isEmpty()) {
+                                        cover.setGameName(gameName);
+                                    } else {
+                                        cover.setGameName("Nom no disponible");
+                                    }
+
+                                    if (cover.getUrl() != null && !cover.getUrl().isEmpty()) {
+                                        filteredCoverList.add(cover);
+                                    }
+                                }
+
+                                coverAdapter = new CoverAdapter(getContext(), filteredCoverList);
+                                recyclerView.setAdapter(coverAdapter);
+
+                            } else {
+                                Log.e(TAG, "Resposta de covers no exitosa o buida");
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<List<Cover>> call, Throwable t) {
+                            Log.e(TAG, "Falló la llamada a la API de covers: " + t.getMessage());
+                        }
+                    });
                 } else {
-                    Log.e("API_RESPONSE", "No se encontró ningún juego.");
-                    Toast.makeText(getContext(), "No se encontró ningún juego.", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Respuesta de búsqueda de juegos no exitosa o vacía");
+                    Toast.makeText(getContext(), "No s'han trobat coincidencies", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Log.e("API_CALL", "Fallo la llamada a la API: " + t.getMessage());
-                Toast.makeText(getContext(), "Error al buscar el juego.", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Falló la llamada a la API de búsqueda de juegos: " + t.getMessage());
+                Toast.makeText(getContext(), "Error al cercar jocs", Toast.LENGTH_SHORT).show();
             }
-        });*/
+        });
     }
 }

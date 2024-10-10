@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -68,6 +69,7 @@ public class GameDetails extends AppCompatActivity {
         TextView titol = findViewById(R.id.titol);
         ImageView back = findViewById(R.id.flecha);
         LinearLayout ratingStarsContainer = findViewById(R.id.rating_stars_container);
+
 
 
         TextView releaseDateTextView = findViewById(R.id.launching);

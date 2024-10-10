@@ -2,270 +2,255 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#FFFFFF"
+    android:background="#E2D4E7"
     android:clipChildren="false"
     android:clipToPadding="false"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ScrollView
+    android:layout_height="match_parent"> <!-- Ocupa todo el espacio disponible -->
+
+    <!-- Contenedor principal para el contenido -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:clipChildren="false"
         android:clipToPadding="false"
-        android:id="@+id/r18qmtgzyl8r"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#FFFFFF"
-        >
-        <LinearLayout
+        android:orientation="vertical">
+
+        <!-- Primera sección de la pantalla -->
+        <RelativeLayout
+            android:id="@+id/ro6sdib9s2q"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
             android:clipChildren="false"
-            android:clipToPadding="false"
-            android:orientation="vertical">
-            <RelativeLayout
-                android:id="@+id/ro6sdib9s2q"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="1dp"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                >
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:id="@+id/rf090803q0ck"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/cr6bc1b0cc"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="12dp">
-
-                        <ImageView
-                            android:id="@+id/r23l55jbtiga"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_marginTop="18dp"
-                            android:scaleType="fitXY"
-                            android:src="@mipmap/ic_launcher" />
-                    </LinearLayout>
-                </LinearLayout>
-
-            </RelativeLayout>
+            android:clipToPadding="false">
 
             <LinearLayout
-                android:id="@+id/rtqtm2savc3o"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#E2D4E7"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:orientation="vertical"
-                android:paddingVertical="28dp">
+                android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/r5nh5cmwtxtu"
-                    android:layout_width="match_parent"
-                    android:layout_height="135dp"
-                    android:layout_marginHorizontal="112dp"
-                    android:layout_marginBottom="10dp"
-                    android:scaleType="fitXY"
-                    android:src="@mipmap/ic_launcher" />
-
-                <TextView
-                    android:id="@+id/rved69tkron"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="102dp"
-                    android:layout_marginBottom="13dp"
-                    android:text="SpearGoblin25"
-                    android:textColor="#000000"
-                    android:textSize="24sp" />
-
-                <TextView
-                    android:id="@+id/rewlolqqya2h"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="28dp"
-                    android:layout_marginBottom="18dp"
-                    android:text="Amante de los videojuegos, RPG y estrategia."
-                    android:textColor="#000000"
-                    android:textSize="16sp" />
-
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    android:id="@+id/rlpsajzldav"
+                <LinearLayout
+                    android:id="@+id/rf090803q0ck"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginBottom="19dp"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/r116psy369o6"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🎮 Juegos Favoritos"
-                        android:textColor="#000000"
-                        android:textSize="16sp" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                        xmlns:app="http://schemas.android.com/apk/res-auto"
-                        xmlns:tools="http://schemas.android.com/tools"
-                        android:id="@+id/r3z1vlr0170u"
-                        android:layout_width="149dp"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/cr6bc1b0cc"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:gravity="center_horizontal"
-                        android:orientation="vertical"
-                        android:paddingVertical="6dp">
-
-                        <TextView
-                            android:id="@+id/rcor7axf0grk"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="+99 Juegos"
-                            android:textColor="#000000"
-                            android:textSize="16sp" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/rlx5erhz14o"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="27dp"
-                    android:layout_marginBottom="21dp"
-                    android:text="🕒 Actividad Reciente"
-                    android:textColor="#000000"
-                    android:textSize="16sp" />
-
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    android:id="@+id/r155fsfryh4z"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="23dp"
-                    android:layout_marginBottom="15dp"
                     android:background="@drawable/cr6bc1b0cc"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:paddingVertical="12dp">
+                    android:paddingHorizontal="12dp">
 
-                    <TextView
-                        android:id="@+id/rmiefov98qg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Comentó en “League of Legends 2”"
-                        android:textColor="#000000"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    android:id="@+id/rmrdv47zgl8"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="22dp"
-                    android:layout_marginBottom="175dp"
-                    android:background="@drawable/cr6bc1b0cc"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingVertical="12dp">
-
-                    <TextView
-                        android:id="@+id/rrshjv9zty3h"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Comentó en “Nuevo mapa LoL2”"
-                        android:textColor="#000000"
-                        android:textSize="16sp" />
-                </LinearLayout>
-
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:app="http://schemas.android.com/apk/res-auto"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    android:id="@+id/r6krwfgtmlho"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="24dp"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                        xmlns:app="http://schemas.android.com/apk/res-auto"
-                        xmlns:tools="http://schemas.android.com/tools"
-                        android:id="@+id/logout"
-                        android:layout_width="121dp"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/cr100b65558f"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:gravity="center_horizontal"
-                        android:orientation="vertical"
-                        android:paddingVertical="14dp">
-
-                        <TextView
-                            android:id="@+id/rkx7fn8mklwk"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Tanca Sessó"
-                            android:textColor="#FFFFFF"
-                            android:textSize="14sp" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                        xmlns:app="http://schemas.android.com/apk/res-auto"
-                        xmlns:tools="http://schemas.android.com/tools"
-                        android:id="@+id/r3ey5ipy5fd2"
-                        android:layout_width="135dp"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/sff3b30sw2cr100b65558f"
-                        android:clipChildren="false"
-                        android:clipToPadding="false"
-                        android:gravity="center_horizontal"
-                        android:orientation="vertical"
-                        android:paddingVertical="14dp">
-
-                        <TextView
-                            android:id="@+id/ra4ge3i37agc"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Eliminar Cuenta"
-                            android:textColor="#FF3B30"
-                            android:textSize="14sp" />
-                    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/r23l55jbtiga"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginTop="18dp"
+                        android:scaleType="fitXY"
+                        android:src="@mipmap/ic_launcher" />
                 </LinearLayout>
             </LinearLayout>
+
+        </RelativeLayout>
+
+        <!-- Sección que contiene el contenido principal de la pantalla -->
+        <LinearLayout
+            android:id="@+id/rtqtm2savc3o"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+        android:background="#E2D4E7"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingVertical="28dp">
+
+        <ImageView
+            android:id="@+id/r5nh5cmwtxtu"
+            android:layout_width="match_parent"
+            android:layout_height="135dp"
+            android:layout_marginHorizontal="112dp"
+            android:layout_marginBottom="10dp"
+            android:scaleType="fitXY"
+            android:src="@mipmap/ic_launcher" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/UserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SpearGoblin25"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:inputType="textNoSuggestions|textVisiblePassword"
+            android:importantForAccessibility="no"
+            android:autofillHints="" />
+                />
+
+            <ImageButton
+                android:id="@+id/editUsername"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Editar nombre de usuario"
+                app:srcCompat="@android:drawable/ic_menu_edit" />
+
         </LinearLayout>
-    </ScrollView>
+
+        <TextView
+            android:id="@+id/rewlolqqya2h"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="28dp"
+            android:layout_marginBottom="18dp"
+            android:text="Amante de los videojuegos, RPG y estrategia."
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:id="@+id/rlpsajzldav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginBottom="19dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/r116psy369o6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎮 Juegos Favoritos"
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:id="@+id/r3z1vlr0170u"
+                android:layout_width="149dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/cr6bc1b0cc"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingVertical="6dp">
+
+                <TextView
+                    android:id="@+id/rcor7axf0grk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+99 Juegos"
+                    android:textColor="#000000"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/rlx5erhz14o"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="27dp"
+            android:layout_marginBottom="21dp"
+            android:text="🕒 Actividad Reciente"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:id="@+id/r155fsfryh4z"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="23dp"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/cr6bc1b0cc"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingVertical="12dp">
+
+            <TextView
+                android:id="@+id/rmiefov98qg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Comentó en “League of Legends 2”"
+                android:textColor="#000000"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/r6krwfgtmlho"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24dp"
+            android:layout_marginTop="140dp"
+            android:layout_marginBottom="10dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Botón "Tanca Sessó" -->
+            <LinearLayout
+                android:id="@+id/logout"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/cr100b65558f"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingVertical="16dp">
+
+                <TextView
+                    android:id="@+id/rkx7fn8mklwk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tanca Sessió"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Botón "Eliminar Cuenta" -->
+            <LinearLayout
+                android:id="@+id/r3ey5ipy5fd2"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/sff3b30sw2cr100b65558f"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingVertical="16dp">
+
+                <TextView
+                    android:id="@+id/ra4ge3i37agc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Eliminar Cuenta"
+                    android:textColor="#FF3B30"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
 </LinearLayout>
+    </LinearLayout>

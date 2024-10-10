@@ -3,10 +3,14 @@ package com.example.GameApp.FragFolder;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -39,8 +43,14 @@ public class FragForum extends Fragment {
     private RecyclerView recyclerView;
     private static ForumAdapter forumAdapter;
     private List<Forum> forumList;
+
+    private List<Forum> fullForumList; // Lista completa de Firestore
     private static FirebaseFirestore db;
     private FloatingActionButton fabCreateForum;
+
+    private EditText cercadora;
+    private String currentSearchQuery = "";
+    private ImageView go;
 
     public FragForum() {
         // Constructor vacío
@@ -52,10 +62,13 @@ public class FragForum extends Fragment {
         View view = inflater.inflate(R.layout.fragment_frag_forum, container, false);
 
         recyclerView = view.findViewById(R.id.recyclerViewForums);
+        go = view.findViewById(R.id.go3);
+        cercadora = view.findViewById(R.id.cerca3);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Inicializamos la lista de foros y el adaptador
         forumList = new ArrayList<>();
+        fullForumList = new ArrayList<>();
         forumAdapter = new ForumAdapter(forumList, forum -> {
             // Al hacer clic en un foro, abrimos la pantalla de detalles
             Intent intent = new Intent(getActivity(), ForumDetailsActivity.class);
@@ -70,6 +83,10 @@ public class FragForum extends Fragment {
 
         recyclerView.setAdapter(forumAdapter);
         db = FirebaseFirestore.getInstance();
+        go.setOnClickListener(v -> {
+            currentSearchQuery = cercadora.getText().toString().trim();
+            filtrarFòrums(currentSearchQuery);
+        });
 
         // Botón flotante para crear un nuevo foro
         fabCreateForum = view.findViewById(R.id.createForumButton);
@@ -88,7 +105,8 @@ public class FragForum extends Fragment {
                     if (task.isSuccessful()) {
                         Log.d("FragForum", "Data fetch successful");
 
-                        // Limpiar la lista de foros para evitar duplicados
+                        // Limpiar ambas listas para evitar duplicados
+                        fullForumList.clear();
                         forumList.clear();
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
@@ -99,28 +117,23 @@ public class FragForum extends Fragment {
                             Timestamp lastModifiedDate = forum.getLastModifiedDate();
                             String formattedDate = formatLastModifiedDate(lastModifiedDate);
                             forum.setFormattedDate(formattedDate);
-                            /*if (lastModifiedDate != null) {
-                                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                                String formattedDate = sdf.format(lastModifiedDate.toDate());
-                                forum.setFormattedDate(formattedDate);
-                            }*/
 
                             // Establecemos el ID del documento para futuras referencias
                             forum.setId(document.getId());
 
-                            // Añadimos el foro a la lista
-                            forumList.add(forum);
-
-                            Log.d("FragForum", "Forum added: " + forum.getTitle() + " by " + forum.getUserName());
+                            // Añadimos el foro a la lista completa
+                            fullForumList.add(forum);
                         }
 
-                        // Notificar al adaptador que los datos han cambiado
-                        forumAdapter.notifyDataSetChanged();
+                        // Aplicar el filtro actual
+                        filtrarFòrums(currentSearchQuery);
+
                     } else {
                         Log.e("FragForum", "Error fetching forums", task.getException());
                     }
                 });
     }
+
 
 
 
@@ -181,6 +194,20 @@ public class FragForum extends Fragment {
                         Log.e("FragForum", "Usuario no encontrado en la colección 'users'");
                     }
                 });
+    }
+    private void filtrarFòrums(String query) {
+        forumList.clear();
+
+        if (TextUtils.isEmpty(query)) {
+            forumList.addAll(fullForumList);
+        } else {
+            for (Forum forum : fullForumList) {
+                if (forum.getTitle() != null && forum.getTitle().toLowerCase().contains(query.toLowerCase())) {
+                    forumList.add(forum);
+                }
+            }
+        }
+        forumAdapter.notifyDataSetChanged();
     }
 
     public static void updateForumLikesInFirestore(String forumId, boolean isLike, OnForumUpdatedListener listener) {

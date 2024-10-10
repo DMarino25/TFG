@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.example.GameApp.ClassObjectes.FavoriteGame;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
 
@@ -57,9 +58,16 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
         });
     }
 
+
     @Override
     public int getItemCount() {
         return lgames.size();
+    }
+
+    public void updateList(ArrayList<FavoriteGame> newList) {
+        this.lgames.clear(); // Limpiar la lista actual
+        this.lgames.addAll(newList); // Añadir los nuevos elementos
+        notifyDataSetChanged(); // Notificar al adaptador que los datos han cambiado
     }
 
     public class FavViewHolder extends RecyclerView.ViewHolder {

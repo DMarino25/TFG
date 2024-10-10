@@ -17,6 +17,7 @@ import retrofit2.http.Headers;
 import retrofit2.http.POST;
 
 public interface IGDBApi {
+
     @Headers({
             "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
             "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
@@ -24,48 +25,13 @@ public interface IGDBApi {
     })
     @POST("games")
     Call<List<Game>> getGames(@Body RequestBody body);
-    @Headers({
-            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
-            "Content-Type: text/plain"
-    })
-    @POST("genres")
-    Call<List<Genres>> getGenres(@Body RequestBody body);
-    @Headers({
-            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
-            "Content-Type: text/plain"
-    })
-    @POST("platforms")
-    Call<List<Platforms>> getPlatforms(@Body RequestBody body);
-    @Headers({
-            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
-            "Content-Type: text/plain"
-    })
-    @POST("involved_companies")
-    Call<List<InvolvedCompanies>> getInvolvedCompanies(@Body RequestBody body);
-    @Headers({
-            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
-            "Content-Type: text/plain"
-    })
-    @POST("companies")
-    Call<List<Companies>> getCompanies(@Body RequestBody body);
-    @Headers({
-            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
-            "Content-Type: text/plain"
-    })
 
+    @Headers({
+            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
+            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
+            "Content-Type: text/plain"
+    })
     @POST("covers")
     Call<List<Cover>> getCovers(@Body RequestBody body);
-    @Headers({
-            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
-            "Content-Type: text/plain"
-    })
-    @POST("artworks")
-    Call<List<Artwork>> getArtwork(@Body RequestBody body);
 
 }
