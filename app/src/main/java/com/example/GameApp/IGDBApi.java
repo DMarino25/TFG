@@ -20,7 +20,7 @@ public interface IGDBApi {
 
     @Headers({
             "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
+            "Authorization: Bearer 9iyx5o2sbgdhkh66m37erk4y8cwqek",
             "Content-Type: text/plain"
     })
     @POST("games")
@@ -28,7 +28,7 @@ public interface IGDBApi {
 
     @Headers({
             "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
+            "Authorization: Bearer 9iyx5o2sbgdhkh66m37erk4y8cwqek",
             "Content-Type: text/plain"
     })
     @POST("covers")

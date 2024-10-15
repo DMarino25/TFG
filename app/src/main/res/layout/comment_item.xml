@@ -1,47 +1,95 @@
-<androidx.cardview.widget.CardView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp"
-    app:cardBackgroundColor="#F5F5F5">
+    android:orientation="vertical"
+    android:padding="0dp">
 
-    <LinearLayout
+    <!-- CardView para el comentario principal -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/authorImageView"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_launcher_foreground"
-            android:layout_marginEnd="8dp"/>
+        android:layout_marginBottom="8dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#F5F5F5">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:padding="12dp"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/authorTextView"
+            <ImageView
+                android:id="@+id/authorImageView"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_launcher_foreground"
+                android:layout_marginEnd="8dp"/>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nombre del autor"
-                android:textSize="14sp"
-                android:textColor="#333333" />
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/commentTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Este es un comentario."
-                android:textSize="14sp"
-                android:textColor="#666666" />
+                <TextView
+                    android:id="@+id/authorTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre del autor"
+                    android:textSize="14sp"
+                    android:textColor="#333333" />
+
+                <TextView
+                    android:id="@+id/commentTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Este es un comentario."
+                    android:textSize="14sp"
+                    android:textColor="#666666" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/commentReplyText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="0dp"
+                        android:text="Responder"
+                        android:textColor="#007BFF"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/toggleRepliesTextView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:text="Mostrar"
+                        android:textColor="#007BFF"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+    </androidx.cardview.widget.CardView>
+
+    <!-- RecyclerView para las respuestas, fuera del CardView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/repliesRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false"
+        android:visibility="gone"/>
+
+</LinearLayout>

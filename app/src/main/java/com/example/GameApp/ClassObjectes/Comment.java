@@ -1,9 +1,11 @@
 package com.example.GameApp.ClassObjectes;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.database.Exclude;
 
 public class Comment {
-
+    @Exclude
+    private String id;
     private String commentUserName;
     private String commentUserPicture;
     private String commentText;
@@ -19,6 +21,9 @@ public class Comment {
         this.lastModifiedDate = lastModifiedDate;
     }
 
+    public String getId() { return id; }
+
+    public void setId(String id) { this.id = id; }
     public String getCommentUserName() {
         return commentUserName;
     }

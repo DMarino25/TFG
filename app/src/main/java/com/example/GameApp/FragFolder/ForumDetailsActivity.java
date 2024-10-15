@@ -27,7 +27,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.example.GameApp.ClassObjectes.Comment;
 import com.example.GameApp.CommentsAdapter;
@@ -70,14 +73,14 @@ public class ForumDetailsActivity extends AppCompatActivity {
         commentsRecyclerView = findViewById(R.id.commentsRecyclerView);
         replyText = findViewById(R.id.replyText);
 
-        // Configurar RecyclerView
-        commentList = new ArrayList<>();
-        commentsAdapter = new CommentsAdapter(commentList);
-        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        commentsRecyclerView.setAdapter(commentsAdapter);
-
         // Obtener el forumId pasado desde la actividad anterior
         forumId = getIntent().getStringExtra("forumId");
+
+        // Configurar RecyclerView
+        commentList = new ArrayList<>();
+        commentsAdapter = new CommentsAdapter(commentList, forumId);
+        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        commentsRecyclerView.setAdapter(commentsAdapter);
 
         replyText.setOnClickListener(v -> {
             // Lógica para abrir un campo de texto y permitir al usuario añadir un comentario
@@ -121,6 +124,8 @@ public class ForumDetailsActivity extends AppCompatActivity {
 
                         // Crear un nuevo objeto Comment con la información del usuario y el comentario
                         Comment comment = new Comment(commentUserName, userProfilePhoto, commentText, Timestamp.now());
+                        comment.setId(document.getId());
+                        Log.d("ToxicityCheck", "comment.setId(document.getId()): " + document.getId());
                         commentList.add(comment);
 
                         // Notificar al adaptador que los datos han cambiado
@@ -167,13 +172,18 @@ public class ForumDetailsActivity extends AppCompatActivity {
                         String userProfilePhoto = documentSnapshot.getString("photoUrl");
 
                         // Crear el nuevo comentario
-                        Comment newComment = new Comment(userName, userProfilePhoto, commentText, Timestamp.now());
+                        Map<String, Object> commentMap = new HashMap<>();
+                        commentMap.put("commentText", commentText);
+                        commentMap.put("commentUserName", userName);
+                        commentMap.put("commentUserPicture", userProfilePhoto);
+                        commentMap.put("lastModifiedDate", new Timestamp(new Date()));
+                        //Comment newComment = new Comment(userName, userProfilePhoto, commentText, Timestamp.now());
 
                         // Añadir el comentario a la subcolección "comments" dentro del documento del foro
                         db.collection("forums")
                                 .document(forumId)
                                 .collection("comments") // Aquí creas la subcolección
-                                .add(newComment) // Añade el comentario a la subcolección
+                                .add(commentMap) // Añade el comentario a la subcolección
                                 .addOnSuccessListener(documentReference -> {
                                     // El comentario se añadió con éxito
                                     Log.d("FragForum", "Comentario añadido con ID: " + documentReference.getId());
@@ -203,6 +213,8 @@ public class ForumDetailsActivity extends AppCompatActivity {
                         commentList.clear();
                         for (DocumentSnapshot document : snapshots.getDocuments()) {
                             Comment comment = document.toObject(Comment.class);
+                            comment.setId(document.getId());
+                            Log.d("ToxicityCheck", "comment.setId(document.getId()): " + document.getId());
                             commentList.add(comment);
                         }
                         commentsAdapter.notifyDataSetChanged(); // Actualizar el RecyclerView
@@ -260,11 +272,10 @@ public class ForumDetailsActivity extends AppCompatActivity {
             // Umbral para considerar el comentario como tóxico
             if (score < 0.7) {
                 // El comentario no es tóxico, se añade
-                commentText = commentText + " Puntuación de toxicidad: " + score;
+                //commentText = commentText + " Puntuación de toxicidad: " + score;
                 addCommentToFirestore(commentText, forumId);
             } else {
                 runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "Missatge no pèrmes.", Toast.LENGTH_SHORT).show());
-
                 // El comentario es tóxico, manejar la respuesta según sea necesario
                 Log.d("ToxicityCheck", "El comentario es tóxico y no se añadirá.");
             }
@@ -272,5 +283,137 @@ public class ForumDetailsActivity extends AppCompatActivity {
             Log.e("ToxicityCheckError", "Error al analizar la respuesta: ", e);
         }
     }
+
+    public void showReplyDialogFromAdapter(Comment comment) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Responder a Comentario");
+
+        // Crear un campo de texto para la respuesta
+        final EditText input = new EditText(this);
+        builder.setView(input);
+
+        // Botón de "Responder"
+        builder.setPositiveButton("Responder", (dialog, which) -> {
+            String replyText = input.getText().toString();
+            if (!replyText.isEmpty()) {
+                Log.d("ToxicityCheck", "comment.getId(): " + comment.getId());
+                checkReplyToxicity(replyText, comment.getId());  // Comprobar toxicidad antes de añadir la respuesta
+            }
+        });
+
+        // Botón de "Cancelar"
+        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+
+        builder.show();
+    }
+
+    private void checkReplyToxicity(String commentText, String commentId) {
+        // Crear un nuevo hilo para evitar bloquear la UI
+        new Thread(() -> {
+            OkHttpClient client = new OkHttpClient();
+            String apiKey = "AIzaSyCNGsAwGpJF2DOTricV1hFDCLuixbpEFpU"; // API Key
+
+            // URL de la API Perspective
+            String url = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + apiKey;
+
+            // Crear el cuerpo de la solicitud JSON
+            String json = "{\n" +
+                    "  'comment': { 'text': '" + commentText + "' },\n" +
+                    "  'requestedAttributes': { 'TOXICITY': {} }\n" +
+                    "}";
+            Log.d("ToxicityCheck", "json: " + json);
+            RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+
+            try {
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    // Procesar la respuesta
+                    Log.d("ToxicityCheck", "responseData: " + responseData);
+                    handleToxicityReply(responseData, commentText, commentId);
+                }else Log.d("ToxicityCheck", "response is not successful: " + response);
+            } catch (IOException e) {
+                Log.e("PerspectiveAPI", "Error en la conexión: ", e);
+            }
+        }).start();
+    }
+
+    private void handleToxicityReply(String responseData, String commentText, String commentId) {
+        // Analizar la respuesta JSON para determinar si el comentario es tóxico
+        try {
+            JSONObject jsonObject = new JSONObject(responseData);
+            JSONObject attribute = jsonObject.getJSONObject("attributeScores");
+            JSONObject toxicityScore = attribute.getJSONObject("TOXICITY");
+
+            // Acceder al valor dentro del objeto summaryScore
+            JSONObject summaryScore = toxicityScore.getJSONObject("summaryScore");
+            double score = summaryScore.getDouble("value");
+
+            Log.d("ToxicityCheck", "Puntuación de toxicidad: " + score);
+            // Umbral para considerar el comentario como tóxico
+            if (score < 0.7) {
+                // El comentario no es tóxico, se añade
+                //commentText = commentText + " Puntuación de toxicidad: " + score;
+                addReplyToComment(commentText, commentId);
+            } else {
+                runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "Missatge no pèrmes.", Toast.LENGTH_SHORT).show());
+                // El comentario es tóxico, manejar la respuesta según sea necesario
+                Log.d("ToxicityCheck", "El comentario es tóxico y no se añadirá.");
+            }
+        } catch (JSONException e) {
+            Log.e("ToxicityCheckError", "Error al analizar la respuesta: ", e);
+        }
+    }
+
+    private void addReplyToComment(String replyText, String commentId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        forumId = getIntent().getStringExtra("forumId");
+
+        // Obtener los datos del usuario desde la colección "users"
+        db.collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Obtener los datos del usuario de Firestore
+                        String userName = documentSnapshot.getString("userName"); // Cambia "userName" según el campo que uses
+                        String userProfilePic = documentSnapshot.getString("photoUrl"); // Obtener la URL de la foto de perfil desde Firestore
+
+                        // Crear el objeto Reply con los datos necesarios
+                        Map<String, Object> reply = new HashMap<>();
+                        reply.put("replyText", replyText);
+                        reply.put("replyUserName", userName);
+                        reply.put("replyUserPicture", userProfilePic);
+                        reply.put("replyDate", new Timestamp(new Date()));
+
+                        // Añadir la respuesta a la subcolección "replies" dentro del comentario
+                        db.collection("forums")
+                                .document(forumId)
+                                .collection("comments")
+                                .document(commentId)
+                                .collection("replies")
+                                .add(reply)
+                                .addOnSuccessListener(documentReference -> {
+                                    // Éxito al añadir la respuesta
+                                    Log.d("ForumDetails", "Respuesta añadida correctamente");
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Error al añadir la respuesta
+                                    Log.e("ForumDetails", "Error al añadir la respuesta", e);
+                                });
+                    } else {
+                        Log.e("ForumDetails", "Usuario no encontrado en la colección 'users'");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ForumDetails", "Error al obtener los datos del usuario", e);
+                });
+    }
+
 
 }
