@@ -274,7 +274,7 @@ public class GameDetails extends AppCompatActivity {
                     .add(favoriteData)
                     .addOnSuccessListener(documentReference -> {
                         favoriteId = documentReference.getId();
-                        Toast.makeText(GameDetails.this, "Añadido a favoritos", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(GameDetails.this, "Afegit a favorits", Toast.LENGTH_SHORT).show();
                         isStarSelected = true;
                         cambiaStar(); // Cambiar la estrella seleccionada
                     })

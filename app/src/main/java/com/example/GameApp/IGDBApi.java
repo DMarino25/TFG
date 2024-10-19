@@ -34,4 +34,12 @@ public interface IGDBApi {
     @POST("covers")
     Call<List<Cover>> getCovers(@Body RequestBody body);
 
+    @Headers({
+            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
+            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
+            "Content-Type: text/plain"
+    })
+    @POST("artworks")
+    Call<List<Artwork>> getArtwork(@Body RequestBody body);
+
 }

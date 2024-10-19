@@ -30,21 +30,21 @@
                     android:id="@+id/rl8ckxf857k"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:background="#6D4F96"
-                    android:paddingVertical="3dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:paddingHorizontal="12dp"
-                    android:orientation="horizontal">
+                    android:paddingVertical="3dp">
 
                     <LinearLayout
                         android:id="@+id/rlml7b6bnyz"
                         android:layout_width="292dp"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
                         android:background="#D9D9D9"
-                        android:paddingVertical="5dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
                         android:paddingHorizontal="11dp"
-                        android:orientation="horizontal">
+                        android:paddingVertical="5dp">
 
                         <ImageView
                             android:id="@+id/go3"
@@ -56,12 +56,12 @@
 
                         <EditText
                             android:id="@+id/cerca3"
-                            android:textColor="#000000"
-                            android:textSize="16sp"
-                            android:layout_height="wrap_content"
                             android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:hint="Cerca..." />
+                            android:hint="Cerca..."
+                            android:textColor="#000000"
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                     <View
@@ -74,16 +74,16 @@
                         android:layout_width="44dp"
                         android:layout_height="wrap_content"
                         android:background="@drawable/s2c2c2csw1cr32b4a3b73"
-                        android:paddingHorizontal="10dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:paddingHorizontal="10dp">
 
                         <ImageView
                             android:id="@+id/r0qkqjooxdnji"
                             android:layout_width="match_parent"
                             android:layout_height="24dp"
                             android:layout_marginTop="8dp"
-                            android:src="@mipmap/ic_launcher"
-                            android:scaleType="fitXY" />
+                            android:scaleType="fitXY"
+                            android:src="@mipmap/ic_launcher" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -100,7 +100,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="0dp"
-                        android:paddingTop="0dp"/>
+                        android:paddingTop="0dp" />
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

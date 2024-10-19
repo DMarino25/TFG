@@ -5,31 +5,53 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.GameApp.ClassObjectes.Conversation;
 import com.example.GameApp.ClassObjectes.Cover;
+import com.example.GameApp.ClassObjectes.User;
 import com.example.GameApp.FragFolder.FragAjust;
 import com.example.GameApp.FragFolder.FragFav;
 import com.example.GameApp.FragFolder.FragForum;
 import com.example.GameApp.FragFolder.FragHome;
 import com.example.GameApp.main.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+
+import java.security.Timestamp;
+import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class OauthAct extends AppCompatActivity {
@@ -47,8 +69,9 @@ public class OauthAct extends AppCompatActivity {
     private TextView gameName;
 
     private EditText cercaText;
-    private ImageView gameArtwork;
-    private float dX, dY;
+
+
+    RecyclerView lusers;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -58,14 +81,72 @@ public class OauthAct extends AppCompatActivity {
 
         fragments = new Fragment[4];
 
-        fragments[0]= new FragHome();
+        fragments[0] = new FragHome();
         fragments[1] = new FragFav();
         fragments[2] = new FragForum();
         fragments[3] = new FragAjust();
         setContentView(R.layout.activity_oauth);
 
         bottomNavigationView = findViewById(R.id.menuNav);
+
         missatge = findViewById(R.id.missatges);
+        missatge.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.dialog_message, null);
+
+                EditText searchUserEditText = dialogView.findViewById(R.id.searchUserEditText);
+                RecyclerView usersRecyclerView = dialogView.findViewById(R.id.usersRecyclerView);
+                RecyclerView conversationsRecyclerView = dialogView.findViewById(R.id.conversasRecyclerView);
+                usersRecyclerView.setNestedScrollingEnabled(false);
+                conversationsRecyclerView.setNestedScrollingEnabled(false);
+                ImageButton cercaUsers = dialogView.findViewById(R.id.searchButton);
+
+                LinearLayout contenidorResultats = dialogView.findViewById(R.id.contenedorResultados);
+                contenidorResultats.setVisibility(View.GONE);
+
+                // Configurar RecyclerView de conversaciones existentes
+                conversationsRecyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+                ArrayList<Conversation> llistaConverses = new ArrayList<>();
+                ConversationAdapter conversationsAdapter = new ConversationAdapter(v.getContext(), llistaConverses);
+                conversationsRecyclerView.setAdapter(conversationsAdapter);
+
+                carregarConverses(conversationsAdapter);
+
+                usersRecyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+                ArrayList<User> llistaUsuaris = new ArrayList<>();
+                UserAdapter userAdapter = new UserAdapter(v.getContext(), llistaUsuaris, new UserAdapter.OnUserClickListener() {
+                    @Override
+                    public void onConversaClick(User usuari) {
+
+                        crearConversa(usuari, conversationsAdapter);
+                    }
+                });
+                usersRecyclerView.setAdapter(userAdapter);
+
+                cercaUsers.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String textCerca = searchUserEditText.getText().toString().trim();
+                        if (!textCerca.isEmpty()) {
+                            contenidorResultats.setVisibility(View.VISIBLE);
+                            cercaUsuaris(textCerca, userAdapter);
+                        } else {
+                            contenidorResultats.setVisibility(View.GONE);
+                            llistaUsuaris.clear();
+                            userAdapter.notifyDataSetChanged();
+                            Toast.makeText(OauthAct.this, "Introdueix un nom per cercar.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(v.getRootView().getContext());
+                bottomSheetDialog.setContentView(dialogView);
+                bottomSheetDialog.show();
+
+
+            }
+        });
+
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
@@ -85,87 +166,6 @@ public class OauthAct extends AppCompatActivity {
         });
 
 
-
-
-        // Configurando el GridLayoutManager para 2 columnas
-
-
-        //cercaText = findViewById(R.id.rgsshwj5frv4);
-
-       /* gameName = findViewById(R.id.game_name);
-        gameArtwork = findViewById(R.id.game_artwork);
-
-        IGDBApi apiService = ApiController.getClient().create(IGDBApi.class);
-
-        // Construir la consulta para obtener los detalles del juego
-        String gameQuery = "fields name, artworks; where id = 1; limit 1;";
-        RequestBody gameRequestBody = RequestBody.create(gameQuery, MediaType.parse("text/plain"));
-
-        Call<List<Game>> gameCall = apiService.getGames(gameRequestBody);
-
-        gameCall.enqueue(new Callback<List<Game>>() {
-            @Override
-            public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    Game game = response.body().get(0);
-                    gameName.setText(game.getName()); // Mostrar el nombre del juego
-
-                    // Si hay artworks, obtener el primero
-                    if (game.getArtworks() != null && !game.getArtworks().isEmpty()) {
-                        int artworkId = game.getArtworks().get(0);
-
-                        // Hacer otra llamada para obtener los detalles del Artwork
-                        String artworkQuery = "fields alpha_channel,animated,checksum,game,height,image_id,url,width; where id = " + artworkId + ";";
-                        RequestBody artworkRequestBody = RequestBody.create(artworkQuery, MediaType.parse("text/plain"));
-
-                        Call<List<Artwork>> artworkCall = apiService.getArtwork(artworkRequestBody);
-
-                        artworkCall.enqueue(new Callback<List<Artwork>>() {
-                            @Override
-                            public void onResponse(Call<List<Artwork>> call, Response<List<Artwork>> artworkResponse) {
-                                if (artworkResponse.isSuccessful() && artworkResponse.body() != null && !artworkResponse.body().isEmpty()) {
-                                    Artwork artwork = artworkResponse.body().get(0);
-
-                                    // Cargar la imagen usando Picasso
-                                    String fullUrl = "https:" + artwork.getUrl();
-                                    Picasso.get().load(fullUrl).into(gameArtwork);
-                                } else {
-                                    Log.e(TAG, "Artwork response not successful or empty");
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<List<Artwork>> call, Throwable t) {
-                                Log.e(TAG, "Artwork API call failed: " + t.getMessage());
-                            }
-                        });
-                    }
-                } else {
-                    Log.e(TAG, "Game response not successful or empty");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Game>> call, Throwable t) {
-                Log.e(TAG, "Game API call failed: " + t.getMessage());
-            }
-        });
-
-        // Configura el Google Sign-In
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken("840661236439-u1vskjpgspjrdqisaunnb2gkd7pa8eij.apps.googleusercontent.com")
-                .requestEmail()
-                .build();
-
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        Button btnLogout = findViewById(R.id.btn_logout);
-        btnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signOut();
-            }
-        });*/
     }
 
 
@@ -176,14 +176,125 @@ public class OauthAct extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    private void signOut() {
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, task -> {
-                    // Cerrar sesión exitosa, vuelve a MainActivity
-                    Log.d(TAG, "Sign out successful");
-                    Intent intent = new Intent(OauthAct.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+    private void cercaUsuaris(String textCerca, final UserAdapter userAdapter) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Normalizar el texto de búsqueda
+        String textCercaNormalitzat = Normalizer.normalize(textCerca, Normalizer.Form.NFD)
+                .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                .toLowerCase();
+
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        ArrayList<User> llistaUsuaris = new ArrayList<>();
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                User usuari = document.toObject(User.class);
+
+                                String nomUsuari = usuari.getName();
+                                if (nomUsuari != null && !nomUsuari.isEmpty()) {
+                                    String nomUsuariNormalitzat = Normalizer.normalize(nomUsuari, Normalizer.Form.NFD)
+                                            .replaceAll("[\\p{InCombiningDiacriticalMarks}]", "")
+                                            .toLowerCase();
+
+                                    if (nomUsuariNormalitzat.contains(textCercaNormalitzat)) {
+                                        llistaUsuaris.add(usuari);
+                                    }
+                                } else {
+                                    Log.d(TAG, "Usuari sense nom o nom null: " + usuari.getUid());
+                                }
+                            }
+                            if (llistaUsuaris.isEmpty()) {
+                                // No se encontraron usuarios que coincidan con la búsqueda
+                                Toast.makeText(OauthAct.this, "No s'han trobat usuaris.", Toast.LENGTH_SHORT).show();
+                            }
+                            // Actualizar el adaptador con la lista (vacía o con resultados)
+                            userAdapter.updateList(llistaUsuaris);
+                        } else {
+                            Log.d(TAG, "Error obtenint usuaris: ", task.getException());
+                            // En caso de error, también limpiamos la lista y mostramos un mensaje
+                            userAdapter.updateList(llistaUsuaris);
+                            Toast.makeText(OauthAct.this, "Error en cercar usuaris.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
                 });
     }
+    private void carregarConverses(final ConversationAdapter conversationsAdapter) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        db.collection("messages")
+                .whereArrayContains("participants", currentUserId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            ArrayList<Conversation> llistaConverses = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Conversation conversa = document.toObject(Conversation.class);
+                                conversa.setConversationId(document.getId());
+                                llistaConverses.add(conversa);
+                            }
+                            conversationsAdapter.updateList(llistaConverses);
+                        } else {
+                            Log.d(TAG, "Error obtenint converses: ", task.getException());
+                        }
+                    }
+                });
+    }
+    private void crearConversa(User usuariReceptor, final ConversationAdapter conversationsAdapter) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        List<String> participants = new ArrayList<>();
+        participants.add(currentUserId);
+        participants.add(usuariReceptor.getUid());
+
+        // Ordenar la lista para tener un orden consistente
+        Collections.sort(participants);
+
+        // Crear un identificador único para la conversación basado en los IDs de los participantes
+        String conversationId = participants.get(0) + "_" + participants.get(1);
+
+        // Comprobar si la conversación ya existe
+        db.collection("messages").document(conversationId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // La conversación ya existe
+                        Toast.makeText(this, "La conversa ja existeix.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Crear nueva conversación
+                        Conversation novaConversa = new Conversation();
+                        novaConversa.setContent("");
+                        novaConversa.setIsRead(false);
+                        novaConversa.setUserIdSender(currentUserId);
+                        novaConversa.setUserIdReceiver(usuariReceptor.getUid());
+                        novaConversa.setReceiverName(usuariReceptor.getName());
+                        novaConversa.setParticipants(participants);
+
+                        db.collection("messages").document(conversationId)
+                                .set(novaConversa)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d(TAG, "Conversa afegida: " + conversationId);
+                                    carregarConverses(conversationsAdapter);
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.w(TAG, "Error afegint conversa", e);
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error comprobando existencia de la conversación", e);
+                });
+    }
+
+
+
+
+
+
 }

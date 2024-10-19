@@ -17,6 +17,9 @@
         android:theme="@style/Theme.GameApp"
         tools:targetApi="31">
         <activity
+            android:name=".chatActivity"
+            android:exported="false" />
+        <activity
             android:name=".GameDetails"
             android:exported="false" />
         <activity
@@ -34,7 +37,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.GameApp.FragFolder.ForumDetailsActivity" />
+        <activity android:name=".FragFolder.ForumDetailsActivity" />
     </application>
 
 </manifest>
