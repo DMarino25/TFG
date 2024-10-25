@@ -1,7 +1,6 @@
 package com.example.GameApp;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.GameApp.ClassObjectes.Chat;
-import com.example.GameApp.ClassObjectes.Conversation;
-import com.example.GameApp.ClassObjectes.User;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,17 +20,29 @@ import java.util.List;
 
 public class chatAdapter extends RecyclerView.Adapter<chatAdapter.chatViewHolder> {
     private List<Chat> mensajes;
+    public String currentUser;
+
     private Context context;
     private TextView textoUsers;
     private TextView dateat;
 
+    public static final int enviado = 1;
+    public static final int recibido = 2;
+
+
     public chatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
-        View vista = LayoutInflater.from(context).inflate(R.layout.chat_item, parent, false);
-        return new chatAdapter.chatViewHolder(vista);
+        View vista;
+        if (viewType == enviado) {
+            vista = LayoutInflater.from(context).inflate(R.layout.chat_item_enviado, parent, false);
+        } else {
+            vista = LayoutInflater.from(context).inflate(R.layout.chat_item_recibido, parent, false);
+        }
+        return new chatViewHolder(vista);
     }
     public chatAdapter(Context context, ArrayList<Chat> mensajes) {
         this.context = context;
         this.mensajes = mensajes;
+        this.currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
     @Override
     public void onBindViewHolder(chatAdapter.chatViewHolder holder, int position) {
@@ -42,6 +52,18 @@ public class chatAdapter extends RecyclerView.Adapter<chatAdapter.chatViewHolder
     }
     public int getItemCount() {
         return mensajes.size();
+    }
+
+    public int getItemViewType (int position){
+        Chat mensaje = mensajes.get(position);
+        if(mensaje.getSenderId().equals(currentUser)){
+            return enviado;
+        }
+        else{
+            return recibido;
+        }
+
+
     }
 
     public class chatViewHolder extends RecyclerView.ViewHolder {
