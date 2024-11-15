@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.example.GameApp.ClassObjectes.Comment;
 import com.example.GameApp.CommentsAdapter;
@@ -113,7 +114,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 .into(forumAuthorImageView);
     }
 
-    private void loadComments() {
+    /*private void loadComments() {
         // Cargar los comentarios desde el subdocumento "comments" dentro de cada "forum"
         db.collection("forums").document(forumId).collection("comments").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -132,8 +133,9 @@ public class ForumDetailsActivity extends AppCompatActivity {
                         commentsAdapter.notifyDataSetChanged();
                     }
                 });
-    }
+    }*/
 
+    //Popup para insertar un comentario
     private void showReplyDialog(String forumId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Añadir un comentario");
@@ -155,73 +157,73 @@ public class ForumDetailsActivity extends AppCompatActivity {
 
         // Botón de "Cancelar"
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
-
         builder.show();
     }
 
+    //Añadir un comentario a Firebase
     private void addCommentToFirestore(String commentText, String forumId) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         // Consulta la información del usuario actual en la colección "users"
         db.collection("users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        // Obtén userName y userProfilePhoto del documento de usuario
-                        String userName = documentSnapshot.getString("name");
-                        String userProfilePhoto = documentSnapshot.getString("photoUrl");
+            .document(userId)
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    // Obtén name y photoUrl del documento de usuario
+                    String name = documentSnapshot.getString("name");
+                    String photoUrl = documentSnapshot.getString("photoUrl");
 
-                        // Crear el nuevo comentario
-                        Map<String, Object> commentMap = new HashMap<>();
-                        commentMap.put("commentText", commentText);
-                        commentMap.put("commentUserName", userName);
-                        commentMap.put("commentUserPicture", userProfilePhoto);
-                        commentMap.put("lastModifiedDate", new Timestamp(new Date()));
-                        //Comment newComment = new Comment(userName, userProfilePhoto, commentText, Timestamp.now());
+                    // Crear el nuevo comentario
+                    Map<String, Object> commentMap = new HashMap<>();
+                    commentMap.put("commentText", commentText);
+                    commentMap.put("commentUserName", name);
+                    commentMap.put("commentUserPicture", photoUrl);
+                    commentMap.put("lastModifiedDate", new Timestamp(new Date()));
 
-                        // Añadir el comentario a la subcolección "comments" dentro del documento del foro
-                        db.collection("forums")
-                                .document(forumId)
-                                .collection("comments") // Aquí creas la subcolección
-                                .add(commentMap) // Añade el comentario a la subcolección
-                                .addOnSuccessListener(documentReference -> {
-                                    // El comentario se añadió con éxito
-                                    Log.d("FragForum", "Comentario añadido con ID: " + documentReference.getId());
-                                })
-                                .addOnFailureListener(e -> {
-                                    // Ocurrió un error
-                                    Log.e("FragForum", "Error al añadir comentario", e);
-                                });
-                    }
-                });
+                    // Añadir el comentario a la subcolección "comments" dentro del documento del foro
+                    db.collection("forums")
+                        .document(forumId)
+                        .collection("comments") // Aquí creas la subcolección
+                        .add(commentMap) // Añade el comentario a la subcolección
+                        .addOnSuccessListener(documentReference -> {
+                            // El comentario se añadió con éxito
+                            Log.d("FragForum", "Comentario añadido con ID: " + documentReference.getId());
+                        })
+                        .addOnFailureListener(e -> {
+                            // Ocurrió un error
+                            Log.e("FragForum", "Error al añadir comentario", e);
+                        });
+                }
+            });
     }
 
+    //Obtener los comentarios de un foro
     private void setupCommentListener() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("forums")
-                .document(forumId)
-                .collection("comments")
-                .orderBy("lastModifiedDate", Query.Direction.DESCENDING) // Ordenar por fecha en orden descendente
-                .addSnapshotListener((snapshots, e) -> {
-                    if (e != null) {
-                        Log.e("ForumDetails", "Error al obtener los comentarios: ", e);
-                        return;
-                    }
+            .document(forumId)
+            .collection("comments")
+            .orderBy("lastModifiedDate", Query.Direction.DESCENDING) // Ordenar por fecha en orden descendente
+            .addSnapshotListener((snapshots, e) -> {
+                if (e != null) {
+                    Log.e("ForumDetails", "Error al obtener los comentarios: ", e);
+                    return;
+                }
 
-                    if (snapshots != null && !snapshots.isEmpty()) {
-                        commentList.clear();
-                        for (DocumentSnapshot document : snapshots.getDocuments()) {
-                            Comment comment = document.toObject(Comment.class);
-                            comment.setId(document.getId());
-                            Log.d("ToxicityCheck", "comment.setId(document.getId()): " + document.getId());
-                            commentList.add(comment);
-                        }
-                        commentsAdapter.notifyDataSetChanged(); // Actualizar el RecyclerView
+                if (snapshots != null && !snapshots.isEmpty()) {
+                    commentList.clear();
+                    for (DocumentSnapshot document : snapshots.getDocuments()) {
+                        Comment comment = document.toObject(Comment.class);
+                        comment.setId(document.getId());
+                        commentList.add(comment);
                     }
-                });
+                    commentsAdapter.notifyDataSetChanged(); // Actualizar el RecyclerView
+                }
+            });
     }
 
+    //Construir el body del Comentario para la llamada de Perspective
     private void checkCommentToxicity(String commentText, String forumId) {
         // Crear un nuevo hilo para evitar bloquear la UI
         new Thread(() -> {
@@ -242,7 +244,6 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     .url(url)
                     .post(body)
                     .build();
-
             try {
                 Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
@@ -250,13 +251,18 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     // Procesar la respuesta
                     Log.d("ToxicityCheck", "responseData: " + responseData);
                     handleToxicityResponse(responseData, commentText, forumId);
-                }else Log.d("ToxicityCheck", "response is not successful: " + response);
+                }else{
+                    runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "[DEBUG] No se ha podido hacer la llamada a Perspective, pero añadimos comentario", Toast.LENGTH_SHORT).show());
+                    addCommentToFirestore(commentText, forumId);
+                    Log.d("ToxicityCheck", "response is not successful: " + response);
+                }
             } catch (IOException e) {
                 Log.e("PerspectiveAPI", "Error en la conexión: ", e);
             }
         }).start();
     }
 
+    //Analizar si el comentario es tóxico
     private void handleToxicityResponse(String responseData, String commentText, String forumId) {
         // Analizar la respuesta JSON para determinar si el comentario es tóxico
         try {
@@ -272,7 +278,6 @@ public class ForumDetailsActivity extends AppCompatActivity {
             // Umbral para considerar el comentario como tóxico
             if (score < 0.7) {
                 // El comentario no es tóxico, se añade
-                //commentText = commentText + " Puntuación de toxicidad: " + score;
                 addCommentToFirestore(commentText, forumId);
             } else {
                 runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "Missatge no pèrmes.", Toast.LENGTH_SHORT).show());
@@ -284,9 +289,10 @@ public class ForumDetailsActivity extends AppCompatActivity {
         }
     }
 
+    //Popup para insertar una respuesta a un comentario
     public void showReplyDialogFromAdapter(Comment comment) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Responder a Comentario");
+        builder.setTitle("Responder comentario");
 
         // Crear un campo de texto para la respuesta
         final EditText input = new EditText(this);
@@ -296,17 +302,16 @@ public class ForumDetailsActivity extends AppCompatActivity {
         builder.setPositiveButton("Responder", (dialog, which) -> {
             String replyText = input.getText().toString();
             if (!replyText.isEmpty()) {
-                Log.d("ToxicityCheck", "comment.getId(): " + comment.getId());
                 checkReplyToxicity(replyText, comment.getId());  // Comprobar toxicidad antes de añadir la respuesta
             }
         });
 
         // Botón de "Cancelar"
         builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
-
         builder.show();
     }
 
+    //Construir el body de la respuesta del comentario para la llamada de Perspective
     private void checkReplyToxicity(String commentText, String commentId) {
         // Crear un nuevo hilo para evitar bloquear la UI
         new Thread(() -> {
@@ -321,7 +326,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     "  'comment': { 'text': '" + commentText + "' },\n" +
                     "  'requestedAttributes': { 'TOXICITY': {} }\n" +
                     "}";
-            Log.d("ToxicityCheck", "json: " + json);
+
             RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
             Request request = new Request.Builder()
                     .url(url)
@@ -333,15 +338,19 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     String responseData = response.body().string();
                     // Procesar la respuesta
-                    Log.d("ToxicityCheck", "responseData: " + responseData);
                     handleToxicityReply(responseData, commentText, commentId);
-                }else Log.d("ToxicityCheck", "response is not successful: " + response);
+                }else{
+                    runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "[DEBUG] No se ha podido hacer la llamada a Perspective, pero añadimos respuesta", Toast.LENGTH_SHORT).show());
+                    addReplyToComment(commentText, commentId);
+                    Log.d("ToxicityCheck", "response is not successful: " + response);
+                }
             } catch (IOException e) {
                 Log.e("PerspectiveAPI", "Error en la conexión: ", e);
             }
         }).start();
     }
 
+    //Controlar que la respuesta no sea tóxico con la puntuación de Perspective
     private void handleToxicityReply(String responseData, String commentText, String commentId) {
         // Analizar la respuesta JSON para determinar si el comentario es tóxico
         try {
@@ -369,6 +378,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
         }
     }
 
+    //Añade la respuesta del comentario en Firebase
     private void addReplyToComment(String replyText, String commentId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -376,43 +386,43 @@ public class ForumDetailsActivity extends AppCompatActivity {
 
         // Obtener los datos del usuario desde la colección "users"
         db.collection("users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        // Obtener los datos del usuario de Firestore
-                        String userName = documentSnapshot.getString("userName"); // Cambia "userName" según el campo que uses
-                        String userProfilePic = documentSnapshot.getString("photoUrl"); // Obtener la URL de la foto de perfil desde Firestore
+            .document(userId)
+            .get()
+            .addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.exists()) {
+                    // Obtener los datos del usuario de Firestore
+                    String userName = documentSnapshot.getString("userName"); // Cambia "userName" según el campo que uses
+                    String userProfilePic = documentSnapshot.getString("photoUrl"); // Obtener la URL de la foto de perfil desde Firestore
 
-                        // Crear el objeto Reply con los datos necesarios
-                        Map<String, Object> reply = new HashMap<>();
-                        reply.put("replyText", replyText);
-                        reply.put("replyUserName", userName);
-                        reply.put("replyUserPicture", userProfilePic);
-                        reply.put("replyDate", new Timestamp(new Date()));
+                    // Crear el objeto Reply con los datos necesarios
+                    Map<String, Object> reply = new HashMap<>();
+                    reply.put("replyText", replyText);
+                    reply.put("replyUserName", userName);
+                    reply.put("replyUserPicture", userProfilePic);
+                    reply.put("replyDate", new Timestamp(new Date()));
 
-                        // Añadir la respuesta a la subcolección "replies" dentro del comentario
-                        db.collection("forums")
-                                .document(forumId)
-                                .collection("comments")
-                                .document(commentId)
-                                .collection("replies")
-                                .add(reply)
-                                .addOnSuccessListener(documentReference -> {
-                                    // Éxito al añadir la respuesta
-                                    Log.d("ForumDetails", "Respuesta añadida correctamente");
-                                })
-                                .addOnFailureListener(e -> {
-                                    // Error al añadir la respuesta
-                                    Log.e("ForumDetails", "Error al añadir la respuesta", e);
-                                });
-                    } else {
-                        Log.e("ForumDetails", "Usuario no encontrado en la colección 'users'");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("ForumDetails", "Error al obtener los datos del usuario", e);
-                });
+                    // Añadir la respuesta a la subcolección "replies" dentro del comentario
+                    db.collection("forums")
+                        .document(forumId)
+                        .collection("comments")
+                        .document(commentId)
+                        .collection("replies")
+                        .add(reply)
+                        .addOnSuccessListener(documentReference -> {
+                            // Éxito al añadir la respuesta
+                            Log.d("ForumDetails", "Respuesta añadida correctamente");
+                        })
+                        .addOnFailureListener(e -> {
+                            // Error al añadir la respuesta
+                            Log.e("ForumDetails", "Error al añadir la respuesta", e);
+                        });
+                } else {
+                    Log.e("ForumDetails", "Usuario no encontrado en la colección 'users'");
+                }
+            })
+            .addOnFailureListener(e -> {
+                Log.e("ForumDetails", "Error al obtener los datos del usuario", e);
+            });
     }
 
 

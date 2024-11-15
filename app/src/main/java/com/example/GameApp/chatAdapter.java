@@ -1,6 +1,7 @@
 package com.example.GameApp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,9 +41,12 @@ public class chatAdapter extends RecyclerView.Adapter<chatAdapter.chatViewHolder
         return new chatViewHolder(vista);
     }
     public chatAdapter(Context context, ArrayList<Chat> mensajes) {
+        Log.d("ChatMD", "context:" + context);
+        Log.d("ChatMD", "mensajes:" + mensajes);
         this.context = context;
         this.mensajes = mensajes;
         this.currentUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Log.d("ChatMD", "current user:" + this.currentUser);
     }
     @Override
     public void onBindViewHolder(chatAdapter.chatViewHolder holder, int position) {

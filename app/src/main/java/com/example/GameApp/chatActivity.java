@@ -62,32 +62,50 @@ public class chatActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(chatAdapter);
 
-
-
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-
         Bundle bundle = getIntent().getExtras();
-        String userId =bundle.getString("uid");
+        String userId = bundle.getString("uid");
+        Log.d("ChatMD", "bundle:" + bundle);
         String conversationId = bundle.getString("conversationId");
         TextView Rname = findViewById(R.id.ReceiverName);
         ImageView send = findViewById(R.id.send);
         EditText Write = findViewById(R.id.write);
 
-        firestore.collection("users").document(userId).get()
+        firestore.collection("messages").document(conversationId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
-                            currentUsername = documentSnapshot.getString("name");
-                            Rname.setText(currentUsername);
+                            List<String> participants = (List<String>) documentSnapshot.get("participants");
+                            if (participants != null && participants.size() > 1) {
+                                String receiverUserId = participants.get(1);
+                                // Fetch the name of the user from the "users" collection
+                                firestore.collection("users").document(receiverUserId).get()
+                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onSuccess(DocumentSnapshot userDocument) {
+                                                if (userDocument.exists()) {
+                                                    String receiverName = userDocument.getString("name");
+                                                    Log.d("ChatMD", "receiverName:" + receiverName);
+                                                    Rname.setText(receiverName);
+                                                } else {
+                                                    Toast.makeText(getApplicationContext(), "Nom no trobat a la base de dades", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("ChatMD", "Error al obtenir el nom de l'usuari", e);
+                                        });
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Participants no trobats a la conversa", Toast.LENGTH_SHORT).show();
+                            }
                         }
                         else{
-                            Toast.makeText(getApplicationContext(), "Nom no trobat a la base de dades", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Conversa no trobada a la base de dades", Toast.LENGTH_SHORT).show();
                         }
-
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
