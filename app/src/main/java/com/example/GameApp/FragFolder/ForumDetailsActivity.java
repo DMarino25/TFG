@@ -391,12 +391,13 @@ public class ForumDetailsActivity extends AppCompatActivity {
             .addOnSuccessListener(documentSnapshot -> {
                 if (documentSnapshot.exists()) {
                     // Obtener los datos del usuario de Firestore
-                    String userName = documentSnapshot.getString("userName"); // Cambia "userName" según el campo que uses
+                    String userName = documentSnapshot.getString("name"); // Cambia "userName" según el campo que uses
                     String userProfilePic = documentSnapshot.getString("photoUrl"); // Obtener la URL de la foto de perfil desde Firestore
 
                     // Crear el objeto Reply con los datos necesarios
                     Map<String, Object> reply = new HashMap<>();
                     reply.put("replyText", replyText);
+                    reply.put("replyUserNameId", userId);
                     reply.put("replyUserName", userName);
                     reply.put("replyUserPicture", userProfilePic);
                     reply.put("replyDate", new Timestamp(new Date()));

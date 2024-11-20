@@ -9,6 +9,8 @@ public class Reply {
     private String replyUserName;
     private String replyUserPicture;
     private Timestamp replyDate;
+    private String _commentId;
+    private String replyUserNameId;
 
     public Reply() {
         // Constructor vacío necesario para Firebase
@@ -59,5 +61,15 @@ public class Reply {
 
     public void setReplyDate(Timestamp replyDate) {
         this.replyDate = replyDate;
+    }
+
+    public String getCommentId() {
+        return _commentId;
+    }
+
+    public void setCommentId(String commentId) { this._commentId = commentId; }
+
+    public String getUserNameId() {
+        return replyUserNameId;
     }
 }

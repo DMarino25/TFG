@@ -156,8 +156,11 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                             replyList.clear();  // Limpiar la lista de respuestas antes de agregar las nuevas
                             for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
                                 Reply reply = document.toObject(Reply.class); // Crear la respuesta desde los datos del documento
-                                reply.setId(document.getId()); // Establecer el ID del documento
-                                replyList.add(reply); // Agregar la respuesta a la lista
+                                if (reply != null) {
+                                    reply.setId(document.getId()); // Establecer el ID del documento
+                                    reply.setCommentId(commentId); // Asignar el commentId a la respuesta
+                                    replyList.add(reply); // Agregar la respuesta a la lista
+                                }
                             }
                             repliesAdapter.notifyDataSetChanged();  // Notificar al adaptador de cambios
                         }

@@ -44,7 +44,6 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
     @Override
     public void onBindViewHolder(@NonNull ReplyViewHolder holder, int position) {
         Reply reply = replyList.get(position);
-
         holder.replyUserNameTextView.setText(reply.getReplyUserName());
         holder.replyTextView.setText(reply.getReplyText());
 
@@ -88,7 +87,7 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
             // Acciones al hacer click en los elementos del menú
             popupMenu.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.report_comment) {
-                    reportComment(reply);
+                    reportReply(reply);
                     Toast.makeText(context, "Respuesta reportada", Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -99,13 +98,15 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
             popupMenu.show();
         }
 
-        private void reportComment(Reply reply) {
+        private void reportReply(Reply reply) {
             // Lógica para reportar la respuesta
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             Map<String, Object> report = new HashMap<>();
-            report.put("replyId", reply.getId());                                           //Comment reported
+            report.put("replyId", reply.getId());                                               //Reply reported
             report.put("reporterId", FirebaseAuth.getInstance().getCurrentUser().getUid());     //Who reported
             report.put("reportDate", new Timestamp(new Date()));                                //Date
+            report.put("userId", reply.getUserNameId());
+            report.put("commentId", reply.getCommentId());
 
             db.collection("reports")
                     .add(report)
