@@ -88,7 +88,6 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
             popupMenu.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.report_comment) {
                     reportReply(reply);
-                    Toast.makeText(context, "Respuesta reportada", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
@@ -99,24 +98,74 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
         }
 
         private void reportReply(Reply reply) {
-            // Lógica para reportar la respuesta
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            Map<String, Object> report = new HashMap<>();
-            report.put("replyId", reply.getId());                                               //Reply reported
-            report.put("reporterId", FirebaseAuth.getInstance().getCurrentUser().getUid());     //Who reported
-            report.put("reportDate", new Timestamp(new Date()));                                //Date
-            report.put("userId", reply.getUserNameId());
-            report.put("commentId", reply.getCommentId());
 
-            db.collection("reports")
-                    .add(report)
-                    .addOnSuccessListener(documentReference ->
-                            Log.d("CommentsAdapter", "Comentario reportado con ID: " + documentReference.getId())
-                    )
+            // Obtener el campo "replyUserNameId" del documento correspondiente en la subcolección "replies"
+            db.collection("forums")
+                    .document(reply.getForumId())  // Asegúrate de tener el ID del foro en el objeto Reply
+                    .collection("comments")
+                    .document(reply.getCommentId()) // ID del comentario
+                    .collection("replies")
+                    .document(reply.getId()) // ID de la respuesta
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Obtener el campo "replyUserNameId" del documento
+                            String replyUserNameId = documentSnapshot.getString("replyUserNameId");
+
+                            if (replyUserNameId != null) {
+                                // Verificar si ya existe un reporte para esta respuesta por parte del usuario actual
+                                String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                                db.collection("reports")
+                                        .whereEqualTo("replyId", reply.getId())
+                                        .whereEqualTo("reporterId", currentUserId)
+                                        .get()
+                                        .addOnSuccessListener(querySnapshot -> {
+                                            if (!querySnapshot.isEmpty()) {
+                                                // Ya existe un reporte, mostrar mensaje
+                                                Log.d("reportReply", "Este mensaje ya ha sido reportado.");
+                                                Toast.makeText(
+                                                        itemView.getContext(),
+                                                        "Este mensaje ya ha sido reportado.",
+                                                        Toast.LENGTH_SHORT
+                                                ).show();
+                                            } else {
+                                                // No existe reporte, proceder a crearlo
+                                                Map<String, Object> report = new HashMap<>();
+                                                report.put("replyId", reply.getId());                                               // Reply reportada
+                                                report.put("reporterId", currentUserId);                                            // Usuario que reporta
+                                                report.put("reportDate", new Timestamp(new Date()));                                // Fecha del reporte
+                                                report.put("userId", replyUserNameId);                                              // ID del usuario de la respuesta
+                                                report.put("commentId", reply.getCommentId());                                      // ID del comentario relacionado
+
+                                                // Añadir el reporte a la colección "reports"
+                                                db.collection("reports")
+                                                        .add(report)
+                                                        .addOnSuccessListener(documentReference ->
+                                                                Log.d("reportReply", "Comentario reportado con ID: " + documentReference.getId())
+                                                        )
+                                                        .addOnFailureListener(e ->
+                                                                Log.e("reportReply", "Error al reportar comentario", e)
+                                                        );
+                                                Toast.makeText(itemView.getContext(), "Respuesta reportada", Toast.LENGTH_SHORT).show();
+                                            }
+                                        })
+                                        .addOnFailureListener(e ->
+                                                Log.e("reportReply", "Error al verificar si el mensaje ya fue reportado", e)
+                                        );
+                            } else {
+                                Log.e("reportReply", "El campo 'replyUserNameId' no existe en el documento.");
+                            }
+                        } else {
+                            Log.e("reportReply", "El documento de la respuesta no existe.");
+                        }
+                    })
                     .addOnFailureListener(e ->
-                            Log.e("CommentsAdapter", "Error al reportar comentario", e)
+                            Log.e("reportReply", "Error al obtener el documento de la respuesta", e)
                     );
         }
+
+
 
     }
 

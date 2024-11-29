@@ -159,6 +159,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                                 if (reply != null) {
                                     reply.setId(document.getId()); // Establecer el ID del documento
                                     reply.setCommentId(commentId); // Asignar el commentId a la respuesta
+                                    reply.setForumId(forumId);
                                     replyList.add(reply); // Agregar la respuesta a la lista
                                 }
                             }
@@ -194,7 +195,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             popupMenu.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.report_comment) {
                     reportComment(comment);
-                    Toast.makeText(context, "Comentario reportado", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
@@ -205,22 +205,49 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
 
         private void reportComment(Comment comment) {
-            // Lógica para reportar el comentario
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            Map<String, Object> report = new HashMap<>();
-            report.put("commentId", comment.getId());                                           //Comment reported
-            report.put("reporterId", FirebaseAuth.getInstance().getCurrentUser().getUid());     //Who reported
-            report.put("reportDate", new Timestamp(new Date()));                                //Date
 
+            // ID del usuario actual
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            // Verificar si el comentario ya ha sido reportado por este usuario
             db.collection("reports")
-                    .add(report)
-                    .addOnSuccessListener(documentReference ->
-                            Log.d("CommentsAdapter", "Comentario reportado con ID: " + documentReference.getId())
-                    )
+                    .whereEqualTo("commentId", comment.getId())  // Filtrar por ID del comentario
+                    .whereEqualTo("reporterId", currentUserId)   // Filtrar por ID del usuario que reporta
+                    .get()
+                    .addOnSuccessListener(querySnapshot -> {
+                        if (!querySnapshot.isEmpty()) {
+                            // Ya existe un reporte para este comentario por parte de este usuario
+                            Log.d("reportComment", "Este comentario ya ha sido reportado.");
+                            Toast.makeText(
+                                    itemView.getContext(),
+                                    "Este comentario ya ha sido reportado.",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        } else {
+                            // No existe reporte previo, proceder a crearlo
+                            Map<String, Object> report = new HashMap<>();
+                            report.put("commentId", comment.getId());                                           // ID del comentario reportado
+                            report.put("reporterId", currentUserId);                                            // ID del usuario que reporta
+                            report.put("reportDate", new Timestamp(new Date()));                                // Fecha del reporte
+
+                            // Añadir el reporte a la colección "reports"
+                            db.collection("reports")
+                                    .add(report)
+                                    .addOnSuccessListener(documentReference ->
+                                            Log.d("reportComment", "Comentario reportado con ID: " + documentReference.getId())
+                                    )
+                                    .addOnFailureListener(e ->
+                                            Log.e("reportComment", "Error al reportar comentario", e)
+                                    );
+                            Toast.makeText(itemView.getContext(), "Comentario reportado", Toast.LENGTH_SHORT).show();
+                        }
+                    })
                     .addOnFailureListener(e ->
-                            Log.e("CommentsAdapter", "Error al reportar comentario", e)
+                            Log.e("reportComment", "Error al verificar si el comentario ya fue reportado", e)
                     );
         }
+
     }
 
 }
