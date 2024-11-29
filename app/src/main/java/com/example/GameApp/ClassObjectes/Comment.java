@@ -11,6 +11,8 @@ public class Comment {
     private String commentText;
     private Timestamp lastModifiedDate;
     private String _formattedDate; // Equals lastModifiedDate formatted and in String
+    private String commentUserNameId;
+    private String _forumId;
 
     public Comment() {
     }
@@ -39,4 +41,16 @@ public class Comment {
     public Timestamp getLastModifiedDate() {
         return lastModifiedDate;
     }
+
+    public String getUserNameId() {
+        return commentUserNameId;
+    }
+
+    public void setUserNameId(String commentUserNameId) { this.commentUserNameId = commentUserNameId; }
+
+    public String getForumId() {
+        return _forumId;
+    }
+
+    public void setForumId(String forumId) { this._forumId = forumId; }
 }

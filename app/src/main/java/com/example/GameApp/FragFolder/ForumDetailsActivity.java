@@ -217,6 +217,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     for (DocumentSnapshot document : snapshots.getDocuments()) {
                         Comment comment = document.toObject(Comment.class);
                         comment.setId(document.getId());
+                        comment.setForumId(forumId);
                         commentList.add(comment);
                     }
                     commentsAdapter.notifyDataSetChanged(); // Actualizar el RecyclerView

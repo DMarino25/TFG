@@ -137,6 +137,7 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
                                                 report.put("reportDate", new Timestamp(new Date()));                                // Fecha del reporte
                                                 report.put("userId", replyUserNameId);                                              // ID del usuario de la respuesta
                                                 report.put("commentId", reply.getCommentId());                                      // ID del comentario relacionado
+                                                report.put("solved", false);
 
                                                 // Añadir el reporte a la colección "reports"
                                                 db.collection("reports")
