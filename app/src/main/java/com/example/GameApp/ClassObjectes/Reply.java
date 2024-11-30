@@ -9,7 +9,7 @@ public class Reply {
     private String replyUserName;
     private String replyUserPicture;
     private Timestamp replyDate;
-    private String _commentId;
+    private String _commentId, _forumId;
     private String replyUserNameId;
 
     public Reply() {
@@ -72,4 +72,14 @@ public class Reply {
     public String getUserNameId() {
         return replyUserNameId;
     }
+
+    public void setUserNameId(String replyUserNameId) {
+        this.replyUserNameId = replyUserNameId;
+    }
+
+    public String getForumId() {
+        return _forumId;
+    }
+
+    public void setForumId(String forumId) { this._forumId = forumId; }
 }

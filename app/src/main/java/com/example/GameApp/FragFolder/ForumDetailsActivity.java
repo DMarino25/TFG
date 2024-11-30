@@ -177,6 +177,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     Map<String, Object> commentMap = new HashMap<>();
                     commentMap.put("commentText", commentText);
                     commentMap.put("commentUserName", name);
+                    commentMap.put("commentUserNameId", userId);
                     commentMap.put("commentUserPicture", photoUrl);
                     commentMap.put("lastModifiedDate", new Timestamp(new Date()));
 
@@ -216,6 +217,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     for (DocumentSnapshot document : snapshots.getDocuments()) {
                         Comment comment = document.toObject(Comment.class);
                         comment.setId(document.getId());
+                        comment.setForumId(forumId);
                         commentList.add(comment);
                     }
                     commentsAdapter.notifyDataSetChanged(); // Actualizar el RecyclerView

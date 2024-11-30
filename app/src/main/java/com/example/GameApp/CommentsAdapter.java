@@ -159,6 +159,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                                 if (reply != null) {
                                     reply.setId(document.getId()); // Establecer el ID del documento
                                     reply.setCommentId(commentId); // Asignar el commentId a la respuesta
+                                    reply.setForumId(forumId);
                                     replyList.add(reply); // Agregar la respuesta a la lista
                                 }
                             }
@@ -194,7 +195,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             popupMenu.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.report_comment) {
                     reportComment(comment);
-                    Toast.makeText(context, "Comentario reportado", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
@@ -205,22 +205,74 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         }
 
         private void reportComment(Comment comment) {
-            // Lógica para reportar el comentario
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            Map<String, Object> report = new HashMap<>();
-            report.put("commentId", comment.getId());                                           //Comment reported
-            report.put("reporterId", FirebaseAuth.getInstance().getCurrentUser().getUid());     //Who reported
-            report.put("reportDate", new Timestamp(new Date()));                                //Date
 
-            db.collection("reports")
-                    .add(report)
-                    .addOnSuccessListener(documentReference ->
-                            Log.d("CommentsAdapter", "Comentario reportado con ID: " + documentReference.getId())
-                    )
+            // ID del usuario actual
+            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            // Obtener el campo "commentUserNameId" del documento correspondiente en la colección de comentarios
+            db.collection("forums")
+                    .document(comment.getForumId())  // Asegúrate de tener el ID del foro en el objeto Comment
+                    .collection("comments")
+                    .document(comment.getId()) // ID del comentario
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Obtener el campo "commentUserNameId" del documento
+                            String commentUserNameId = documentSnapshot.getString("commentUserNameId");
+
+                            if (commentUserNameId != null) {
+                                // Verificar si el comentario ya ha sido reportado por este usuario
+                                db.collection("reports")
+                                        .whereEqualTo("commentId", comment.getId())  // Filtrar por ID del comentario
+                                        .whereEqualTo("reporterId", currentUserId)   // Filtrar por ID del usuario que reporta
+                                        .get()
+                                        .addOnSuccessListener(querySnapshot -> {
+                                            if (!querySnapshot.isEmpty()) {
+                                                // Ya existe un reporte para este comentario por parte de este usuario
+                                                Log.d("reportComment", "Este comentario ya ha sido reportado.");
+                                                Toast.makeText(
+                                                        itemView.getContext(),
+                                                        "Este comentario ya ha sido reportado.",
+                                                        Toast.LENGTH_SHORT
+                                                ).show();
+                                            } else {
+                                                // No existe reporte previo, proceder a crearlo
+                                                Map<String, Object> report = new HashMap<>();
+                                                report.put("commentId", comment.getId());                                           // ID del comentario reportado
+                                                report.put("reporterId", currentUserId);                                            // Usuario que reporta
+                                                report.put("userId", commentUserNameId);                                            // ID del usuario del comentario
+                                                report.put("reportDate", new Timestamp(new Date()));                                // Fecha del reporte
+                                                report.put("solved", false);
+
+                                                // Añadir el reporte a la colección "reports"
+                                                db.collection("reports")
+                                                        .add(report)
+                                                        .addOnSuccessListener(documentReference -> {
+                                                            Log.d("reportComment", "Comentario reportado con ID: " + documentReference.getId());
+                                                            Toast.makeText(itemView.getContext(), "Comentario reportado", Toast.LENGTH_SHORT).show();
+                                                        })
+                                                        .addOnFailureListener(e ->
+                                                                Log.e("reportComment", "Error al reportar comentario", e)
+                                                        );
+                                            }
+                                        })
+                                        .addOnFailureListener(e ->
+                                                Log.e("reportComment", "Error al verificar si el comentario ya fue reportado", e)
+                                        );
+                            } else {
+                                Log.e("reportComment", "El campo 'commentUserNameId' no existe en el documento.");
+                            }
+                        } else {
+                            Log.e("reportComment", "El documento del comentario no existe.");
+                        }
+                    })
                     .addOnFailureListener(e ->
-                            Log.e("CommentsAdapter", "Error al reportar comentario", e)
+                            Log.e("reportComment", "Error al obtener el documento del comentario", e)
                     );
         }
+
+
     }
 
 }
