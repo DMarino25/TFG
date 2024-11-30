@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/cr6bc1b0cc"
+    tools:context=".FragFolder.FragHome">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="#B0D9D9D9"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="15dp"
+        android:paddingVertical="7dp">
+
+
+        <ImageView
+            android:id="@+id/go"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="16dp"
+            android:scaleType="fitXY"
+            app:srcCompat="@android:drawable/ic_search_category_default" />
+
+
+        <EditText
+            android:id="@+id/cercadora1"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:hint="Cerca"
+            android:inputType="text"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="282dp"
+            android:layout_height="384dp"
+            app:srcCompat="@drawable/attention" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Favorits no disponibles degut a baneig"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+
+</LinearLayout>

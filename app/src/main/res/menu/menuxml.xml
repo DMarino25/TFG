@@ -5,11 +5,11 @@
         android:title="Home"
         android:icon="@drawable/home_selector" />
     <item
-        android:id="@+id/transport"
+        android:id="@+id/favorits"
         android:title="Favorits"
         android:icon="@drawable/estrella_selector"/>
     <item
-        android:id="@+id/historial"
+        android:id="@+id/forums"
         android:title="Fòrum"
         android:icon="@drawable/forum_selector"/>
     <item

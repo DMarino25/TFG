@@ -9,17 +9,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,31 +23,32 @@ import android.widget.Toast;
 import com.example.GameApp.ClassObjectes.Conversation;
 import com.example.GameApp.ClassObjectes.Cover;
 import com.example.GameApp.ClassObjectes.User;
+import com.example.GameApp.FragFolder.BanFavFragment;
+import com.example.GameApp.FragFolder.BanForFragment;
+import com.example.GameApp.FragFolder.BannedFragment;
 import com.example.GameApp.FragFolder.FragAjust;
 import com.example.GameApp.FragFolder.FragFav;
 import com.example.GameApp.FragFolder.FragForum;
 import com.example.GameApp.FragFolder.FragHome;
-import com.example.GameApp.main.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 
-import java.security.Timestamp;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 public class OauthAct extends AppCompatActivity {
@@ -65,6 +62,14 @@ public class OauthAct extends AppCompatActivity {
     RecyclerView recyclerView;
     private CoverAdapter coverAdapter;
     private static final String TAG = "OauthAct";
+    private FirebaseAuth firebaseAuth;
+
+    private FirebaseFirestore db;
+
+    private Boolean noGames = false;
+    private Boolean noFav = false;
+    private Boolean noFor = false;
+
 
     private TextView gameName;
 
@@ -78,6 +83,10 @@ public class OauthAct extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Fragmentos
+        db = FirebaseFirestore.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        handleHome();
 
         fragments = new Fragment[4];
 
@@ -153,11 +162,13 @@ public class OauthAct extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 if (id == R.id.home) {
-                    openFragment(fragments[0]);
-                } else if (id == R.id.transport) {
-                    openFragment(fragments[1]);
-                } else if (id == R.id.historial) {
-                    openFragment(fragments[2]);
+                    handleHome();
+                } else if (id == R.id.favorits) {
+                    handleFav();
+                   // openFragment(fragments[1]);
+                } else if (id == R.id.forums) {
+                    handleFor();
+                    //openFragment(fragments[2]);
                 } else if (id == R.id.profile) {
                     openFragment(fragments[3]);
                 }
@@ -168,7 +179,84 @@ public class OauthAct extends AppCompatActivity {
 
     }
 
+    private void handleHome(){
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null){
+            String userId= firebaseAuth.getUid();
 
+            DocumentReference documentReference = db.collection("users").document(userId);
+            documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()){
+                         noGames = documentSnapshot.getBoolean("noGames");
+                         noFav = documentSnapshot.getBoolean("noFav");
+                         noFor = documentSnapshot.getBoolean("noFor");
+
+                        Log.d(TAG, "Valor de noGames obtenido: " + noGames);
+                        if(noGames){
+                            openFragment(new BannedFragment());
+                        }
+                        else{
+                            openFragment(new FragHome());
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private void handleFav(){
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null){
+            String userId= firebaseAuth.getUid();
+
+            DocumentReference documentReference = db.collection("users").document(userId);
+            documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()){
+
+                        noFav = documentSnapshot.getBoolean("noFav");
+
+                        Log.d(TAG, "Valor de noGames obtenido: " + noGames);
+                        if(noFav){
+                            openFragment(new BanFavFragment());
+                        }
+                        else{
+                            openFragment(new FragFav());
+                        }
+                    }
+                }
+            });
+        }
+
+    }
+    private void handleFor(){
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null){
+            String userId= firebaseAuth.getUid();
+
+            DocumentReference documentReference = db.collection("users").document(userId);
+            documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()){
+                        noFor = documentSnapshot.getBoolean("noFor");
+
+                        Log.d(TAG, "Valor de noGames obtenido: " + noGames);
+                        if(noFor){
+                            openFragment(new BanForFragment());
+                        }
+                        else{
+                            openFragment(new FragForum());
+                        }
+                    }
+                }
+            });
+        }
+
+    }
     private void openFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

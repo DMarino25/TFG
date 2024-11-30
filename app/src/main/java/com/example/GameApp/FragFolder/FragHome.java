@@ -2,6 +2,7 @@ package com.example.GameApp.FragFolder;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,6 +24,11 @@ import com.example.GameApp.ClassObjectes.Game;
 import com.example.GameApp.IGDBApi;
 import com.example.GameApp.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -49,6 +55,7 @@ public class FragHome extends Fragment {
     private CoverAdapter coverAdapter;
     private static final String TAG = "FragHome"; // Ajuste del tag
     private IGDBApi apiService;
+    private FirebaseAuth firebaseAuth;
 
     public FragHome() {
         // Constructor vacío requerido
@@ -57,6 +64,7 @@ public class FragHome extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
 
         View v = inflater.inflate(R.layout.fragment_frag_home, container, false);
 

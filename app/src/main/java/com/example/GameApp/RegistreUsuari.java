@@ -18,10 +18,14 @@ import android.widget.Toast;
 
 import com.example.GameApp.main.MainActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -101,19 +105,45 @@ public class RegistreUsuari extends AppCompatActivity {
     }
 
     private void saveUserInFirestore(FirebaseUser user, String userName) {
-        Map<String, Object> userMap = new HashMap<>();
-        userMap.put("uid", user.getUid());
-        userMap.put("name", userName);
-        userMap.put("email", user.getEmail());
+        DocumentReference documentReference = firestore.collection("users").document(user.getUid());
 
-        firestore.collection("users").document(user.getUid())
-                .set(userMap)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(RegistreUsuari.this, "Usuario guardado en Firestore", Toast.LENGTH_SHORT).show();
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        Log.d(TAG, "Usuari existent");
+                    } else {
+                        Map<String, Object> userMap = new HashMap<>();
+                        userMap.put("uid", user.getUid());
+                        userMap.put("name", userName);
+                        userMap.put("email", user.getEmail());
+                        userMap.put("photoUrl", user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : null);
+                        userMap.put("noGames", false);
+                        userMap.put("noFav", false);
+                        userMap.put("noFor", false);
 
-                })
-                .addOnFailureListener(e -> Toast.makeText(RegistreUsuari.this, "Error al guardar en Firestore", Toast.LENGTH_SHORT).show());
+                        documentReference.set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d(TAG, "Usuario guardado en Firestore con éxito");
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error al guardar el usuario en Firestore", e);
+
+                            }
+                        });
+                    }
+                } else {
+                    Log.w(TAG, "Error al verificar si el usuario existe en Firestore", task.getException());
+                }
+            }
+
+        });
     }
-
 
 }
