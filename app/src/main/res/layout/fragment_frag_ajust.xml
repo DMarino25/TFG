@@ -170,7 +170,7 @@
             android:textSize="16sp" />
 
         <LinearLayout
-            android:id="@+id/r155fsfryh4z"
+            android:id="@+id/feedback"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="23dp"
@@ -180,14 +180,16 @@
             android:clipToPadding="false"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingVertical="12dp">
+            android:paddingVertical="12dp"
+            android:backgroundTint="#A8D5BA">
 
             <TextView
-                android:id="@+id/rmiefov98qg"
+                android:id="@+id/rate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Comentó en “League of Legends 2”"
-                android:textColor="#000000"
+                android:text="Fes un comentari i valoració de l'app"
+                android:textColor="@android:color/black"
+
                 android:textSize="16sp" />
         </LinearLayout>
 
@@ -231,7 +233,7 @@
 
             <!-- Botón "Eliminar Cuenta" -->
             <LinearLayout
-                android:id="@+id/r3ey5ipy5fd2"
+                android:id="@+id/deleteAccount"
                 android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/sff3b30sw2cr100b65558f"

@@ -1,5 +1,8 @@
 package com.example.GameApp.FragFolder;
 
+import static java.lang.Float.parseFloat;
+
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -9,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -25,8 +29,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +44,7 @@ public class FragAjust extends Fragment {
 
     private FirebaseAuth auth;
     private GoogleSignInClient googleSignInClient;
+
     private FirebaseFirestore firestore;
     private FirebaseUser currentUser;
 
@@ -50,7 +60,6 @@ public class FragAjust extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_frag_ajust, container, false);
 
-
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -62,7 +71,9 @@ public class FragAjust extends Fragment {
                 .build();
         googleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
 
+        LinearLayout feedback = v.findViewById(R.id.feedback);
         LinearLayout logout = v.findViewById(R.id.logout);
+        LinearLayout delete = v.findViewById(R.id.deleteAccount);
         EditText UserName= v.findViewById(R.id.UserName);
         ImageButton edit = v.findViewById(R.id.editUsername);
 
@@ -118,6 +129,45 @@ public class FragAjust extends Fragment {
 
 
 
+        feedback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.dialog_feedback,null);
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                builder.setView(dialogView);
+
+                EditText comment = dialogView.findViewById(R.id.editTextText);
+                EditText report = dialogView.findViewById(R.id.editTextText2);
+                Button send = dialogView.findViewById(R.id.sendFeedback);
+                Button cancelButton = dialogView.findViewById(R.id.button4);
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+                cancelButton.setOnClickListener(view -> dialog.dismiss());
+
+                send.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String userComment = comment.getText().toString().trim();
+                        String userReport = report.getText().toString().trim();
+
+                        if(userComment.isEmpty() && userReport.isEmpty()){
+                            Toast.makeText(v.getContext(), "Completa alguna de les preguntes.", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                            createFeedback(userId, userComment, userReport);
+                            dialog.dismiss();
+                        }
+                    }
+                });
+
+            }
+        });
+
+
+
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,4 +188,31 @@ public class FragAjust extends Fragment {
 
         return v;
     }
+    private void createFeedback(String userId, String comment, String report){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> feedbackData = new HashMap<>();
+        feedbackData.put("userId", userId);
+
+        if (!comment.isEmpty()) {
+            feedbackData.put("comment", comment);
+        }
+        if (!report.isEmpty()) {
+            feedbackData.put("report", report);
+        }
+
+        db.collection("feedback")
+                .add(feedbackData)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Toast.makeText(getContext(), "Feedback rebut", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
 }
+
