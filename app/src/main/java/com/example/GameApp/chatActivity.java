@@ -81,7 +81,14 @@ public class chatActivity extends AppCompatActivity {
                         if (documentSnapshot.exists()) {
                             List<String> participants = (List<String>) documentSnapshot.get("participants");
                             if (participants != null && participants.size() > 1) {
-                                String receiverUserId = participants.get(1);
+                                String currentUserId = currentUser.getUid();
+                                String receiverUserId;
+                                // Determine the peer ID
+                                if (participants.get(0).equals(currentUserId)) {
+                                    receiverUserId = participants.get(1); // Take the second ID
+                                } else {
+                                    receiverUserId = participants.get(0); // Take the first ID
+                                }
                                 // Fetch the name of the user from the "users" collection
                                 firestore.collection("users").document(receiverUserId).get()
                                         .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -178,9 +185,5 @@ public class chatActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-        }
-
-
-
+    }
 }

@@ -6,128 +6,144 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Contenedor principal que incluye los elementos superiores y el RecyclerView -->
     <LinearLayout
         android:id="@+id/contenedorPrincipal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_above="@id/texto">
+        android:padding="16dp"
+        android:background="#FAFAFA">
 
-        <!-- Elementos superiores (por ejemplo, título y separadores) -->
+        <!-- Header Section -->
         <LinearLayout
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:elevation="4dp"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"
+            android:clipToPadding="false"
+            android:layout_gravity="center_horizontal">
 
-            <!-- Tu contenido superior aquí -->
+            <!-- Title and Icon -->
             <LinearLayout
                 android:id="@+id/ro7kwbwh61cm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="12dp"
-                android:layout_marginBottom="6dp"
+                android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_marginBottom="12dp">
 
-                <ImageView
+                <!--ImageView
                     android:id="@+id/rj0poccpqqsm"
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginEnd="105dp"
-                    android:scaleType="fitXY"
-                    android:src="@mipmap/ic_launcher" />
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginEnd="12dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_back_arrow"/-->
 
                 <TextView
                     android:id="@+id/rr83xc2vb0go"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Missatges"
-                    android:textColor="#000000"
-                    android:textSize="16sp" />
+                    android:textColor="#4A4A4A"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
             </LinearLayout>
 
-            <!-- Separador -->
+            <!-- Separator -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginBottom="9dp"
-                android:background="#000000" />
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:background="#E0E0E0"/>
 
-            <!-- Información del usuario -->
+            <!-- User Info Section -->
             <LinearLayout
                 android:id="@+id/rbm27k22tj8"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="12dp"
-                android:layout_marginBottom="15dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <ImageView
                     android:id="@+id/r4utngcvbu22"
-                    android:layout_width="43dp"
-                    android:layout_height="40dp"
-                    android:layout_marginEnd="20dp"
-                    android:scaleType="fitXY"
-                    android:src="@mipmap/ic_launcher" />
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginEnd="16dp"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_launcher"
+                    android:contentDescription="string/user_profile_image"
+                    android:background="@drawable/circular_border"/>
 
                 <TextView
                     android:id="@+id/ReceiverName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="JohnDoe456"
-                    android:textColor="#000000"
-                    android:textSize="16sp" />
+                    android:textColor="#4A4A4A"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
             </LinearLayout>
 
-            <!-- Otro separador -->
+            <!-- Another Separator -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginBottom="19dp"
-                android:background="#000000" />
-
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:background="#E0E0E0"/>
         </LinearLayout>
 
+        <!-- RecyclerView Section for chat messages -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyChat"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
-    </LinearLayout>
-
-    <!-- LinearLayout del campo de texto, anclado al fondo -->
-    <LinearLayout
-        android:id="@+id/texto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginHorizontal="4dp"
-        android:layout_marginBottom="13dp"
-        android:background="@drawable/contenedor"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingVertical="12dp"
-        android:paddingLeft="17dp"
-        android:paddingRight="6dp">
-
-        <EditText
-            android:id="@+id/write"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Escriu..."
-            android:textColor="#1E1E1E"
-            android:textSize="16sp" />
+            android:paddingHorizontal="8dp"
+            android:clipToPadding="false"
+            android:scrollbars="vertical"/>
 
-        <ImageView
-            android:id="@+id/send"
-            android:layout_width="40dp"
-            android:layout_height="50dp"
-            android:scaleType="fitXY"
-            app:srcCompat="@android:drawable/ic_media_play" />
+        <!-- Input and Send Button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="#FFFFFF"
+            android:elevation="4dp"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/write"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:hint="Write a message"
+                android:textColor="#4A4A4A"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textSize="16sp"
+                android:background="@drawable/rounded_input"/>
+
+            <ImageButton
+                android:id="@+id/send"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_send"
+                android:contentDescription="string/send_message"
+                android:layout_marginStart="8dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:padding="12dp"/>
+        </LinearLayout>
     </LinearLayout>
+
+
+
+
 
 </RelativeLayout>
