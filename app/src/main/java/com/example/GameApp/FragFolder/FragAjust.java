@@ -4,22 +4,27 @@ import static java.lang.Float.parseFloat;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.GameApp.ImgurApiClient;
 import com.example.GameApp.R;
 import com.example.GameApp.main.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -31,19 +36,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import androidx.activity.result.contract.ActivityResultContracts;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class FragAjust extends Fragment {
-
+    private ActivityResultLauncher<Intent> pickImageLauncher;
+    private Uri selectedImageUri;
     private FirebaseAuth auth;
     private GoogleSignInClient googleSignInClient;
 
@@ -62,11 +68,32 @@ public class FragAjust extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_frag_ajust, container, false);
 
+        // Initialize the ActivityResultLauncher
+        pickImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
+                            selectedImageUri = result.getData().getData();
+
+                            // Display the selected image in the ImageView
+                            ImageView ProfilePicture = v.findViewById(R.id.ProfilePicture);
+                            Glide.with(FragAjust.this)
+                                    .load(selectedImageUri)
+                                    .circleCrop()
+                                    .into(ProfilePicture);
+
+                            // Upload the image to Imgur
+                            uploadImageToImgur();
+                        }
+                    }
+                });
+
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String userId = currentUser.getUid();
-
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -76,7 +103,7 @@ public class FragAjust extends Fragment {
         LinearLayout feedback = v.findViewById(R.id.feedback);
         LinearLayout logout = v.findViewById(R.id.logout);
         LinearLayout delete = v.findViewById(R.id.deleteAccount);
-        EditText UserName= v.findViewById(R.id.UserName);
+        EditText UserName = v.findViewById(R.id.UserName);
         ImageView ProfilePicture = v.findViewById(R.id.ProfilePicture);
 
         // New buttons for tick and cross
@@ -161,82 +188,114 @@ public class FragAjust extends Fragment {
             crossButton.setVisibility(View.GONE);
         });
 
-        feedback.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.dialog_feedback,null);
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setView(dialogView);
-
-                EditText comment = dialogView.findViewById(R.id.editTextText);
-                EditText report = dialogView.findViewById(R.id.editTextText2);
-                Button send = dialogView.findViewById(R.id.sendFeedback);
-                Button cancelButton = dialogView.findViewById(R.id.button4);
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-
-                cancelButton.setOnClickListener(view1 -> dialog.dismiss());
-                send.setOnClickListener(view1 -> {
-                    String userComment = comment.getText().toString().trim();
-                    String userReport = report.getText().toString().trim();
-
-                    if (userComment.isEmpty() && userReport.isEmpty()) {
-                        Toast.makeText(v.getContext(), "Completa alguna de les preguntes.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        createFeedback(userId, userComment, userReport);
-                        dialog.dismiss();
-                    }
-                });
-
-            }
+        // Handle profile picture selection
+        ProfilePicture.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            intent.setType("image/*");
+            pickImageLauncher.launch(intent); // Launch the intent using the new launcher
         });
 
-        logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        feedback.setOnClickListener(v1 -> {
+            View dialogView = LayoutInflater.from(v1.getContext()).inflate(R.layout.dialog_feedback, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(v1.getContext());
+            builder.setView(dialogView);
 
-                auth.signOut();
-                 googleSignInClient.signOut().addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Intent intent = new Intent(getActivity(), MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+            EditText comment = dialogView.findViewById(R.id.editTextText);
+            EditText report = dialogView.findViewById(R.id.editTextText2);
+            Button send = dialogView.findViewById(R.id.sendFeedback);
+            Button cancelButton = dialogView.findViewById(R.id.button4);
 
-                        getActivity().finish();
-                    }
-                });
-            }
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+            cancelButton.setOnClickListener(view1 -> dialog.dismiss());
+            send.setOnClickListener(view1 -> {
+                String userComment = comment.getText().toString().trim();
+                String userReport = report.getText().toString().trim();
+
+                if (userComment.isEmpty() && userReport.isEmpty()) {
+                    Toast.makeText(v1.getContext(), "Completa alguna de les preguntes.", Toast.LENGTH_SHORT).show();
+                } else {
+                    createFeedback(userId, userComment, userReport);
+                    dialog.dismiss();
+                }
+            });
+
+        });
+
+        logout.setOnClickListener(v1 -> {
+
+            auth.signOut();
+            googleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+
+                getActivity().finish();
+            });
         });
 
         return v;
     }
-    private void createFeedback(String userId, String comment, String report){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        Map<String, Object> feedbackData = new HashMap<>();
-        feedbackData.put("userId", userId);
-
-        if (!comment.isEmpty()) {
-            feedbackData.put("comment", comment);
-        }
-        if (!report.isEmpty()) {
-            feedbackData.put("report", report);
-        }
-
-        db.collection("feedback")
-                .add(feedbackData)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+    private void uploadImageToImgur() {
+        if (selectedImageUri != null) {
+            try {
+                InputStream imageStream = getContext().getContentResolver().openInputStream(selectedImageUri);
+                ImgurApiClient.uploadImageToImgur(imageStream, new ImgurApiClient.UploadCallback() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Toast.makeText(getContext(), "Feedback rebut", Toast.LENGTH_SHORT).show();
+                    public void onUploadSuccess(String imgurUrl) {
+                        Log.d("Imgur", "Imgur URL: " + imgurUrl);
+                        uploadImageToFirebase(imgurUrl);
                     }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error" + e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                    @Override
+                    public void onUploadFailure(String errorMessage) {
+                        Toast.makeText(getContext(), "Failed to upload image: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    }
                 });
+            } catch (IOException e) {
+                Toast.makeText(getContext(), "Failed to upload image to Imgur: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
+    private void uploadImageToFirebase(String URL) {
+        if (URL != null) {
+            // Extract the Imgur image URL (you should parse it from the response, as needed)
+
+            // Save it in Firestore or Firebase Realtime Database
+            currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String userId = currentUser.getUid();
+
+            firestore.collection("users").document(userId)
+                    .update("photoUrl", URL)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(getContext(), "Profile picture updated successfully", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(getContext(), "Error updating profile picture: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                    );
+        }
+    }
+    
+    private void createFeedback(String userId, String comment, String report) {
+        Map<String, Object> feedback = new HashMap<>();
+        feedback.put("userId", userId);
+        if (!comment.isEmpty()) {
+            feedback.put("comment", comment);
+        }
+        if (!report.isEmpty()) {
+            feedback.put("report", report);
+        }
+
+        firestore.collection("feedbacks").add(feedback)
+                .addOnSuccessListener(documentReference ->
+                        Toast.makeText(getActivity(), "Feedback enviat", Toast.LENGTH_SHORT).show()
+                )
+                .addOnFailureListener(e ->
+                        Toast.makeText(getActivity(), "Error al enviar el feedback: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
+    }
 }
 
