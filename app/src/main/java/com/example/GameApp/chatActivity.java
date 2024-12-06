@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.GameApp.ClassObjectes.Chat;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -70,8 +71,9 @@ public class chatActivity extends AppCompatActivity {
         String userId = bundle.getString("uid");
         Log.d("ChatMD", "bundle:" + bundle);
         String conversationId = bundle.getString("conversationId");
-        TextView Rname = findViewById(R.id.ReceiverName);
-        ImageView send = findViewById(R.id.send);
+        TextView ReceiverName = findViewById(R.id.ReceiverName);
+        ImageView sendIcon = findViewById(R.id.send);
+        ImageView ReceiverPicture = findViewById(R.id.ReceiverPicture);
         EditText Write = findViewById(R.id.write);
 
         firestore.collection("messages").document(conversationId).get()
@@ -96,8 +98,19 @@ public class chatActivity extends AppCompatActivity {
                                             public void onSuccess(DocumentSnapshot userDocument) {
                                                 if (userDocument.exists()) {
                                                     String receiverName = userDocument.getString("name");
-                                                    Log.d("ChatMD", "receiverName:" + receiverName);
-                                                    Rname.setText(receiverName);
+                                                    String receiverPicture = userDocument.getString("photoUrl");
+                                                    // Load receiver's picture into ReceiverPicture using Glide
+                                                    if (receiverPicture != null && !receiverPicture.isEmpty()) {
+                                                        Glide.with(getApplicationContext())
+                                                                .load(receiverPicture)
+                                                                .circleCrop()
+                                                                .placeholder(R.mipmap.ic_launcher)
+                                                                .into(ReceiverPicture);
+                                                    } else {
+                                                        // Handle case where there is no picture URL, e.g., use a default image
+                                                        ReceiverPicture.setImageResource(R.mipmap.ic_launcher);
+                                                    }
+                                                    ReceiverName.setText(receiverName);
                                                 } else {
                                                     Toast.makeText(getApplicationContext(), "Nom no trobat a la base de dades", Toast.LENGTH_SHORT).show();
                                                 }
@@ -121,8 +134,7 @@ public class chatActivity extends AppCompatActivity {
 
                     }
                 });
-            send.setOnClickListener(new View.OnClickListener() {
-
+            sendIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick (View v) {
                         String messageText = Write.getText().toString().trim();

@@ -8,7 +8,7 @@
     <!-- Chat bubble -->
     <TextView
         android:id="@+id/mensajetexto"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bubble_received"
         android:padding="12dp"

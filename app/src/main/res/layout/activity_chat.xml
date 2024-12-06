@@ -64,21 +64,19 @@
 
             <!-- User Info Section -->
             <LinearLayout
-                android:id="@+id/rbm27k22tj8"
+                android:id="@+id/userInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
                 <ImageView
-                    android:id="@+id/r4utngcvbu22"
+                    android:id="@+id/ReceiverPicture"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:layout_marginEnd="16dp"
                     android:scaleType="centerCrop"
-                    android:src="@mipmap/ic_launcher"
-                    android:contentDescription="string/user_profile_image"
-                    android:background="@drawable/circular_border"/>
+                    android:contentDescription="string/user_profile_image"/>
 
                 <TextView
                     android:id="@+id/ReceiverName"
