@@ -40,14 +40,6 @@
                     android:background="@drawable/cr6bc1b0cc"
                     android:orientation="vertical"
                     android:paddingHorizontal="12dp">
-
-                    <ImageView
-                        android:id="@+id/r23l55jbtiga"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_marginTop="18dp"
-                        android:scaleType="fitXY"
-                        android:src="@mipmap/ic_launcher" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -59,51 +51,47 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-        android:background="#E2D4E7"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:orientation="vertical"
-        android:paddingVertical="28dp">
+            android:background="#E2D4E7"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingVertical="28dp">
 
         <ImageView
-            android:id="@+id/r5nh5cmwtxtu"
-            android:layout_width="match_parent"
-            android:layout_height="135dp"
-            android:layout_marginHorizontal="112dp"
-            android:layout_marginBottom="10dp"
-            android:scaleType="fitXY"
-            android:src="@mipmap/ic_launcher" />
+            android:id="@+id/ProfilePicture"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:scaleType="centerCrop"
+            android:background="#E2D4E7"
+            android:layout_marginBottom="16dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
-
             <EditText
                 android:id="@+id/UserName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SpearGoblin25"
-                android:textColor="#000000"
-                android:textSize="24sp"
-                android:inputType="textNoSuggestions|textVisiblePassword"
-            android:importantForAccessibility="no"
-            android:autofillHints="" />
-                />
-
-            <ImageButton
-                android:id="@+id/editUsername"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="8dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Editar nombre de usuario"
-                app:srcCompat="@android:drawable/ic_menu_edit" />
-
+                android:textSize="20sp"
+                android:layout_gravity="center"
+                android:textColor="#000000"/>
+            <ImageView
+                android:id="@+id/tickButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_tick"
+                android:contentDescription="Save" />
+            <ImageView
+                android:id="@+id/crossButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_cross"
+                android:contentDescription="Cancel" />
         </LinearLayout>
-
         <TextView
             android:id="@+id/rewlolqqya2h"
             android:layout_width="wrap_content"

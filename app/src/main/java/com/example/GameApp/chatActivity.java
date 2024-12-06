@@ -68,8 +68,6 @@ public class chatActivity extends AppCompatActivity {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         Bundle bundle = getIntent().getExtras();
-        String userId = bundle.getString("uid");
-        Log.d("ChatMD", "bundle:" + bundle);
         String conversationId = bundle.getString("conversationId");
         TextView ReceiverName = findViewById(R.id.ReceiverName);
         ImageView sendIcon = findViewById(R.id.send);

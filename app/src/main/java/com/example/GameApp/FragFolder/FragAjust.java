@@ -15,9 +15,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.GameApp.R;
 import com.example.GameApp.main.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -75,59 +77,89 @@ public class FragAjust extends Fragment {
         LinearLayout logout = v.findViewById(R.id.logout);
         LinearLayout delete = v.findViewById(R.id.deleteAccount);
         EditText UserName= v.findViewById(R.id.UserName);
-        ImageButton edit = v.findViewById(R.id.editUsername);
+        ImageView ProfilePicture = v.findViewById(R.id.ProfilePicture);
+
+        // New buttons for tick and cross
+        ImageView tickButton = v.findViewById(R.id.tickButton);
+        ImageView crossButton = v.findViewById(R.id.crossButton);
+
+        // Initially hide the tick and cross buttons
+        tickButton.setVisibility(View.GONE);
+        crossButton.setVisibility(View.GONE);
 
         firestore.collection("users").document(userId).get()
-                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                if (documentSnapshot.exists()) {
-                                    currentUsername = documentSnapshot.getString("name");
-                                    UserName.setText(currentUsername);
-                                }
-                                else{
-                                    Toast.makeText((v.getContext()), "Nom no trobat a la base de dades", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(v.getContext(), "Error al obtenir dades: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-        edit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (UserName != null && !UserName.getText().toString().isEmpty()) {
-                    String newUsername = UserName.getText().toString();
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        currentUsername = documentSnapshot.getString("name");
+                        String receiverPicture = documentSnapshot.getString("photoUrl");
 
-                    if (currentUsername != null && currentUsername.equals(newUsername)) {
-                        Toast.makeText(v.getContext(), "És el mateix nom d'usuari", Toast.LENGTH_SHORT).show();
+                        // Load receiver's picture using Glide
+                        if (receiverPicture != null && !receiverPicture.isEmpty()) {
+                            Glide.with(v.getContext())
+                                    .load(receiverPicture)
+                                    .circleCrop()
+                                    .placeholder(R.mipmap.ic_launcher)
+                                    .into(ProfilePicture);
+                        } else {
+                            // Default image if no URL
+                            ProfilePicture.setImageResource(R.mipmap.ic_launcher);
+                        }
+                        UserName.setText(currentUsername);
                     } else {
-                        firestore.collection("users").document(userId)
-                                .update("name", newUsername)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(v.getContext(), "Username actualitzat correctament", Toast.LENGTH_SHORT).show();
-                                        currentUsername = newUsername;
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(v.getContext(), "Error al actualitzar username: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                        Toast.makeText(v.getContext(), "Nom no trobat a la base de dades", Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    Toast.makeText(v.getContext(), "Nom d'usuari buit", Toast.LENGTH_SHORT).show();
-                }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(v.getContext(), "Error al obtenir dades: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
+
+        // Set focus change listener on UserName
+        UserName.setOnFocusChangeListener((view, hasFocus) -> {
+            if (hasFocus) {
+                // Enable editing and show tick and cross buttons
+                UserName.setEnabled(true);
+
+                tickButton.setVisibility(View.VISIBLE);
+                crossButton.setVisibility(View.VISIBLE);
+            } else {
+                // Optionally, hide the buttons when focus is lost
+                tickButton.setVisibility(View.GONE);
+                crossButton.setVisibility(View.GONE);
             }
         });
 
+        // Handle the tick button (Save changes)
+        tickButton.setOnClickListener(view -> {
+            String newUsername = UserName.getText().toString().trim();
+            if (newUsername.isEmpty()) {
+                Toast.makeText(v.getContext(), "Nom d'usuari buit", Toast.LENGTH_SHORT).show();
+            } else if (newUsername.equals(currentUsername)) {
+                Toast.makeText(v.getContext(), "És el mateix nom d'usuari", Toast.LENGTH_SHORT).show();
+            } else {
+                firestore.collection("users").document(userId)
+                        .update("name", newUsername)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(v.getContext(), "Username actualitzat correctament", Toast.LENGTH_SHORT).show();
+                            currentUsername = newUsername;
+                            // Hide tick and cross buttons
+                            tickButton.setVisibility(View.GONE);
+                            crossButton.setVisibility(View.GONE);
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(v.getContext(), "Error al actualitzar username: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        );
+            }
+            UserName.clearFocus();
+        });
 
+        // Handle the cross button (Cancel changes)
+        crossButton.setOnClickListener(view -> {
+            UserName.setText(currentUsername);
+            UserName.clearFocus();
+            // Hide tick and cross buttons
+            tickButton.setVisibility(View.GONE);
+            crossButton.setVisibility(View.GONE);
+        });
 
         feedback.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,29 +176,21 @@ public class FragAjust extends Fragment {
                 AlertDialog dialog = builder.create();
                 dialog.show();
 
-                cancelButton.setOnClickListener(view -> dialog.dismiss());
+                cancelButton.setOnClickListener(view1 -> dialog.dismiss());
+                send.setOnClickListener(view1 -> {
+                    String userComment = comment.getText().toString().trim();
+                    String userReport = report.getText().toString().trim();
 
-                send.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String userComment = comment.getText().toString().trim();
-                        String userReport = report.getText().toString().trim();
-
-                        if(userComment.isEmpty() && userReport.isEmpty()){
-                            Toast.makeText(v.getContext(), "Completa alguna de les preguntes.", Toast.LENGTH_SHORT).show();
-                        }
-                        else{
-                            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                            createFeedback(userId, userComment, userReport);
-                            dialog.dismiss();
-                        }
+                    if (userComment.isEmpty() && userReport.isEmpty()) {
+                        Toast.makeText(v.getContext(), "Completa alguna de les preguntes.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        createFeedback(userId, userComment, userReport);
+                        dialog.dismiss();
                     }
                 });
 
             }
         });
-
-
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
