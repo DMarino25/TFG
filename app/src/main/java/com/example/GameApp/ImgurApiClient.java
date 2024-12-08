@@ -48,7 +48,7 @@ public class ImgurApiClient {
                     String responseData = response.body().string();
                     Log.d("Imgur", "responseData:" + responseData);
 
-                    // Parse the Imgur URL from the response (usually in JSON format)
+                    // Parse the Imgur URL from the response (in JSON format)
                     String imgurUrl = parseImgurUrl(responseData);
 
                     // Pass the URL to the callback

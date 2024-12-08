@@ -28,6 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -85,7 +86,7 @@ public class FragForum extends Fragment {
         db = FirebaseFirestore.getInstance();
         go.setOnClickListener(v -> {
             currentSearchQuery = cercadora.getText().toString().trim();
-            filtrarFòrums(currentSearchQuery);
+            filtrarForums(currentSearchQuery);
         });
 
         // Botón flotante para crear un nuevo foro
@@ -97,7 +98,9 @@ public class FragForum extends Fragment {
     }
 
     private void loadForumsFromFirestore() {
-        // SELECT * FROM forums ORDER BY lastModifiedDate DESC;
+        // Temporary list to hold forums before sorting
+        List<Forum> tempForumList = new ArrayList<>();
+
         db.collection("forums")
                 .orderBy("lastModifiedDate", Query.Direction.DESCENDING)
                 .get()
@@ -105,36 +108,62 @@ public class FragForum extends Fragment {
                     if (task.isSuccessful()) {
                         Log.d("FragForum", "Data fetch successful");
 
-                        // Limpiar ambas listas para evitar duplicados
+                        // Clear both lists to avoid duplicates
                         fullForumList.clear();
                         forumList.clear();
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Forum forum = document.toObject(Forum.class);
-                            Log.d("FragForum", "Forum fetched: " + forum.toString());
+                            String userId = forum.getUserId();
+                            Log.d("FragForum", "Forum fetched: " + forum);
+                            Log.d("FragForum", "UserId: " + userId);
 
-                            // Obtener la fecha y formatearla
-                            Timestamp lastModifiedDate = forum.getLastModifiedDate();
-                            String formattedDate = formatLastModifiedDate(lastModifiedDate);
-                            forum.setFormattedDate(formattedDate);
+                            // Query user details
+                            db.collection("users")
+                                    .document(userId)
+                                    .get()
+                                    .addOnSuccessListener(userDocument -> {
+                                        if (userDocument.exists()) {
+                                            // Extract the user name and photo URL from the user document
+                                            String userName = userDocument.getString("name");
+                                            String userProfilePhoto = userDocument.getString("photoUrl");
 
-                            // Establecemos el ID del documento para futuras referencias
-                            forum.setId(document.getId());
+                                            // Set these values to the forum object
+                                            forum.setUserName(userName);
+                                            forum.setUserProfilePhoto(userProfilePhoto);
 
-                            // Añadimos el foro a la lista completa
-                            fullForumList.add(forum);
+                                            // Obtain and format the date
+                                            Timestamp lastModifiedDate = forum.getLastModifiedDate();
+                                            String formattedDate = formatLastModifiedDate(lastModifiedDate);
+                                            forum.setFormattedDate(formattedDate);
+
+                                            // Set the document ID for future references
+                                            forum.setId(document.getId());
+
+                                            // Add the forum to the temporary list
+                                            tempForumList.add(forum);
+
+                                            // Check if all forums are processed
+                                            if (tempForumList.size() == task.getResult().size()) {
+                                                // Sort the forums explicitly in DESCENDING order by lastModifiedDate
+                                                tempForumList.sort((f1, f2) ->
+                                                        f2.getLastModifiedDate().compareTo(f1.getLastModifiedDate()));
+
+                                                // Update the fullForumList and apply the filter
+                                                fullForumList.addAll(tempForumList);
+                                                filtrarForums(currentSearchQuery);
+                                            }
+                                        } else {
+                                            Log.e("FragForum", "User document does not exist for ID: " + userId);
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> Log.e("FragForum", "Error fetching user details: " + e.getMessage()));
                         }
-
-                        // Aplicar el filtro actual
-                        filtrarFòrums(currentSearchQuery);
-
                     } else {
                         Log.e("FragForum", "Error fetching forums", task.getException());
                     }
                 });
     }
-
-
 
 
     private void showCreateForumDialog() {
@@ -174,8 +203,9 @@ public class FragForum extends Fragment {
 
                         // Crea el mapa del nuevo foro con la información del usuario
                         Map<String, Object> forum = new HashMap<>();
-                        forum.put("userName", userName);
-                        forum.put("userProfilePhoto", userProfilePhoto);
+                        forum.put("userId", userId);
+                        //forum.put("userName", userName);
+                        //forum.put("userProfilePhoto", userProfilePhoto);
                         forum.put("title", title);
                         forum.put("description", description);
                         forum.put("creationDate", Timestamp.now());
@@ -195,7 +225,7 @@ public class FragForum extends Fragment {
                     }
                 });
     }
-    private void filtrarFòrums(String query) {
+    private void filtrarForums(String query) {
         forumList.clear();
 
         if (TextUtils.isEmpty(query)) {

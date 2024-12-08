@@ -54,7 +54,6 @@
                     android:layout_width="250dp"
                     android:layout_height="350dp"
                     android:layout_centerHorizontal="true"
-                    android:src="@mipmap/ic_launcher"
                     android:scaleType="fitXY" />
 
                 <!-- Contenedor para la estrella de favoritos (parte superior derecha de la portada) -->
@@ -154,7 +153,6 @@
                 android:id="@+id/titol"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dark Souls III"
                 android:textColor="#000000"
                 android:textSize="22sp"
                 android:textStyle="bold"
@@ -167,7 +165,6 @@
                 android:padding="16dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dark Souls 3 es un desafiante juego de rol y acción..."
                 android:textColor="#000000"
                 android:textSize="14sp"
                 android:layout_marginBottom="20dp" />
@@ -180,7 +177,6 @@
                 android:layout_marginBottom="10dp"
                 android:background="#a895b5"
                 android:padding="16dp"
-                android:text="🎮 Género: Acción, RPG"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
@@ -192,7 +188,6 @@
                 android:layout_marginBottom="10dp"
                 android:background="#a895b5"
                 android:padding="16dp"
-                android:text="🕹️ Plataformas: PS4, Xbox One, PC"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
@@ -204,7 +199,6 @@
                 android:layout_marginBottom="10dp"
                 android:background="#a895b5"
                 android:padding="16dp"
-                android:text="🏢 Desarrollador: FromSoftware"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
@@ -216,7 +210,6 @@
                 android:layout_marginBottom="10dp"
                 android:background="#a895b5"
                 android:padding="16dp"
-                android:text="📅 Fecha de Lanzamiento: 12 de abril de 2016"
                 android:textColor="#000000"
                 android:textSize="14sp" />
 
@@ -228,7 +221,6 @@
                 android:layout_marginBottom="20dp"
                 android:background="#a895b5"
                 android:padding="16dp"
-                android:text="🏷️ Tags: Multijugador, Mundo abierto"
                 android:textColor="#000000"
                 android:textSize="14sp" />
         </LinearLayout>

@@ -278,7 +278,7 @@ public class FragAjust extends Fragment {
                     );
         }
     }
-    
+
     private void createFeedback(String userId, String comment, String report) {
         Map<String, Object> feedback = new HashMap<>();
         feedback.put("userId", userId);
