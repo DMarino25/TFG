@@ -44,20 +44,49 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
     @Override
     public void onBindViewHolder(@NonNull ReplyViewHolder holder, int position) {
         Reply reply = replyList.get(position);
-        holder.replyUserNameTextView.setText(reply.getReplyUserName());
+
+        // Fetch the user details dynamically
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String replyUserNameId = reply.getReplyUserNameId();
+
+        db.collection("users")
+                .document(replyUserNameId)
+                .get()
+                .addOnSuccessListener(userDocument -> {
+                    if (userDocument.exists()) {
+                        // Populate user details
+                        String userName = userDocument.getString("name");
+                        String userProfilePicture = userDocument.getString("photoUrl");
+
+                        reply.setReplyUserName(userName);
+                        reply.setReplyUserPicture(userProfilePicture);
+
+                        // Update UI
+                        holder.replyUserNameTextView.setText(reply.getReplyUserName());
+                        Glide.with(holder.itemView.getContext())
+                                .load(reply.getReplyUserPicture())
+                                .circleCrop()
+                                .into(holder.replyUserImageView);
+                    } else {
+                        Log.e("ReplyAdapter", "User not found for ID: " + replyUserNameId);
+                        holder.replyUserNameTextView.setText("Unknown User");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("ReplyAdapter", "Error fetching user details: " + e.getMessage());
+                    holder.replyUserNameTextView.setText("Unknown User");
+                });
+
+        // Set reply text
         holder.replyTextView.setText(reply.getReplyText());
 
-        Glide.with(holder.itemView.getContext())
-                .load(reply.getReplyUserPicture())
-                .circleCrop()
-                .into(holder.replyUserImageView);
-
-        // Mostrar el PopupMenu al mantener pulsado la respuesta
+        // Show PopupMenu on long click
         holder.itemView.setOnLongClickListener(v -> {
             holder.showPopupMenu(holder.itemView, reply, holder.itemView.getContext());
             return true;
         });
     }
+
 
     @Override
     public int getItemCount() {

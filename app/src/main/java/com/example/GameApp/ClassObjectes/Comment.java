@@ -6,12 +6,12 @@ import com.google.firebase.database.Exclude;
 public class Comment {
     @Exclude
     private String id;
+    private String commentUserNameId;
     private String commentUserName;
     private String commentUserPicture;
     private String commentText;
     private Timestamp lastModifiedDate;
     private String _formattedDate; // Equals lastModifiedDate formatted and in String
-    private String commentUserNameId;
     private String _forumId;
 
     public Comment() {
@@ -26,9 +26,18 @@ public class Comment {
     public String getId() { return id; }
 
     public void setId(String id) { this.id = id; }
+
+    public String getCommentUserNameId() { return commentUserNameId; }
+
+    public void setCommentUserNameId(String commentUserNameId) { this.commentUserNameId = commentUserNameId; }
+
+    public void setCommentUserName(String commentUserName) { this.commentUserName = commentUserName; }
+
     public String getCommentUserName() {
         return commentUserName;
     }
+
+    public void setCommentUserPicture(String commentUserPicture) { this.commentUserPicture = commentUserPicture; }
 
     public String getCommentUserPicture() {
         return commentUserPicture;

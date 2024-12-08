@@ -98,7 +98,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                                 holder.repliesRecyclerView.setVisibility(View.GONE);
                             }
                         });
-                holder.toggleRepliesTextView.setText("Mostrar");
+                holder.toggleRepliesTextView.setText("Ver respuestas");
             }
         });
     }

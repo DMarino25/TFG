@@ -67,13 +67,15 @@ public class Reply {
         return _commentId;
     }
 
-    public void setCommentId(String commentId) { this._commentId = commentId; }
+    public void setCommentId(String commentId) {
+        this._commentId = commentId;
+    }
 
-    public String getUserNameId() {
+    public String getReplyUserNameId() {
         return replyUserNameId;
     }
 
-    public void setUserNameId(String replyUserNameId) {
+    public void setReplyUserNameId(String replyUserNameId) {
         this.replyUserNameId = replyUserNameId;
     }
 
@@ -81,5 +83,7 @@ public class Reply {
         return _forumId;
     }
 
-    public void setForumId(String forumId) { this._forumId = forumId; }
+    public void setForumId(String forumId) {
+        this._forumId = forumId;
+    }
 }

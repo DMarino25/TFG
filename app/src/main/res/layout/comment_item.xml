@@ -75,7 +75,7 @@
                         android:layout_marginTop="8dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:text="Mostrar"
+                        android:text="Ver respuestas"
                         android:textColor="#007BFF"
                         android:textStyle="bold" />
                 </LinearLayout>

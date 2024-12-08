@@ -27,6 +27,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -203,27 +204,63 @@ public class ForumDetailsActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("forums")
-            .document(forumId)
-            .collection("comments")
-            .orderBy("lastModifiedDate", Query.Direction.DESCENDING) // Ordenar por fecha en orden descendente
-            .addSnapshotListener((snapshots, e) -> {
-                if (e != null) {
-                    Log.e("ForumDetails", "Error al obtener los comentarios: ", e);
-                    return;
-                }
-
-                if (snapshots != null && !snapshots.isEmpty()) {
-                    commentList.clear();
-                    for (DocumentSnapshot document : snapshots.getDocuments()) {
-                        Comment comment = document.toObject(Comment.class);
-                        comment.setId(document.getId());
-                        comment.setForumId(forumId);
-                        commentList.add(comment);
+                .document(forumId)
+                .collection("comments")
+                .orderBy("lastModifiedDate", Query.Direction.DESCENDING) // Ordenar por fecha en orden descendente
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null) {
+                        Log.e("ForumDetails", "Error al obtener los comentarios: ", e);
+                        return;
                     }
-                    commentsAdapter.notifyDataSetChanged(); // Actualizar el RecyclerView
-                }
-            });
+
+                    if (snapshots != null && !snapshots.isEmpty()) {
+                        // Temporary list for comments
+                        List<Comment> tempCommentList = new ArrayList<>();
+                        commentList.clear();
+
+                        for (DocumentSnapshot document : snapshots.getDocuments()) {
+                            Comment comment = document.toObject(Comment.class);
+                            assert comment != null;
+                            comment.setId(document.getId());
+                            comment.setForumId(forumId);
+
+                            // Fetch user details for each comment
+                            String commentUserNameId = comment.getCommentUserNameId();
+                            db.collection("users")
+                                    .document(commentUserNameId)
+                                    .get()
+                                    .addOnSuccessListener(userDocument -> {
+                                        if (userDocument.exists()) {
+                                            // Set the username and profile picture
+                                            String userName = userDocument.getString("name");
+                                            String userProfilePhoto = userDocument.getString("photoUrl");
+                                            comment.setCommentUserName(userName);
+                                            comment.setCommentUserPicture(userProfilePhoto);
+
+                                            // Add the comment to the temporary list
+                                            tempCommentList.add(comment);
+
+                                            // Check if all comments are processed
+                                            if (tempCommentList.size() == snapshots.getDocuments().size()) {
+                                                // Sort comments explicitly by lastModifiedDate (DESCENDING)
+                                                Collections.sort(tempCommentList, (c1, c2) ->
+                                                        c2.getLastModifiedDate().compareTo(c1.getLastModifiedDate())
+                                                );
+
+                                                // Update the main comment list and notify adapter
+                                                commentList.addAll(tempCommentList);
+                                                commentsAdapter.notifyDataSetChanged();
+                                            }
+                                        } else {
+                                            Log.e("ForumDetails", "User document does not exist for ID: " + commentUserNameId);
+                                        }
+                                    })
+                                    .addOnFailureListener(ex -> Log.e("ForumDetails", "Error fetching user details: " + ex.getMessage()));
+                        }
+                    }
+                });
     }
+
 
     //Construir el body del Comentario para la llamada de Perspective
     private void checkCommentToxicity(String commentText, String forumId) {
@@ -342,7 +379,6 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     // Procesar la respuesta
                     handleToxicityReply(responseData, commentText, commentId);
                 }else{
-                    runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "[DEBUG] No se ha podido hacer la llamada a Perspective, pero añadimos respuesta", Toast.LENGTH_SHORT).show());
                     addReplyToComment(commentText, commentId);
                     Log.d("ToxicityCheck", "response is not successful: " + response);
                 }
@@ -427,6 +463,5 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 Log.e("ForumDetails", "Error al obtener los datos del usuario", e);
             });
     }
-
 
 }
