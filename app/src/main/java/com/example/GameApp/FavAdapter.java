@@ -21,10 +21,18 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
 
     private ArrayList<FavoriteGame> lgames;
     private Context context;
+    private boolean yesDescription;
+    private OnGameClickListener listener;
 
-    public FavAdapter(Context context, ArrayList<FavoriteGame> lgames) {
+    public interface OnGameClickListener {
+        void onGameClick(FavoriteGame game);
+    }
+
+    public FavAdapter(Context context, ArrayList<FavoriteGame> lgames, boolean yesDescription, OnGameClickListener listener ) {
         this.lgames = lgames;
         this.context = context;
+        this.yesDescription= yesDescription;
+        this.listener = listener;
     }
 
     @Override
@@ -48,12 +56,16 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
 
         // Manejar clic en la tarjeta
         holder.itemView.setOnClickListener(v -> {
-            if (game.getCoverId() != 0) {
+            if (yesDescription && game.getCoverId() != 0) {
                 Intent intent = new Intent(context, GameDetails.class);
                 intent.putExtra("coverId", game.getCoverId());
                 context.startActivity(intent);
-            } else {
-                Toast.makeText(context, "No se puede mostrar los detalles del juego.", Toast.LENGTH_SHORT).show();
+            }
+            else if(!yesDescription && game.getCoverId() !=0){
+                listener.onGameClick(game);
+            }
+            else {
+                Toast.makeText(context, "No es poden mostrar els detalls del joc.", Toast.LENGTH_SHORT).show();
             }
         });
     }

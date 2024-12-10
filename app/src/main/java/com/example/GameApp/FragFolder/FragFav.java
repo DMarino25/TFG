@@ -60,7 +60,7 @@ public class FragFav extends Fragment {
 
         favoriteGames = new ArrayList<>();
         favList.setLayoutManager(new LinearLayoutManager(getContext()));
-        favAdapter = new FavAdapter(getContext(), new ArrayList<FavoriteGame>());
+        favAdapter = new FavAdapter(getContext(), new ArrayList<FavoriteGame>(),true,null);
         favList.setAdapter(favAdapter);
 
         go.setOnClickListener(new View.OnClickListener() {
