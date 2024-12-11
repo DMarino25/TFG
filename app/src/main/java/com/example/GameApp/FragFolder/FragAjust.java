@@ -122,6 +122,7 @@ public class FragAjust extends Fragment {
         ImageView crossButton = v.findViewById(R.id.crossButton);
         ImageView tickButton2 = v.findViewById(R.id.tickButton2);
         ImageView crossButton2 = v.findViewById(R.id.crossButton2);
+        ImageView gameFavImg = v.findViewById(R.id.gameFavImg);
 
         // Initially hide the tick and cross buttons
         tickButton.setVisibility(View.GONE);
@@ -134,6 +135,7 @@ public class FragAjust extends Fragment {
                     if (documentSnapshot.exists()) {
                         currentUsername = documentSnapshot.getString("name");
                         String currentDescription = documentSnapshot.getString("description");
+                        String currentGVimage = documentSnapshot.getString("gameFavImg");
                         String currentMPgame = documentSnapshot.getString("gameFav");
                         String receiverPicture = documentSnapshot.getString("photoUrl");
 
@@ -152,6 +154,14 @@ public class FragAjust extends Fragment {
                         fgGame.setText(currentMPgame);
                         if (currentDescription != null){
                             description.setText(currentDescription);
+                        }
+                        if (currentGVimage != null){
+                            Glide.with(v.getContext())
+                                    .load(currentGVimage)
+                                    .circleCrop()
+                                    .placeholder(R.mipmap.ic_launcher)
+                                    .into(gameFavImg);
+
                         }
                     } else {
                         Toast.makeText(v.getContext(), "Nom no trobat a la base de dades", Toast.LENGTH_SHORT).show();
@@ -299,6 +309,10 @@ public class FragAjust extends Fragment {
                 RecyclerView recyclerView = dialogView.findViewById(R.id.favList);
                 TextView noFavoritesText = dialogView.findViewById(R.id.no_favorites_text);
 
+                EditText cerca2 = dialogView.findViewById(R.id.cerca2);
+                ImageView go2 = dialogView.findViewById(R.id.go2);
+
+
 
                 ArrayList<FavoriteGame> favoriteGames = new ArrayList<>();
                 FavAdapter dialogAdapter = new FavAdapter(v.getContext(), new ArrayList<>(), false, new FavAdapter.OnGameClickListener(){
@@ -308,13 +322,22 @@ public class FragAjust extends Fragment {
                         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
                         if (currentUser != null) {
+                            Map<String, Object> updates = new HashMap<>();
+                            updates.put("gameFav", game.getTitle());
+                            updates.put("gameFavImg", game.getCover_url());
                             firestore.collection("users")
                                     .document(currentUser.getUid())
-                                    .update("gameFav", game.getTitle())
+                                    .update(updates)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
                                             fgGame.setText(game.getTitle());
+
+                                            Glide.with(v.getContext())
+                                                            .load(game.getCover_url())
+                                                            .circleCrop()
+                                                            .placeholder(R.mipmap.ic_launcher)
+                                                            .into(gameFavImg);
                                             Toast.makeText(v.getContext(), "Joc més jugat seleccionat", Toast.LENGTH_SHORT).show();
                                         }
                                     })
@@ -374,6 +397,29 @@ public class FragAjust extends Fragment {
                         Toast.makeText(v.getContext(), "Usuari no autenticat", Toast.LENGTH_SHORT).show();
 
                     }
+                go2.setOnClickListener(v2 -> {
+                    String searchQuery = cerca2.getText().toString().trim();
+                    ArrayList<FavoriteGame> filteredList = new ArrayList<>();
+
+                    if (searchQuery.isEmpty()) {
+                        // Mostrar todos si no hay búsqueda
+                        filteredList.addAll(favoriteGames);
+                    } else {
+                        for (FavoriteGame game : favoriteGames) {
+                            if (game.getTitle() != null && game.getTitle().toLowerCase().contains(searchQuery.toLowerCase())) {
+                                filteredList.add(game);
+                            }
+                        }
+                    }
+                    dialogAdapter.updateList(filteredList);
+                    if (filteredList.isEmpty()) {
+                        recyclerView.setVisibility(View.GONE);
+                        noFavoritesText.setVisibility(View.VISIBLE);
+                    } else {
+                        recyclerView.setVisibility(View.VISIBLE);
+                        noFavoritesText.setVisibility(View.GONE);
+                    }
+                });
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                 builder.setView(dialogView);

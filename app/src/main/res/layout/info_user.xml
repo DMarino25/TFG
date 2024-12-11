@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Foto del usuario -->
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="16dp"
+            android:src="@mipmap/ic_launcher"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Nombre del usuario -->
+        <TextView
+            android:id="@+id/nameInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Yappers"
+            android:layout_marginLeft="50dp"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#000"
+            app:layout_constraintTop_toTopOf="@id/imageView"
+            app:layout_constraintBottom_toBottomOf="@id/imageView"
+            app:layout_constraintStart_toEndOf="@id/imageView"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Texto: "Descripció" -->
+        <TextView
+            android:id="@+id/labelDescripcio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Descripció:"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="#000"
+            app:layout_constraintTop_toBottomOf="@id/imageView"
+            app:layout_constraintStart_toStartOf="@id/imageView" />
+
+        <!-- Descripción del usuario -->
+        <TextView
+            android:id="@+id/editTextText3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="Solo yapeo 2"
+            android:textSize="14sp"
+            android:textColor="#666"
+            app:layout_constraintTop_toBottomOf="@id/imageView"
+            app:layout_constraintStart_toEndOf="@id/labelDescripcio"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Texto: "Joc més jugat" -->
+        <TextView
+            android:id="@+id/labelJocMesJugat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Joc més jugat:"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="#000"
+            app:layout_constraintTop_toBottomOf="@id/labelDescripcio"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Nombre del juego -->
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Irheobeorin Jeguk"
+            android:textSize="14sp"
+            android:textColor="#333"
+            app:layout_constraintTop_toTopOf="@id/labelJocMesJugat"
+            app:layout_constraintStart_toEndOf="@id/labelJocMesJugat"
+            app:layout_constraintEnd_toStartOf="@id/imageView3"
+            app:layout_constraintBottom_toBottomOf="@id/labelJocMesJugat" />
+
+        <!-- Imagen del juego -->
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:src="@mipmap/ic_launcher"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="@id/labelJocMesJugat"
+            app:layout_constraintStart_toEndOf="@id/textView4"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

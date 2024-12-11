@@ -152,11 +152,19 @@
             android:orientation="horizontal">
 
 
+            <ImageView
+                android:id="@+id/gameFavImg"
+                android:layout_width="10dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_launcher" />
+
             <TextView
                 android:id="@+id/hintFG"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="10dp"
                 android:text="Introdueix el teu joc més jugat"
                 android:textColor="#000000"
                 android:textSize="16sp" />
@@ -168,7 +176,7 @@
 
             <LinearLayout
                 android:id="@+id/selectGame"
-                android:layout_width="149dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/cr6bc1b0cc"
                 android:clipChildren="false"

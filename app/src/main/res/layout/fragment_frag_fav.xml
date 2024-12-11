@@ -39,25 +39,11 @@
                 android:id="@+id/rmfqrw6hro3k"
                 android:textColor="#000000"
                 android:textSize="24sp"
-                android:layout_marginEnd="82dp"
+                android:layout_marginEnd="150dp"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:text="Favorits" />
-            <LinearLayout
-                android:id="@+id/rj9rsrosmfrn"
-                android:layout_width="44dp"
-                android:layout_height="wrap_content"
-                android:background="@drawable/s2c2c2csw1cr32b4a3b73"
-                android:paddingHorizontal="10dp"
-                android:orientation="vertical">
-                <ImageView
-                    android:id="@+id/rjp4vvueqwi"
-                    android:layout_width="match_parent"
-                    android:layout_height="24dp"
-                    android:layout_marginTop="8dp"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="fitXY" />
-            </LinearLayout>
+
         </LinearLayout>
 
         <LinearLayout

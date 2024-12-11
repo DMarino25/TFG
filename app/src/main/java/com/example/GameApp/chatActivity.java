@@ -10,11 +10,15 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +77,7 @@ public class chatActivity extends AppCompatActivity {
         ImageView sendIcon = findViewById(R.id.send);
         ImageView ReceiverPicture = findViewById(R.id.ReceiverPicture);
         EditText Write = findViewById(R.id.write);
+        LinearLayout info = findViewById(R.id.userInfo);
 
         firestore.collection("messages").document(conversationId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -195,5 +200,97 @@ public class chatActivity extends AppCompatActivity {
                         }
                     }
                 });
+        info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.info_user, null);
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                builder.setView(dialogView);
+                ImageView userPP = dialogView.findViewById(R.id.imageView);
+                ImageView userFG = dialogView.findViewById(R.id.imageView3);
+
+                TextView userName = dialogView.findViewById(R.id.nameInfo);
+                TextView description = dialogView.findViewById(R.id.editTextText3);
+                TextView nameFG = dialogView.findViewById(R.id.textView4);
+
+                firestore.collection("messages").document(conversationId).get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                if (documentSnapshot.exists()) {
+                                    List<String> participants = (List<String>) documentSnapshot.get("participants");
+                                    if (participants != null && participants.size() > 1) {
+                                        String currentUserId = currentUser.getUid();
+                                        String receiverUserId;
+                                        if (participants.get(0).equals(currentUserId)) {
+                                            receiverUserId = participants.get(1); // Take the second ID
+                                        } else {
+                                            receiverUserId = participants.get(0); // Take the first ID
+                                        }
+                                        firestore.collection("users").document(receiverUserId).get()
+                                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot userDocument) {
+                                                        if (userDocument.exists()) {
+                                                            String receiverName = userDocument.getString("name");
+                                                            String receiverPicture = userDocument.getString("photoUrl");
+                                                            String receiverdescription = userDocument.getString("description");
+                                                            String receiverMpGame = userDocument.getString("gameFav");
+                                                            String receiverMpphoto = userDocument.getString("gameFavImg");
+
+                                                            if (receiverPicture != null && !receiverPicture.isEmpty()) {
+                                                                Glide.with(getApplicationContext())
+                                                                        .load(receiverPicture)
+                                                                        .circleCrop()
+                                                                        .placeholder(R.mipmap.ic_launcher)
+                                                                        .into(userPP);
+                                                            } else {
+
+                                                                userPP.setImageResource(R.mipmap.ic_launcher);
+                                                            }
+                                                            if(receiverMpphoto != null){
+                                                                Glide.with(getApplicationContext())
+                                                                        .load(receiverMpphoto)
+                                                                        .circleCrop()
+                                                                        .placeholder(R.mipmap.ic_launcher)
+                                                                        .into(userFG);
+                                                            }
+                                                            else {
+
+                                                                userFG.setImageResource(R.mipmap.ic_launcher);
+                                                            }
+                                                            userName.setText(receiverName);
+                                                            description.setText(receiverdescription);
+                                                            nameFG.setText(receiverMpGame);
+                                                        } else {
+                                                            Toast.makeText(getApplicationContext(), "Nom no trobat a la base de dades", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    }
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    Log.e("ChatMD", "Error al obtenir el nom de l'usuari", e);
+                                                });
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "Participants no trobats a la conversa", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                else{
+                                    Toast.makeText(getApplicationContext(), "Conversa no trobada a la base de dades", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+            }
+        });
     }
 }
