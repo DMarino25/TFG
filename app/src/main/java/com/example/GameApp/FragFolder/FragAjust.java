@@ -311,6 +311,10 @@ public class FragAjust extends Fragment {
 
                 EditText cerca2 = dialogView.findViewById(R.id.cerca2);
                 ImageView go2 = dialogView.findViewById(R.id.go2);
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                builder.setView(dialogView);
+                AlertDialog dialog = builder.create();
+                dialog.show();
 
 
 
@@ -339,7 +343,9 @@ public class FragAjust extends Fragment {
                                                             .placeholder(R.mipmap.ic_launcher)
                                                             .into(gameFavImg);
                                             Toast.makeText(v.getContext(), "Joc més jugat seleccionat", Toast.LENGTH_SHORT).show();
+                                            dialog.dismiss();
                                         }
+
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -421,10 +427,7 @@ public class FragAjust extends Fragment {
                     }
                 });
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setView(dialogView);
-                AlertDialog dialog = builder.create();
-                dialog.show();
+
             }
         });
 
