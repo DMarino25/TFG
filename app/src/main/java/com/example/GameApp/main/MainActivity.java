@@ -28,6 +28,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> startRegisterAct;
     private GoogleSignInClient googleSignInClient;
     private FirebaseAuth auth;
-    private EditText usuari, contrasenya;
+    private TextInputEditText usuari, contrasenya;
     private FirebaseFirestore firestore;  // Añadido Firestore
 
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
@@ -91,11 +93,11 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         googleSignInClient = GoogleSignIn.getClient(this, options);
 
-        LinearLayout iniciGoogle = findViewById(R.id.IniciGoogle);
-        LinearLayout iniciNormal = findViewById(R.id.IniciSessio);
-        TextView registre = findViewById(R.id.Registre);
-        usuari = findViewById(R.id.nameInici);
-        contrasenya = findViewById(R.id.contrasenyaInici);
+        MaterialButton iniciGoogle = findViewById(R.id.googleLoginButton);
+        MaterialButton iniciNormal = findViewById(R.id.loginButton);
+        TextView registre = findViewById(R.id.signUpLink);
+        usuari = findViewById(R.id.usernameInput);
+        contrasenya = findViewById(R.id.passwordInput);
         iniciNormal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -158,7 +160,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-        Button skipAuth = findViewById(R.id.button_skip);
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {

@@ -21,6 +21,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -46,11 +48,11 @@ public class RegistreUsuari extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
 
-        EditText correu = findViewById(R.id.nouCorreu);
-        EditText nom = findViewById(R.id.nouUsuari);
-        EditText contrasenya = findViewById(R.id.novaContrasenya);
-        TextView returnInici = findViewById(R.id.returnInici);
-        LinearLayout registre = findViewById(R.id.registre);
+        TextInputEditText correu = findViewById(R.id.emailInput);
+        TextInputEditText nom = findViewById(R.id.usernameInput);
+        TextInputEditText contrasenya = findViewById(R.id.passwordInput);
+        TextView returnInici = findViewById(R.id.loginLink);
+        MaterialButton registre = findViewById(R.id.registerButton);
 
         registre.setOnClickListener(new View.OnClickListener() {
             @Override
