@@ -203,7 +203,8 @@ public class GameDetails extends AppCompatActivity {
                     }
 
                     if (currentGame.getCover() != null && currentGame.getCover().getUrl() != null) {
-                        String imageUrl = "https:" + currentGame.getCover().getUrl();
+                        String imageId = CoverUtils.extractImageId(currentGame.getCover().getUrl());
+                        String imageUrl = CoverUtils.constructImageUrl(imageId, "t_1080p");
                         Glide.with(GameDetails.this).load(imageUrl).into(coverImage);
                     }
                     checkIfFavorite();

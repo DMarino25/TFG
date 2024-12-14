@@ -49,7 +49,9 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
 
         // Cargar imagen usando Glide
         if (game.getCover_url() != null && !game.getCover_url().isEmpty()) {
-            Glide.with(context).load(game.getCover_url()).into(holder.game_IMG);
+            String imageId = CoverUtils.extractImageId(game.getCover_url());
+            String imageUrl = CoverUtils.constructImageUrl(imageId, "t_1080p");
+            Glide.with(context).load(imageUrl).into(holder.game_IMG);
         } else {
             holder.game_IMG.setImageResource(R.drawable.ic_launcher_background);
         }

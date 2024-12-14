@@ -47,9 +47,11 @@ public class CoverAdapter extends RecyclerView.Adapter<CoverAdapter.CoverViewHol
     public void onBindViewHolder(@NonNull CoverViewHolder holder, int position) {
         Cover cover = coverList.get(position);
 
+        String imageId = CoverUtils.extractImageId(cover.getUrl());
+        String imageUrl = CoverUtils.constructImageUrl(imageId, "t_1080p");
         // Cargar la imagen de la portada
         Glide.with(holder.itemView.getContext())
-                .load("https:" + cover.getUrl())
+                .load(imageUrl)
                 .into(holder.coverImageView);
 
         // Mostrar el nombre del juego
