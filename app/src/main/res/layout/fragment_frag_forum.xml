@@ -14,11 +14,10 @@
 
         <!-- ScrollView para los foros -->
         <ScrollView
-            android:id="@+id/rgpowdt6it0j"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="#E2D4E7">
+            android:background="@color/pink_bg">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -27,69 +26,49 @@
 
                 <!-- Barra de búsqueda y otros componentes -->
                 <LinearLayout
-                    android:id="@+id/rl8ckxf857k"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="#6D4F96"
+                    android:background="@drawable/gradient_header"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="12dp"
-                    android:paddingVertical="3dp">
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="6dp">
 
                     <LinearLayout
-                        android:id="@+id/rlml7b6bnyz"
-                        android:layout_width="292dp"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:background="#D9D9D9"
+                        android:layout_weight="1"
+                        android:background="@drawable/rounded_search"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="11dp"
-                        android:paddingVertical="5dp">
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:minHeight="48dp">
 
                         <ImageView
                             android:id="@+id/go3"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_marginEnd="16dp"
-                            android:scaleType="fitXY"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="8dp"
+                            app:tint="#6D4F96"
+                            android:contentDescription="Search Icon"
                             app:srcCompat="@android:drawable/ic_search_category_default" />
 
                         <EditText
                             android:id="@+id/cerca3"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:hint="Cerca..."
+                            android:layout_height="match_parent"
+                            android:hint="Cercar fòrums..."
+                            android:background="@android:color/transparent"
+                            android:minHeight="48dp"
                             android:textColor="#000000"
                             android:textSize="16sp" />
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <LinearLayout
-                        android:id="@+id/ruxkxe1is89i"
-                        android:layout_width="44dp"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/s2c2c2csw1cr32b4a3b73"
-                        android:orientation="vertical"
-                        android:paddingHorizontal="10dp">
-
-                        <ImageView
-                            android:id="@+id/r0qkqjooxdnji"
-                            android:layout_width="match_parent"
-                            android:layout_height="24dp"
-                            android:layout_marginTop="8dp"
-                            android:scaleType="fitXY"
-                            android:src="@mipmap/ic_launcher" />
-                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- Sección de los foros -->
                 <LinearLayout
-                    android:id="@+id/ra8zgwaz9oh"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="#E2D4E7"

@@ -69,8 +69,8 @@ public class FragHome extends Fragment {
         View v = inflater.inflate(R.layout.fragment_frag_home, container, false);
 
         recyclerView = v.findViewById(R.id.recyclerView);
-        EditText cercadora = v.findViewById(R.id.cercadora1);
-        ImageView go = v.findViewById(R.id.go);
+        EditText cercadora = v.findViewById(R.id.cerca1);
+        ImageView go = v.findViewById(R.id.go1);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 

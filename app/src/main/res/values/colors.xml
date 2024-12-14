@@ -6,5 +6,7 @@
     <color name="gray">#797373</color>
     <color name="red">#DA2518</color>
     <color name="purple_500">#9C27B0</color>
-
+    <color name="pink_bg">#E2D4E7</color>
+    <color name="pink_card">#E1BEE7</color>
+    <color name="purple_card">#BFA2DB</color>
 </resources>

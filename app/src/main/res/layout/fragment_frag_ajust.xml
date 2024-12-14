@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#E2D4E7"
+    android:background="@color/pink_bg"
     android:clipChildren="false"
     android:clipToPadding="false">
 
