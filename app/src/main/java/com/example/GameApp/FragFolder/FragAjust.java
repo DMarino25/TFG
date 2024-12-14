@@ -36,6 +36,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -66,7 +67,7 @@ public class FragAjust extends Fragment {
     private FirebaseUser currentUser;
 
     private String currentUsername = null;
-    private String description = null;
+    private String _description = null;
 
     public FragAjust() {
         // Required empty public constructor
@@ -114,8 +115,8 @@ public class FragAjust extends Fragment {
         MaterialButton logout = v.findViewById(R.id.logout);
         LinearLayout selectFG = v.findViewById(R.id.selectGame);
         MaterialButton  delete = v.findViewById(R.id.deleteAccount);
-        EditText UserName = v.findViewById(R.id.UserName);
-        EditText description = v.findViewById(R.id.description);
+        TextInputEditText UserName = v.findViewById(R.id.UserName);
+        TextInputEditText description = v.findViewById(R.id.description);
         TextView fgGame = v.findViewById(R.id.hintFG);
         ImageView ProfilePicture = v.findViewById(R.id.ProfilePicture);
 
@@ -136,7 +137,7 @@ public class FragAjust extends Fragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         currentUsername = documentSnapshot.getString("name");
-                        String currentDescription = documentSnapshot.getString("description");
+                        _description = documentSnapshot.getString("description");
                         String currentGVimage = documentSnapshot.getString("gameFavImg");
                         String currentMPgame = documentSnapshot.getString("gameFav");
                         String receiverPicture = documentSnapshot.getString("photoUrl");
@@ -154,8 +155,8 @@ public class FragAjust extends Fragment {
                         }
                         UserName.setText(currentUsername);
                         fgGame.setText(currentMPgame);
-                        if (currentDescription != null){
-                            description.setText(currentDescription);
+                        if (_description != null){
+                            description.setText(_description);
                         }
                         if (currentGVimage != null){
                             String imageId = CoverUtils.extractImageId(currentGVimage);
@@ -238,7 +239,7 @@ public class FragAjust extends Fragment {
                         .update("description", newDescription)
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(v.getContext(), "Descripció actualitzada correctament", Toast.LENGTH_SHORT).show();
-
+                            _description = newDescription;
                             tickButton2.setVisibility(View.GONE);
                             crossButton2.setVisibility(View.GONE);
                         })
@@ -250,8 +251,8 @@ public class FragAjust extends Fragment {
         });
 
         crossButton2.setOnClickListener(view -> {
+            description.setText(_description);
             description.clearFocus();
-
             tickButton2.setVisibility(View.GONE);
             crossButton2.setVisibility(View.GONE);
         });

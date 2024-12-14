@@ -154,6 +154,35 @@ public class FragForum extends Fragment {
                                                 filtrarForums(currentSearchQuery);
                                             }
                                         } else {
+                                            // Extract the user name and photo URL from the user document
+                                            String userName = "Usuari eliminat";
+                                            String userProfilePhoto = "";
+
+                                            // Set these values to the forum object
+                                            forum.setUserName(userName);
+                                            forum.setUserProfilePhoto(userProfilePhoto);
+
+                                            // Obtain and format the date
+                                            Timestamp lastModifiedDate = forum.getLastModifiedDate();
+                                            String formattedDate = formatLastModifiedDate(lastModifiedDate);
+                                            forum.setFormattedDate(formattedDate);
+
+                                            // Set the document ID for future references
+                                            forum.setId(document.getId());
+
+                                            // Add the forum to the temporary list
+                                            tempForumList.add(forum);
+
+                                            // Check if all forums are processed
+                                            if (tempForumList.size() == task.getResult().size()) {
+                                                // Sort the forums explicitly in DESCENDING order by lastModifiedDate
+                                                tempForumList.sort((f1, f2) ->
+                                                        f2.getLastModifiedDate().compareTo(f1.getLastModifiedDate()));
+
+                                                // Update the fullForumList and apply the filter
+                                                fullForumList.addAll(tempForumList);
+                                                filtrarForums(currentSearchQuery);
+                                            }
                                             Log.e("FragForum", "User document does not exist for ID: " + userId);
                                         }
                                     })

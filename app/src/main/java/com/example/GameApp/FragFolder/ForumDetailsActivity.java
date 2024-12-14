@@ -221,6 +221,20 @@ public class ForumDetailsActivity extends AppCompatActivity {
                                                 commentsAdapter.notifyDataSetChanged();
                                             }
                                         } else {
+                                            /*comment.setCommentUserName("Usuari eliminat");
+                                            comment.setCommentUserPicture("");
+                                            tempCommentList.add(comment);
+                                            // Check if all comments are processed
+                                            if (tempCommentList.size() == snapshots.getDocuments().size()) {
+                                                // Sort comments explicitly by lastModifiedDate (DESCENDING)
+                                                Collections.sort(tempCommentList, (c1, c2) ->
+                                                        c2.getLastModifiedDate().compareTo(c1.getLastModifiedDate())
+                                                );
+
+                                                // Update the main comment list and notify adapter
+                                                commentList.addAll(tempCommentList);
+                                                commentsAdapter.notifyDataSetChanged();
+                                            }*/
                                             Log.e("ForumDetails", "User document does not exist for ID: " + commentUserNameId);
                                         }
                                     })
