@@ -34,6 +34,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -109,9 +110,9 @@ public class FragAjust extends Fragment {
         googleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
 
         LinearLayout feedback = v.findViewById(R.id.feedback);
-        LinearLayout logout = v.findViewById(R.id.logout);
+        MaterialButton logout = v.findViewById(R.id.logout);
         LinearLayout selectFG = v.findViewById(R.id.selectGame);
-        LinearLayout delete = v.findViewById(R.id.deleteAccount);
+        MaterialButton  delete = v.findViewById(R.id.deleteAccount);
         EditText UserName = v.findViewById(R.id.UserName);
         EditText description = v.findViewById(R.id.description);
         TextView fgGame = v.findViewById(R.id.hintFG);
@@ -302,6 +303,45 @@ public class FragAjust extends Fragment {
                 getActivity().finish();
             });
         });
+
+        delete.setOnClickListener(v1 -> {
+            // Show a confirmation dialog to prevent accidental deletions
+            new AlertDialog.Builder(v1.getContext())
+                    .setTitle("Confirmació d'eliminació")
+                    .setMessage("Estàs segur que vols eliminar el teu compte? Aquesta acció no es pot desfer.")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        // Get the user ID
+                        String userIdToDelete = currentUser.getUid();
+
+                        // Delete user data from Firestore
+                        firestore.collection("users").document(userIdToDelete).delete()
+                                .addOnSuccessListener(aVoid -> {
+                                    // Successfully deleted data from Firestore
+                                    // Proceed to delete the account from Firebase Authentication
+                                    currentUser.delete()
+                                            .addOnSuccessListener(aVoid1 -> {
+                                                Toast.makeText(v1.getContext(), "El compte s'ha eliminat correctament.", Toast.LENGTH_SHORT).show();
+
+                                                // Log out and redirect to the login page
+                                                Intent intent = new Intent(getActivity(), MainActivity.class);
+                                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                startActivity(intent);
+                                                getActivity().finish();
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                // Error while deleting the account
+                                                Toast.makeText(v1.getContext(), "Error al eliminar el compte: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            });
+                                })
+                                .addOnFailureListener(e -> {
+                                    // Error while deleting Firestore data
+                                    Toast.makeText(v1.getContext(), "Error al eliminar dades del Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    })
+                    .setNegativeButton("No", null) // Do nothing on "No"
+                    .show();
+        });
+
         selectFG.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

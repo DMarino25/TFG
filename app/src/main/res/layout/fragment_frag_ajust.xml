@@ -229,38 +229,29 @@
                 android:textSize="16sp" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/r6krwfgtmlho"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="24dp"
-            android:layout_marginTop="140dp"
-            android:layout_marginBottom="10dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:paddingVertical="0dp">
 
             <!-- Botón "Tanca Sessó" -->
-            <LinearLayout
-                android:id="@+id/logout"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:background="@drawable/cr100b65558f"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:paddingVertical="16dp">
 
-                <TextView
-                    android:id="@+id/rkx7fn8mklwk"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/logout"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="@color/purple_500"
                     android:text="Tanca Sessió"
-                    android:textColor="#FFFFFF"
-                    android:textSize="16sp" />
-            </LinearLayout>
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="16dp"
+                    app:iconGravity="start"
+                    app:iconPadding="8dp" />
 
             <View
                 android:layout_width="0dp"
@@ -268,25 +259,17 @@
                 android:layout_weight="1" />
 
             <!-- Botón "Eliminar Cuenta" -->
-            <LinearLayout
-                android:id="@+id/deleteAccount"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:background="@drawable/sff3b30sw2cr100b65558f"
-                android:clipChildren="false"
-                android:clipToPadding="false"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:paddingVertical="16dp">
-
-                <TextView
-                    android:id="@+id/ra4ge3i37agc"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/deleteAccount"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:backgroundTint="@color/red"
                     android:text="Eliminar Cuenta"
-                    android:textColor="#FF3B30"
-                    android:textSize="16sp" />
-            </LinearLayout>
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="16dp"
+                    app:iconGravity="start"
+                    app:iconPadding="8dp" />
         </LinearLayout>
 
     </LinearLayout>
