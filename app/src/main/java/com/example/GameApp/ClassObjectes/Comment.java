@@ -13,6 +13,7 @@ public class Comment {
     private Timestamp lastModifiedDate;
     private String _formattedDate; // Equals lastModifiedDate formatted and in String
     private String _forumId;
+    private boolean areRepliesVisible = false;
 
     public Comment() {
     }
@@ -62,4 +63,12 @@ public class Comment {
     }
 
     public void setForumId(String forumId) { this._forumId = forumId; }
+
+    public boolean areRepliesVisible() {
+        return areRepliesVisible;
+    }
+
+    public void setRepliesVisible(boolean visible) {
+        this.areRepliesVisible = visible;
+    }
 }

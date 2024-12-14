@@ -115,27 +115,6 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 .into(forumAuthorImageView);
     }
 
-    /*private void loadComments() {
-        // Cargar los comentarios desde el subdocumento "comments" dentro de cada "forum"
-        db.collection("forums").document(forumId).collection("comments").get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String commentUserName = document.getString("commentUserName");
-                        String userProfilePhoto = document.getString("commentUserPicture");
-                        String commentText = document.getString("commentText");
-
-                        // Crear un nuevo objeto Comment con la información del usuario y el comentario
-                        Comment comment = new Comment(commentUserName, userProfilePhoto, commentText, Timestamp.now());
-                        comment.setId(document.getId());
-                        Log.d("ToxicityCheck", "comment.setId(document.getId()): " + document.getId());
-                        commentList.add(comment);
-
-                        // Notificar al adaptador que los datos han cambiado
-                        commentsAdapter.notifyDataSetChanged();
-                    }
-                });
-    }*/
-
     //Popup para insertar un comentario
     private void showReplyDialog(String forumId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -150,9 +129,13 @@ public class ForumDetailsActivity extends AppCompatActivity {
         builder.setPositiveButton("Añadir", (dialog, which) -> {
             String commentText = input.getText().toString();
             if (!commentText.isEmpty()) {
-                // Lógica para añadir el comentario a Firestore
                 Log.d("ToxicityCheck", "commentText: " + commentText);
                 checkCommentToxicity(commentText, forumId);
+                // Reset reply states for all existing comments
+                for (Comment comment : commentList) {
+                    comment.setRepliesVisible(false);
+                }
+                commentsAdapter.notifyDataSetChanged(); // Refresh RecyclerView
             }
         });
 
@@ -164,38 +147,24 @@ public class ForumDetailsActivity extends AppCompatActivity {
     //Añadir un comentario a Firebase
     private void addCommentToFirestore(String commentText, String forumId) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-        // Consulta la información del usuario actual en la colección "users"
-        db.collection("users")
-            .document(userId)
-            .get()
-            .addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    // Obtén name y photoUrl del documento de usuario
-                    String name = documentSnapshot.getString("name");
-                    String photoUrl = documentSnapshot.getString("photoUrl");
+        // Crear el nuevo comentario
+        Map<String, Object> commentMap = new HashMap<>();
+        commentMap.put("commentText", commentText);
+        commentMap.put("commentUserNameId", userId);
+        commentMap.put("lastModifiedDate", new Timestamp(new Date()));
 
-                    // Crear el nuevo comentario
-                    Map<String, Object> commentMap = new HashMap<>();
-                    commentMap.put("commentText", commentText);
-                    commentMap.put("commentUserName", name);
-                    commentMap.put("commentUserNameId", userId);
-                    commentMap.put("commentUserPicture", photoUrl);
-                    commentMap.put("lastModifiedDate", new Timestamp(new Date()));
-
-                    // Añadir el comentario a la subcolección "comments" dentro del documento del foro
-                    db.collection("forums")
-                        .document(forumId)
-                        .collection("comments") // Aquí creas la subcolección
-                        .add(commentMap) // Añade el comentario a la subcolección
-                        .addOnSuccessListener(documentReference -> {
-                            // El comentario se añadió con éxito
-                            Log.d("FragForum", "Comentario añadido con ID: " + documentReference.getId());
-                        })
-                        .addOnFailureListener(e -> {
-                            // Ocurrió un error
-                            Log.e("FragForum", "Error al añadir comentario", e);
-                        });
-                }
+        // Añadir el comentario a la subcolección "comments" dentro del documento del foro
+        db.collection("forums")
+            .document(forumId)
+            .collection("comments") // Aquí creas la subcolección
+            .add(commentMap) // Añade el comentario a la subcolección
+            .addOnSuccessListener(documentReference -> {
+                // El comentario se añadió con éxito
+                Log.d("FragForum", "Comentario añadido con ID: " + documentReference.getId());
+            })
+            .addOnFailureListener(e -> {
+                // Ocurrió un error
+                Log.e("FragForum", "Error al añadir comentario", e);
             });
     }
 
@@ -422,46 +391,26 @@ public class ForumDetailsActivity extends AppCompatActivity {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         forumId = getIntent().getStringExtra("forumId");
 
-        // Obtener los datos del usuario desde la colección "users"
-        db.collection("users")
-            .document(userId)
-            .get()
-            .addOnSuccessListener(documentSnapshot -> {
-                if (documentSnapshot.exists()) {
-                    // Obtener los datos del usuario de Firestore
-                    String userName = documentSnapshot.getString("name"); // Cambia "userName" según el campo que uses
-                    String userProfilePic = documentSnapshot.getString("photoUrl"); // Obtener la URL de la foto de perfil desde Firestore
+        // Crear el objeto Reply con los datos necesarios
+        Map<String, Object> reply = new HashMap<>();
+        reply.put("replyText", replyText);
+        reply.put("replyUserNameId", userId);
+        reply.put("replyDate", new Timestamp(new Date()));
 
-                    // Crear el objeto Reply con los datos necesarios
-                    Map<String, Object> reply = new HashMap<>();
-                    reply.put("replyText", replyText);
-                    reply.put("replyUserNameId", userId);
-                    reply.put("replyUserName", userName);
-                    reply.put("replyUserPicture", userProfilePic);
-                    reply.put("replyDate", new Timestamp(new Date()));
-
-                    // Añadir la respuesta a la subcolección "replies" dentro del comentario
-                    db.collection("forums")
-                        .document(forumId)
-                        .collection("comments")
-                        .document(commentId)
-                        .collection("replies")
-                        .add(reply)
-                        .addOnSuccessListener(documentReference -> {
-                            // Éxito al añadir la respuesta
-                            Log.d("ForumDetails", "Respuesta añadida correctamente");
-                        })
-                        .addOnFailureListener(e -> {
-                            // Error al añadir la respuesta
-                            Log.e("ForumDetails", "Error al añadir la respuesta", e);
-                        });
-                } else {
-                    Log.e("ForumDetails", "Usuario no encontrado en la colección 'users'");
-                }
+        // Añadir la respuesta a la subcolección "replies" dentro del comentario
+        db.collection("forums")
+            .document(forumId)
+            .collection("comments")
+            .document(commentId)
+            .collection("replies")
+            .add(reply)
+            .addOnSuccessListener(documentReference -> {
+                // Éxito al añadir la respuesta
+                Log.d("ForumDetails", "Respuesta añadida correctamente");
             })
             .addOnFailureListener(e -> {
-                Log.e("ForumDetails", "Error al obtener los datos del usuario", e);
+                // Error al añadir la respuesta
+                Log.e("ForumDetails", "Error al añadir la respuesta", e);
             });
     }
-
 }

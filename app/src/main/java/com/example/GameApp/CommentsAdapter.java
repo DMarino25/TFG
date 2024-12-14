@@ -56,6 +56,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         holder.authorTextView.setText(comment.getCommentUserName());
         holder.commentTextView.setText(comment.getCommentText());
+        holder.toggleRepliesTextView.setText(comment.areRepliesVisible() ? "Ocultar" : "Veure respostes");
 
         // Cargar la imagen de perfil con Glide
         Glide.with(holder.itemView.getContext())
@@ -78,7 +79,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         holder.getReplies(forumId, comment.getId(), replyList, repliesAdapter);
 
         holder.toggleRepliesTextView.setOnClickListener(v -> {
-            if (holder.repliesRecyclerView.getVisibility() == View.GONE) {
+            boolean isCurrentlyVisible = comment.areRepliesVisible();
+            comment.setRepliesVisible(!isCurrentlyVisible);
+            holder.toggleRepliesTextView.setText(!isCurrentlyVisible ? "Ocultar" : "Veure respostes");
+            if (!isCurrentlyVisible) {
                 // Mostrar respuestas con animación
                 holder.repliesRecyclerView.setVisibility(View.VISIBLE);
                 holder.repliesRecyclerView.setAlpha(0f);
@@ -86,7 +90,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                         .alpha(1f)
                         .setDuration(300)
                         .setListener(null);
-                holder.toggleRepliesTextView.setText("Ocultar");
             } else {
                 // Ocultar respuestas con animación
                 holder.repliesRecyclerView.animate()
@@ -98,7 +101,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                                 holder.repliesRecyclerView.setVisibility(View.GONE);
                             }
                         });
-                holder.toggleRepliesTextView.setText("Ver respuestas");
             }
         });
     }
