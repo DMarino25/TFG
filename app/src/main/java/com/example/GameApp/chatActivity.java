@@ -172,12 +172,7 @@ public class chatActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "No has escrit res.", Toast.LENGTH_LONG).show();
                         }
                     }
-
-
             });
-
-
-
 
         firestore.collection("messages").document(conversationId).collection("chat")
                 .orderBy("timestamp", Query.Direction.ASCENDING)
@@ -249,14 +244,13 @@ public class chatActivity extends AppCompatActivity {
                                                                 userPP.setImageResource(R.mipmap.ic_launcher);
                                                             }
                                                             if(receiverMpphoto != null){
+                                                                String imageId = CoverUtils.extractImageId(receiverMpphoto);
+                                                                String imageUrl = CoverUtils.constructImageUrl(imageId, "t_1080p");
                                                                 Glide.with(getApplicationContext())
-                                                                        .load(receiverMpphoto)
-                                                                        .circleCrop()
+                                                                        .load(imageUrl)
                                                                         .placeholder(R.mipmap.ic_launcher)
                                                                         .into(userFG);
-                                                            }
-                                                            else {
-
+                                                            } else {
                                                                 userFG.setImageResource(R.mipmap.ic_launcher);
                                                             }
                                                             userName.setText(receiverName);
@@ -285,11 +279,8 @@ public class chatActivity extends AppCompatActivity {
 
                             }
                         });
-
-
                 AlertDialog dialog = builder.create();
                 dialog.show();
-
             }
         });
     }

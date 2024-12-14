@@ -46,7 +46,7 @@
             android:layout_marginTop="8dp"
             android:text="Descripció:"
             android:textStyle="bold"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textColor="#000"
             app:layout_constraintTop_toBottomOf="@id/imageView"
             app:layout_constraintStart_toStartOf="@id/imageView" />
@@ -72,7 +72,7 @@
             android:layout_marginTop="16dp"
             android:text="Joc més jugat:"
             android:textStyle="bold"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textColor="#000"
             app:layout_constraintTop_toBottomOf="@id/labelDescripcio"
             app:layout_constraintStart_toStartOf="parent" />
@@ -94,9 +94,8 @@
         <ImageView
             android:id="@+id/imageView3"
             android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:src="@mipmap/ic_launcher"
             android:scaleType="centerCrop"
             app:layout_constraintTop_toTopOf="@id/labelJocMesJugat"
