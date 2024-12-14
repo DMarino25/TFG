@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,6 +70,13 @@ public class FragFav extends Fragment {
                 String searchQuery = cercadora.getText().toString().trim();
                 filtraJocs(searchQuery);
             }
+        });
+        cercadora.setOnKeyListener((View,keycode,event) ->{
+            if(keycode == KeyEvent.KEYCODE_ENTER && event.getAction()== KeyEvent.ACTION_DOWN){
+                go.performClick();
+                return true;
+            }
+            return false;
         });
 
         return v;

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -87,6 +88,13 @@ public class FragForum extends Fragment {
         go.setOnClickListener(v -> {
             currentSearchQuery = cercadora.getText().toString().trim();
             filtrarForums(currentSearchQuery);
+        });
+        cercadora.setOnKeyListener((View,keycode,event) ->{
+            if(keycode == KeyEvent.KEYCODE_ENTER && event.getAction()== KeyEvent.ACTION_DOWN){
+                go.performClick();
+                return true;
+            }
+            return false;
         });
 
         // Botón flotante para crear un nuevo foro

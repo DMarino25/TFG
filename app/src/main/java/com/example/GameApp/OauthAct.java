@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -147,6 +148,13 @@ public class OauthAct extends AppCompatActivity {
                             Toast.makeText(OauthAct.this, "Introdueix un nom per cercar.", Toast.LENGTH_SHORT).show();
                         }
                     }
+                });
+                searchUserEditText.setOnKeyListener((View,keycode,event) ->{
+                    if(keycode == KeyEvent.KEYCODE_ENTER && event.getAction()== KeyEvent.ACTION_DOWN){
+                        cercaUsers.performClick();
+                        return true;
+                    }
+                    return false;
                 });
                 BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(v.getRootView().getContext());
                 bottomSheetDialog.setContentView(dialogView);

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,7 +92,13 @@ public class FragHome extends Fragment {
                 }
             }
         });
-
+        cercadora.setOnKeyListener((View,keycode,event) ->{
+            if(keycode == KeyEvent.KEYCODE_ENTER && event.getAction()== KeyEvent.ACTION_DOWN){
+                go.performClick();
+                return true;
+            }
+            return false;
+        });
         return v;
 
     }
