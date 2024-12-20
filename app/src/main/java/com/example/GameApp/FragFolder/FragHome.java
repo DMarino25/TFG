@@ -206,7 +206,8 @@ public class FragHome extends Fragment {
                         return;
                     }
 
-                    String coversQuery = "fields id,game,height,image_id,url,width,checksum; where game = (" + TextUtils.join(",", gameIds) + ");";
+                    String coversQuery = "fields id,game,height,image_id,url,width,checksum; where game = ("
+                            + TextUtils.join(",", gameIds) + "); limit 50;";
                     RequestBody coversRequestBody = RequestBody.create(coversQuery, MediaType.parse("text/plain"));
 
                     Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody, BuildConfig.CLIENT_ID, "Bearer " + BuildConfig.AUTH_TOKEN);
