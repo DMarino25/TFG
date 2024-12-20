@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.GameApp.ApiController;
+import com.example.GameApp.BuildConfig;
 import com.example.GameApp.ClassObjectes.Cover;
 import com.example.GameApp.CoverAdapter;
 import com.example.GameApp.ClassObjectes.Game;
@@ -107,7 +108,7 @@ public class FragHome extends Fragment {
         String coversQuery = "fields id,game,height,image_id,url,width,checksum; limit 50;";
         RequestBody coversRequestBody = RequestBody.create(coversQuery, MediaType.parse("text/plain"));
 
-        Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody);
+        Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody, BuildConfig.CLIENT_ID, "Bearer " + BuildConfig.AUTH_TOKEN);
         coversCall.enqueue(new Callback<List<Cover>>() {
             @Override
             public void onResponse(Call<List<Cover>> call, Response<List<Cover>> response) {
@@ -127,7 +128,7 @@ public class FragHome extends Fragment {
                     String gamesQuery = gamesQueryBuilder.toString();
                     RequestBody gamesRequestBody = RequestBody.create(gamesQuery, MediaType.parse("text/plain"));
 
-                    Call<List<Game>> gamesCall = apiService.getGames(gamesRequestBody);
+                    Call<List<Game>> gamesCall = apiService.getGames(gamesRequestBody, BuildConfig.CLIENT_ID, "Bearer " + BuildConfig.AUTH_TOKEN);
                     gamesCall.enqueue(new Callback<List<Game>>() {
                         @Override
                         public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
@@ -184,7 +185,7 @@ public class FragHome extends Fragment {
         String gamesQuery = "search \"" + searchGame + "\"; fields id,name; limit 50;";
         RequestBody gamesRequestBody = RequestBody.create(gamesQuery, MediaType.parse("text/plain"));
 
-        Call<List<Game>> gamesCall = apiService.getGames(gamesRequestBody);
+        Call<List<Game>> gamesCall = apiService.getGames(gamesRequestBody, BuildConfig.CLIENT_ID, "Bearer " + BuildConfig.AUTH_TOKEN);
         gamesCall.enqueue(new Callback<List<Game>>() {
             @Override
             public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
@@ -208,7 +209,7 @@ public class FragHome extends Fragment {
                     String coversQuery = "fields id,game,height,image_id,url,width,checksum; where game = (" + TextUtils.join(",", gameIds) + ");";
                     RequestBody coversRequestBody = RequestBody.create(coversQuery, MediaType.parse("text/plain"));
 
-                    Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody);
+                    Call<List<Cover>> coversCall = apiService.getCovers(coversRequestBody, BuildConfig.CLIENT_ID, "Bearer " + BuildConfig.AUTH_TOKEN);
                     coversCall.enqueue(new Callback<List<Cover>>() {
                         @Override
                         public void onResponse(Call<List<Cover>> call, Response<List<Cover>> response) {

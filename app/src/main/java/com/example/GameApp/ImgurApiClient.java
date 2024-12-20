@@ -19,7 +19,7 @@ import okhttp3.Response;
 
 public class ImgurApiClient {
 
-    private static final String CLIENT_ID = "b004079bf4a0ffe";
+    private static final String CLIENT_ID = BuildConfig.CLIENT_ID_IMGUR;
     private static final String IMGUR_UPLOAD_URL = "https://api.imgur.com/3/image";
 
     // Executor service for running background tasks

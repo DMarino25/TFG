@@ -19,27 +19,33 @@ import retrofit2.http.POST;
 public interface IGDBApi {
 
     @Headers({
-            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer 9iyx5o2sbgdhkh66m37erk4y8cwqek",
             "Content-Type: text/plain"
     })
     @POST("games")
-    Call<List<Game>> getGames(@Body RequestBody body);
+    Call<List<Game>> getGames(
+            @Body RequestBody body,
+            @retrofit2.http.Header("Client-ID") String clientId,
+            @retrofit2.http.Header("Authorization") String authToken
+    );
 
     @Headers({
-            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer 9iyx5o2sbgdhkh66m37erk4y8cwqek",
             "Content-Type: text/plain"
     })
     @POST("covers")
-    Call<List<Cover>> getCovers(@Body RequestBody body);
+    Call<List<Cover>> getCovers(
+            @Body RequestBody body,
+            @retrofit2.http.Header("Client-ID") String clientId,
+            @retrofit2.http.Header("Authorization") String authToken
+    );
 
     @Headers({
-            "Client-ID: b9y1tvf5218fua1xj6h9abthj0fmdm",
-            "Authorization: Bearer mzgh1skxwrndovrl17j3x1e91r5s8b",
             "Content-Type: text/plain"
     })
     @POST("artworks")
-    Call<List<Artwork>> getArtwork(@Body RequestBody body);
+    Call<List<Artwork>> getArtwork(
+            @Body RequestBody body,
+            @retrofit2.http.Header("Client-ID") String clientId,
+            @retrofit2.http.Header("Authorization") String authToken
+    );
 
 }

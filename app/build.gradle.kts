@@ -1,3 +1,12 @@
+import java.util.Properties
+
+// Load local.properties file
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
@@ -14,6 +23,9 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "CLIENT_ID", "\"${localProperties["CLIENT_ID"]}\"")
+        buildConfigField("String", "AUTH_TOKEN", "\"${localProperties["AUTH_TOKEN"]}\"")
+        buildConfigField("String", "CLIENT_ID_IMGUR", "\"${localProperties["CLIENT_ID_IMGUR"]}\"")
     }
 
     buildTypes {
@@ -25,6 +37,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    buildFeatures{
+        buildConfig = true
     }
 }
 

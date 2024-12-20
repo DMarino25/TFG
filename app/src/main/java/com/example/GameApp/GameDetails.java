@@ -107,7 +107,7 @@ public class GameDetails extends AppCompatActivity {
         String coverQuery = "fields game; where id = " + coverId + ";";
         RequestBody coverRequestBody = RequestBody.create(coverQuery, MediaType.parse("text/plain"));
 
-        Call<List<Cover>> coverCall = apiService.getCovers(coverRequestBody);
+        Call<List<Cover>> coverCall = apiService.getCovers(coverRequestBody, BuildConfig.CLIENT_ID, "Bearer " + BuildConfig.AUTH_TOKEN);
         coverCall.enqueue(new Callback<List<Cover>>() {
             @Override
             public void onResponse(Call<List<Cover>> call, Response<List<Cover>> response) {
@@ -133,7 +133,7 @@ public class GameDetails extends AppCompatActivity {
         String gameQuery = "fields name, summary, first_release_date, cover.url, genres.name, platforms.name, keywords.name, involved_companies.company.name, involved_companies.developer; where id = " + gameId + ";";
         RequestBody gameRequestBody = RequestBody.create(gameQuery, MediaType.parse("text/plain"));
 
-        Call<List<Game>> gameCall = apiService.getGames(gameRequestBody);
+        Call<List<Game>> gameCall = apiService.getGames(gameRequestBody, BuildConfig.CLIENT_ID, "Bearer " + BuildConfig.AUTH_TOKEN);
         gameCall.enqueue(new Callback<List<Game>>() {
             @Override
             public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
