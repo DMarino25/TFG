@@ -26,6 +26,7 @@ android {
         buildConfigField("String", "CLIENT_ID", "\"${localProperties["CLIENT_ID"]}\"")
         buildConfigField("String", "AUTH_TOKEN", "\"${localProperties["AUTH_TOKEN"]}\"")
         buildConfigField("String", "CLIENT_ID_IMGUR", "\"${localProperties["CLIENT_ID_IMGUR"]}\"")
+        buildConfigField("String", "API_PERSPECTIVE", "\"${localProperties["API_PERSPECTIVE"]}\"")
     }
 
     buildTypes {

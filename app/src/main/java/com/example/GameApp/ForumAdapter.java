@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.GameApp.ClassObjectes.Forum;
 import java.util.List;
+import java.util.Objects;
 
 import com.bumptech.glide.Glide;
 import com.example.GameApp.FragFolder.FragForum;
@@ -48,11 +49,12 @@ public class ForumAdapter extends RecyclerView.Adapter<ForumAdapter.ForumViewHol
         holder.userNameTextView.setText(forum.getUserName());
         holder.dateTextView.setText(forum.getFormattedDate());
 
-        Glide.with(holder.itemView.getContext())
-                .load(forum.getUserProfilePhoto())
-                .circleCrop()
-                .into(holder.userProfileImageView);
-
+        if(!Objects.equals(forum.getUserName(), "Usuari eliminat")) {
+            Glide.with(holder.itemView.getContext())
+                    .load(forum.getUserProfilePhoto())
+                    .circleCrop()
+                    .into(holder.userProfileImageView);
+        }
         // Actualizar los contadores
         holder.likeCount.setText(String.valueOf(forum.getLikeCount()));
         holder.dislikeCount.setText(String.valueOf(forum.getDislikeCount()));

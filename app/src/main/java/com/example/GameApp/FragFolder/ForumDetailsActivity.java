@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.GameApp.BuildConfig;
 import com.example.GameApp.ClassObjectes.Forum;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -108,11 +109,14 @@ public class ForumDetailsActivity extends AppCompatActivity {
         forumAuthorTextView.setText(authorName);
         forumDateTextView.setText(date);
 
-        // Cargar la imagen de perfil con Glide
-        Glide.with(this)
-                .load(userProfilePhoto)
-                .circleCrop()
-                .into(forumAuthorImageView);
+        if(!Objects.equals(authorName, "Usuari eliminat")){
+            // Cargar la imagen de perfil con Glide
+            Glide.with(this)
+                    .load(userProfilePhoto)
+                    .circleCrop()
+                    .into(forumAuthorImageView);
+        }
+
     }
 
     //Popup para insertar un comentario
@@ -221,7 +225,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                                                 commentsAdapter.notifyDataSetChanged();
                                             }
                                         } else {
-                                            /*comment.setCommentUserName("Usuari eliminat");
+                                            comment.setCommentUserName("Usuari eliminat");
                                             comment.setCommentUserPicture("");
                                             tempCommentList.add(comment);
                                             // Check if all comments are processed
@@ -234,7 +238,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                                                 // Update the main comment list and notify adapter
                                                 commentList.addAll(tempCommentList);
                                                 commentsAdapter.notifyDataSetChanged();
-                                            }*/
+                                            }
                                             Log.e("ForumDetails", "User document does not exist for ID: " + commentUserNameId);
                                         }
                                     })
@@ -250,7 +254,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
         // Crear un nuevo hilo para evitar bloquear la UI
         new Thread(() -> {
             OkHttpClient client = new OkHttpClient();
-            String apiKey = "AIzaSyCNGsAwGpJF2DOTricV1hFDCLuixbpEFpU"; // API Key
+            String apiKey = BuildConfig.API_PERSPECTIVE; // API Key
 
             // URL de la API Perspective
             String url = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + apiKey;
@@ -274,7 +278,6 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     Log.d("ToxicityCheck", "responseData: " + responseData);
                     handleToxicityResponse(responseData, commentText, forumId);
                 }else{
-                    runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "[DEBUG] No se ha podido hacer la llamada a Perspective, pero añadimos comentario", Toast.LENGTH_SHORT).show());
                     addCommentToFirestore(commentText, forumId);
                     Log.d("ToxicityCheck", "response is not successful: " + response);
                 }

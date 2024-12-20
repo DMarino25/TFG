@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentViewHolder> {
 
@@ -58,12 +59,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         holder.commentTextView.setText(comment.getCommentText());
         holder.toggleRepliesTextView.setText(comment.areRepliesVisible() ? "Ocultar" : "Veure respostes");
 
-        // Cargar la imagen de perfil con Glide
-        Glide.with(holder.itemView.getContext())
-                .load(comment.getCommentUserPicture())
-                .circleCrop()
-                .into(holder.authorImageView);
-
+        if(!Objects.equals(comment.getCommentUserPicture(), "")) {
+            // Cargar la imagen de perfil con Glide
+            Glide.with(holder.itemView.getContext())
+                    .load(comment.getCommentUserPicture())
+                    .circleCrop()
+                    .into(holder.authorImageView);
+        }
         // Mostrar el PopupMenu al mantener pulsado el comentario
         holder.itemView.setOnLongClickListener(v -> {
             holder.showPopupMenu(holder.itemView, comment, holder.itemView.getContext());

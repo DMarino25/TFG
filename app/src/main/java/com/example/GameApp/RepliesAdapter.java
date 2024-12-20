@@ -68,13 +68,15 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
                                 .circleCrop()
                                 .into(holder.replyUserImageView);
                     } else {
+                        reply.setReplyUserName("Usuari eliminat");
+                        reply.setReplyUserPicture("");
+                        holder.replyUserNameTextView.setText(reply.getReplyUserName());
                         Log.e("ReplyAdapter", "User not found for ID: " + replyUserNameId);
-                        holder.replyUserNameTextView.setText("Unknown User");
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e("ReplyAdapter", "Error fetching user details: " + e.getMessage());
-                    holder.replyUserNameTextView.setText("Unknown User");
+                    holder.replyUserNameTextView.setText("Usuari desconegut");
                 });
 
         // Set reply text
@@ -194,8 +196,6 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
                             Log.e("reportReply", "Error al obtener el documento de la respuesta", e)
                     );
         }
-
-
 
     }
 
