@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/home"
-        android:title="Inici"
+        android:title="@string/NavBarInici"
         android:icon="@drawable/home_selector" />
     <item
         android:id="@+id/favorits"
-        android:title="Favorits"
+        android:title="@string/NavBarFavorits"
         android:icon="@drawable/estrella_selector"/>
     <item
         android:id="@+id/forums"
-        android:title="Fòrum"
+        android:title="@string/NavBarForum"
         android:icon="@drawable/forum_selector"/>
     <item
         android:id="@+id/profile"
-        android:title="Perfil"
+        android:title="@string/NavBarPerfil"
         android:icon="@drawable/ajustaments_selector"/>
 </menu>

@@ -218,7 +218,7 @@ public class FragHome extends Fragment {
                     }
 
                     if (gameIds.isEmpty()) {
-                        Toast.makeText(getContext(), "No se encontraron juegos", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getString(R.string.FragHomeEmptyGames), Toast.LENGTH_SHORT).show();
                         coverList.clear();
                         coverAdapter.notifyDataSetChanged();
                         return;
@@ -265,14 +265,14 @@ public class FragHome extends Fragment {
                     });
                 } else {
                     Log.e(TAG, "Respuesta de búsqueda de juegos no exitosa o vacía");
-                    Toast.makeText(getContext(), "No s'han trobat coincidencies", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.FragHomeError), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
                 Log.e(TAG, "Falló la llamada a la API de búsqueda de juegos: " + t.getMessage());
-                Toast.makeText(getContext(), "Error al cercar jocs", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.FragHomeFailure), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -305,7 +305,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 // El comentario no es tóxico, se añade
                 addCommentToFirestore(commentText, forumId);
             } else {
-                runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "Missatge no pèrmes.", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, getString(R.string.ForumDetailsActivityPerspective), Toast.LENGTH_SHORT).show());
                 // El comentario es tóxico, manejar la respuesta según sea necesario
                 Log.d("ToxicityCheck", "El comentario es tóxico y no se añadirá.");
             }
@@ -393,7 +393,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 //commentText = commentText + " Puntuación de toxicidad: " + score;
                 addReplyToComment(commentText, commentId);
             } else {
-                runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, "Missatge no pèrmes.", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, getString(R.string.ForumDetailsActivityPerspective), Toast.LENGTH_SHORT).show());
                 // El comentario es tóxico, manejar la respuesta según sea necesario
                 Log.d("ToxicityCheck", "El comentario es tóxico y no se añadirá.");
             }

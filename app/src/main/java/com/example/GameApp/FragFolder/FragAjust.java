@@ -91,13 +91,17 @@ public class FragAjust extends Fragment {
 
                             // Display the selected image in the ImageView
                             ImageView ProfilePicture = v.findViewById(R.id.ProfilePicture);
-                            Glide.with(FragAjust.this)
-                                    .load(selectedImageUri)
-                                    .circleCrop()
-                                    .into(ProfilePicture);
-
-                            // Upload the image to Imgur
-                            uploadImageToImgur();
+                            String uriString = selectedImageUri.toString();
+                            if (!uriString.contains("webp")) {
+                                Glide.with(FragAjust.this)
+                                        .load(selectedImageUri)
+                                        .circleCrop()
+                                        .into(ProfilePicture);
+                                // Upload the image to Imgur
+                                uploadImageToImgur();
+                            }else{
+                                Toast.makeText(getContext(), "No s'ha pogut pujar la imatge, revisa la extensió d'aquesta", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });
@@ -172,7 +176,7 @@ public class FragAjust extends Fragment {
                     }
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(v.getContext(), "Error al obtenir dades: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(v.getContext(), "Error al obtenir dades", Toast.LENGTH_SHORT).show()
                 );
 
         // Set focus change listener on UserName
@@ -209,14 +213,14 @@ public class FragAjust extends Fragment {
                 firestore.collection("users").document(userId)
                         .update("name", newUsername)
                         .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(v.getContext(), "Username actualitzat correctament", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(v.getContext(), "Nom actualitzat correctament", Toast.LENGTH_SHORT).show();
                             currentUsername = newUsername;
                             // Hide tick and cross buttons
                             tickButton.setVisibility(View.GONE);
                             crossButton.setVisibility(View.GONE);
                         })
                         .addOnFailureListener(e ->
-                                Toast.makeText(v.getContext(), "Error al actualitzar username: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(v.getContext(), "Error al actualitzar el nom", Toast.LENGTH_SHORT).show()
                         );
             }
             UserName.clearFocus();
@@ -245,7 +249,7 @@ public class FragAjust extends Fragment {
                             crossButton2.setVisibility(View.GONE);
                         })
                         .addOnFailureListener(e ->
-                                Toast.makeText(v.getContext(), "Error al actualitzar la descripció: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(v.getContext(), "Error al actualitzar la descripció", Toast.LENGTH_SHORT).show()
                         );
             }
             description.clearFocus();
@@ -284,7 +288,7 @@ public class FragAjust extends Fragment {
                 String userReport = report.getText().toString().trim();
 
                 if (userComment.isEmpty() && userReport.isEmpty()) {
-                    Toast.makeText(v1.getContext(), "Completa alguna de les preguntes.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(v1.getContext(), "Completa alguna de les preguntes", Toast.LENGTH_SHORT).show();
                 } else {
                     createFeedback(userId, userComment, userReport);
                     dialog.dismiss();
@@ -321,7 +325,7 @@ public class FragAjust extends Fragment {
                                     // Proceed to delete the account from Firebase Authentication
                                     currentUser.delete()
                                             .addOnSuccessListener(aVoid1 -> {
-                                                Toast.makeText(v1.getContext(), "El compte s'ha eliminat correctament.", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(v1.getContext(), "El compte s'ha eliminat correctament", Toast.LENGTH_SHORT).show();
 
                                                 // Log out and redirect to the login page
                                                 Intent intent = new Intent(getActivity(), MainActivity.class);
@@ -331,12 +335,12 @@ public class FragAjust extends Fragment {
                                             })
                                             .addOnFailureListener(e -> {
                                                 // Error while deleting the account
-                                                Toast.makeText(v1.getContext(), "Error al eliminar el compte: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(v1.getContext(), "Error al eliminar el compte", Toast.LENGTH_SHORT).show();
                                             });
                                 })
                                 .addOnFailureListener(e -> {
                                     // Error while deleting Firestore data
-                                    Toast.makeText(v1.getContext(), "Error al eliminar dades del Firestore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(v1.getContext(), "Error al eliminar dades del Firestore", Toast.LENGTH_SHORT).show();
                                 });
                     })
                     .setNegativeButton("No", null) // Do nothing on "No"
@@ -432,7 +436,7 @@ public class FragAjust extends Fragment {
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(v.getContext(), "Error al carregar los favorits", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(v.getContext(), "Error al carregar els favorits", Toast.LENGTH_SHORT).show();
                                 }
                             });
                 } else{
@@ -493,11 +497,11 @@ public class FragAjust extends Fragment {
 
                     @Override
                     public void onUploadFailure(String errorMessage) {
-                        Toast.makeText(getContext(), "Failed to upload image: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getContext(), "No s'ha pogut pujar la imatge", Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (IOException e) {
-                Toast.makeText(getContext(), "Failed to upload image to Imgur: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "No s'ha pogut pujar la imatge a Imgur", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -513,10 +517,10 @@ public class FragAjust extends Fragment {
             firestore.collection("users").document(userId)
                     .update("photoUrl", URL)
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(getContext(), "Profile picture updated successfully", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Imatge de perfil actualitzada amb èxit", Toast.LENGTH_SHORT).show();
                     })
                     .addOnFailureListener(e ->
-                            Toast.makeText(getContext(), "Error updating profile picture: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(getContext(), "Error en actualitzar la imatge de perfil", Toast.LENGTH_SHORT).show()
                     );
         }
     }
@@ -536,7 +540,7 @@ public class FragAjust extends Fragment {
                         Toast.makeText(getActivity(), "Feedback enviat", Toast.LENGTH_SHORT).show()
                 )
                 .addOnFailureListener(e ->
-                        Toast.makeText(getActivity(), "Error al enviar el feedback: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(getActivity(), "Error en enviar el feedback", Toast.LENGTH_SHORT).show()
                 );
     }
 }

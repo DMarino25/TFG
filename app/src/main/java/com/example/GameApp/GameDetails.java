@@ -58,7 +58,7 @@ public class GameDetails extends AppCompatActivity {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (currentUser == null) {
-            Toast.makeText(this, "Inicia sessio per gestionar els favorits.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.GameDetailsUserNull), Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -84,7 +84,7 @@ public class GameDetails extends AppCompatActivity {
 
         // Verificar si se ha recibido correctamente el coverId
         if (coverId == -1) {
-            Toast.makeText(this, "Error: No es pot carregar  la informació del joc.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.GameDetailsCoverNotFound), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -115,13 +115,13 @@ public class GameDetails extends AppCompatActivity {
                     int gameId = response.body().get(0).getGame();
                     getGameDetails(gameId, coverImage, titol, descripcio, releaseDateTextView, genresTextView, platformsTextView, keywordsTextView, developerTextView);
                 } else {
-                    Toast.makeText(GameDetails.this, "No se pudieron cargar los detalles del cover.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(GameDetails.this, getString(R.string.GameDetailsLoadError), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Cover>> call, Throwable t) {
-                Toast.makeText(GameDetails.this, "Error al obtener los detalles del cover.", Toast.LENGTH_LONG).show();
+                Toast.makeText(GameDetails.this, getString(R.string.GameDetailsFailure), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -209,13 +209,13 @@ public class GameDetails extends AppCompatActivity {
                     }
                     checkIfFavorite();
                 } else {
-                    Toast.makeText(GameDetails.this, "No se pudieron cargar los detalles del juego.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(GameDetails.this, getString(R.string.GameDetailsLoadError), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Toast.makeText(GameDetails.this, "Error al obtener los detalles del juego.", Toast.LENGTH_LONG).show();
+                Toast.makeText(GameDetails.this, getString(R.string.GameDetailsFailure), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -247,7 +247,7 @@ public class GameDetails extends AppCompatActivity {
 
     private void toggleFavorite() {
         if (currentGame == null) {
-            Toast.makeText(this, "No se puede agregar a favoritos. Información del juego no cargada.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.GameDetailsFavoriteNull), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -257,12 +257,12 @@ public class GameDetails extends AppCompatActivity {
                         .document(favoriteId).delete()
                         .addOnSuccessListener(aVoid -> {
                             favoriteId = null;
-                            Toast.makeText(GameDetails.this, "Eliminado de favoritos", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(GameDetails.this, getString(R.string.GameDetailsEraseFav), Toast.LENGTH_SHORT).show();
                             isStarSelected = false;
                             setRatingStars(0); // Restablecer el rating visualmente a 0
                             cambiaStar(); // Cambiar la estrella seleccionada
                         })
-                        .addOnFailureListener(e -> Toast.makeText(GameDetails.this, "Error al eliminar de favoritos", Toast.LENGTH_SHORT).show());
+                        .addOnFailureListener(e -> Toast.makeText(GameDetails.this, getString(R.string.GameDetailsEraseFavError), Toast.LENGTH_SHORT).show());
             }
         } else {
             Map<String, Object> favoriteData = new HashMap<>();
@@ -275,11 +275,11 @@ public class GameDetails extends AppCompatActivity {
                     .add(favoriteData)
                     .addOnSuccessListener(documentReference -> {
                         favoriteId = documentReference.getId();
-                        Toast.makeText(GameDetails.this, "Afegit a favorits", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(GameDetails.this, getString(R.string.GameDetailsAddFav), Toast.LENGTH_SHORT).show();
                         isStarSelected = true;
                         cambiaStar(); // Cambiar la estrella seleccionada
                     })
-                    .addOnFailureListener(e -> Toast.makeText(GameDetails.this, "Error al agregar a favoritos", Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(GameDetails.this, getString(R.string.GameDetailsAddFavError), Toast.LENGTH_SHORT).show());
         }
     }
 
@@ -316,14 +316,14 @@ public class GameDetails extends AppCompatActivity {
 
     public void rateGame(View view) {
         currentRating = Integer.parseInt(view.getContentDescription().toString().split(" ")[1]);
-        Toast.makeText(this, "Has valorado el juego con " + currentRating + " estrellas", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.GameDetailsRated), Toast.LENGTH_SHORT).show();
         setRatingStars(currentRating); // Actualizar visualización de estrellas
 
         if (favoriteId != null) {
             firestore.collection("users").document(currentUser.getUid()).collection("favorits")
                     .document(favoriteId).update("rating", currentRating)
                     .addOnSuccessListener(aVoid -> Log.d(TAG, "Rating actualizado en favoritos"))
-                    .addOnFailureListener(e -> Toast.makeText(GameDetails.this, "Error al actualizar el rating", Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> Toast.makeText(GameDetails.this, getString(R.string.GameDetailsRatedError), Toast.LENGTH_SHORT).show());
         }
     }
 }
