@@ -118,7 +118,7 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
             // Acciones al hacer click en los elementos del menú
             popupMenu.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.report_comment) {
-                    reportReply(reply);
+                    reportReply(reply, context);
                     return true;
                 }
                 return false;
@@ -128,7 +128,7 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
             popupMenu.show();
         }
 
-        private void reportReply(Reply reply) {
+        private void reportReply(Reply reply, Context context) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
             // Obtener el campo "replyUserNameId" del documento correspondiente en la subcolección "replies"
@@ -157,7 +157,7 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
                                                 Log.d("reportReply", "Este mensaje ya ha sido reportado.");
                                                 Toast.makeText(
                                                         itemView.getContext(),
-                                                        "Este mensaje ya ha sido reportado.",
+                                                        context.getString(R.string.RepliesAdapterReported),
                                                         Toast.LENGTH_SHORT
                                                 ).show();
                                             } else {
@@ -179,7 +179,7 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
                                                         .addOnFailureListener(e ->
                                                                 Log.e("reportReply", "Error al reportar comentario", e)
                                                         );
-                                                Toast.makeText(itemView.getContext(), "Respuesta reportada", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(itemView.getContext(), context.getString(R.string.RepliesAdapterReport), Toast.LENGTH_SHORT).show();
                                             }
                                         })
                                         .addOnFailureListener(e ->

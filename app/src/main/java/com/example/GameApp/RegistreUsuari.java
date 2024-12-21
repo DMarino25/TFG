@@ -62,7 +62,7 @@ public class RegistreUsuari extends AppCompatActivity {
                 String strPassword = contrasenya.getText().toString();
 
                 if (strCorreu.isEmpty() || strUserName.isEmpty() || strPassword.isEmpty()) {
-                    Toast.makeText(RegistreUsuari.this, "Completa tots els camps", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistreUsuari.this, getString(R.string.usrpwdEmpty), Toast.LENGTH_SHORT).show();
                 } else {
 
                     auth.createUserWithEmailAndPassword(strCorreu, strPassword)
@@ -74,14 +74,14 @@ public class RegistreUsuari extends AppCompatActivity {
 
                                         saveUserInFirestore(user, strUserName);
 
-                                        Toast.makeText(RegistreUsuari.this, "Usuari creat", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(RegistreUsuari.this, getString(R.string.RegistreUsuariCreated), Toast.LENGTH_SHORT).show();
 
                                         // Volver a MainActivity
                                         Intent intent = new Intent(RegistreUsuari.this, MainActivity.class);
                                         startActivity(intent);
                                         finish();
                                     } else {
-                                        Toast.makeText(RegistreUsuari.this, "Error al crear l'usuari: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                        Toast.makeText(RegistreUsuari.this, getString(R.string.RegistreUsuariError), Toast.LENGTH_LONG).show();
                                     }
                                 }
                             });

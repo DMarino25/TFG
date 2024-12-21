@@ -64,8 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     // Registro de fallo
                     Log.w(TAG, "signInResult: failed code=" + result.getResultCode());
-
-                    Toast.makeText(MainActivity.this, "Sign in failed", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.signInFailed), Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -105,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 String strPassword = contrasenya.getText().toString();
 
                 if (strUserName.isEmpty() || strPassword.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Completa tots els camps", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.usrpwdEmpty), Toast.LENGTH_SHORT).show();
                 } else {
 
                     firestore.collection("users")
@@ -122,18 +121,18 @@ public class MainActivity extends AppCompatActivity {
                                                     if (task.isSuccessful()) {
                                                         FirebaseUser user = auth.getCurrentUser();
                                                         if (user != null) {
-                                                            Toast.makeText(MainActivity.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(MainActivity.this, getString(R.string.signInSuccess), Toast.LENGTH_SHORT).show();
                                                             Intent intent = new Intent(MainActivity.this, OauthAct.class);
                                                             startActivity(intent);
                                                         }
                                                     } else {
                                                         // Si el inicio de sesión falla, muestra un mensaje
-                                                        Toast.makeText(MainActivity.this, "Error en el inicio de sesión: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(MainActivity.this, getString(R.string.signInFailed), Toast.LENGTH_LONG).show();
                                                     }
                                                 }
                                             });
                                 } else {
-                                    Toast.makeText(MainActivity.this, "Usuario no encontrado", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(MainActivity.this, getString(R.string.usrMissing), Toast.LENGTH_SHORT).show();
                                 }
                             });
                 }
@@ -155,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         startRegisterAct = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == RESULT_OK) {
+                    if(result.getResultCode() == RESULT_OK) {
 
                     }
                 }
@@ -171,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (ApiException e) {
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode(), e);
-            Toast.makeText(MainActivity.this, "Google Sign-In Failed", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, getString(R.string.signInFailed), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -181,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "Firebase authentication successful");
-                    Toast.makeText(MainActivity.this, "Signed In Successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.signInSuccess), Toast.LENGTH_SHORT).show();
 
                     if (auth.getCurrentUser() != null) {
                         saveUserInFirestore(auth.getCurrentUser());  // Guardar en Firestore
@@ -191,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                 } else {
                     Log.e(TAG, "Firebase authentication failed: " + task.getException().getMessage());
-                    Toast.makeText(MainActivity.this, "Firebase Authentication Failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.signInFailed), Toast.LENGTH_SHORT).show();
                 }
             }
         });

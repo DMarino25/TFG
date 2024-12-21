@@ -198,7 +198,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             // Acciones al hacer click en los elementos del menú
             popupMenu.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.report_comment) {
-                    reportComment(comment);
+                    reportComment(comment, context);
                     return true;
                 }
                 return false;
@@ -208,7 +208,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             popupMenu.show();
         }
 
-        private void reportComment(Comment comment) {
+        private void reportComment(Comment comment, Context context) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
             // ID del usuario actual
@@ -237,7 +237,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                                                 Log.d("reportComment", "Este comentario ya ha sido reportado.");
                                                 Toast.makeText(
                                                         itemView.getContext(),
-                                                        "Este comentario ya ha sido reportado.",
+                                                        context.getString(R.string.CommentsAdapterReported),
                                                         Toast.LENGTH_SHORT
                                                 ).show();
                                             } else {
@@ -254,7 +254,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                                                         .add(report)
                                                         .addOnSuccessListener(documentReference -> {
                                                             Log.d("reportComment", "Comentario reportado con ID: " + documentReference.getId());
-                                                            Toast.makeText(itemView.getContext(), "Comentario reportado", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(itemView.getContext(), context.getString(R.string.CommentsAdapterReport), Toast.LENGTH_SHORT).show();
                                                         })
                                                         .addOnFailureListener(e ->
                                                                 Log.e("reportComment", "Error al reportar comentario", e)

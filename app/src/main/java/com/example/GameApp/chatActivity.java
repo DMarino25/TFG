@@ -115,7 +115,7 @@ public class chatActivity extends AppCompatActivity {
                                                     }
                                                     ReceiverName.setText(receiverName);
                                                 } else {
-                                                    Toast.makeText(getApplicationContext(), "Nom no trobat a la base de dades", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(getApplicationContext(), getString(R.string.chatActivityUserNotFound), Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         })
@@ -123,11 +123,10 @@ public class chatActivity extends AppCompatActivity {
                                             Log.e("ChatMD", "Error al obtenir el nom de l'usuari", e);
                                         });
                             } else {
-                                Toast.makeText(getApplicationContext(), "Participants no trobats a la conversa", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), getString(R.string.chatActivityParticipantsNotFound), Toast.LENGTH_SHORT).show();
                             }
-                        }
-                        else{
-                            Toast.makeText(getApplicationContext(), "Conversa no trobada a la base de dades", Toast.LENGTH_SHORT).show();
+                        } else{
+                            Toast.makeText(getApplicationContext(), getString(R.string.chatActivityMessagesNotFound), Toast.LENGTH_SHORT).show();
                         }
                     }
                 })
@@ -169,7 +168,7 @@ public class chatActivity extends AppCompatActivity {
                                     });
                             Write.setText("");
                         } else {
-                            Toast.makeText(getApplicationContext(), "No has escrit res.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), getString(R.string.chatActivityEmptyMessage), Toast.LENGTH_LONG).show();
                         }
                     }
             });
@@ -257,7 +256,7 @@ public class chatActivity extends AppCompatActivity {
                                                             description.setText(receiverdescription);
                                                             nameFG.setText(receiverMpGame);
                                                         } else {
-                                                            Toast.makeText(getApplicationContext(), "Nom no trobat a la base de dades", Toast.LENGTH_SHORT).show();
+                                                            Toast.makeText(getApplicationContext(), getString(R.string.chatActivityUserNotFound), Toast.LENGTH_SHORT).show();
                                                         }
                                                     }
                                                 })
@@ -265,11 +264,11 @@ public class chatActivity extends AppCompatActivity {
                                                     Log.e("ChatMD", "Error al obtenir el nom de l'usuari", e);
                                                 });
                                     } else {
-                                        Toast.makeText(getApplicationContext(), "Participants no trobats a la conversa", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(getApplicationContext(), getString(R.string.chatActivityParticipantsNotFound), Toast.LENGTH_SHORT).show();
                                     }
                                 }
                                 else{
-                                    Toast.makeText(getApplicationContext(), "Conversa no trobada a la base de dades", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), getString(R.string.chatActivityMessagesNotFound), Toast.LENGTH_SHORT).show();
                                 }
                             }
                         })

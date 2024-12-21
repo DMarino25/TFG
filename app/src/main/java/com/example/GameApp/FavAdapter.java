@@ -67,7 +67,7 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
                 listener.onGameClick(game);
             }
             else {
-                Toast.makeText(context, "No es poden mostrar els detalls del joc.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, context.getString(R.string.FavAdapterError), Toast.LENGTH_SHORT).show();
             }
         });
     }

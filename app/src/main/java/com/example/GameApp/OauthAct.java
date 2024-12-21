@@ -128,7 +128,6 @@ public class OauthAct extends AppCompatActivity {
                 UserAdapter userAdapter = new UserAdapter(v.getContext(), llistaUsuaris, new UserAdapter.OnUserClickListener() {
                     @Override
                     public void onConversaClick(User usuari) {
-
                         crearConversa(usuari, conversationsAdapter);
                     }
                 });
@@ -145,7 +144,7 @@ public class OauthAct extends AppCompatActivity {
                             contenidorResultats.setVisibility(View.GONE);
                             llistaUsuaris.clear();
                             userAdapter.notifyDataSetChanged();
-                            Toast.makeText(OauthAct.this, "Introdueix un nom per cercar.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(OauthAct.this, getString(R.string.OauthActSearch), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -251,7 +250,6 @@ public class OauthAct extends AppCompatActivity {
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     if (documentSnapshot.exists()){
                         noFor = documentSnapshot.getBoolean("noFor");
-
                         Log.d(TAG, "Valor de noGames obtenido: " + noGames);
                         if(noFor){
                             openFragment(new BanForFragment());
@@ -305,7 +303,7 @@ public class OauthAct extends AppCompatActivity {
                             }
                             if (llistaUsuaris.isEmpty()) {
                                 // No se encontraron usuarios que coincidan con la búsqueda
-                                Toast.makeText(OauthAct.this, "No s'han trobat usuaris.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(OauthAct.this, getString(R.string.OauthActEmpty), Toast.LENGTH_SHORT).show();
                             }
                             // Actualizar el adaptador con la lista (vacía o con resultados)
                             userAdapter.updateList(llistaUsuaris);
@@ -313,7 +311,7 @@ public class OauthAct extends AppCompatActivity {
                             Log.d(TAG, "Error obtenint usuaris: ", task.getException());
                             // En caso de error, también limpiamos la lista y mostramos un mensaje
                             userAdapter.updateList(llistaUsuaris);
-                            Toast.makeText(OauthAct.this, "Error en cercar usuaris.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(OauthAct.this, getString(R.string.OauthActError), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -361,7 +359,7 @@ public class OauthAct extends AppCompatActivity {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         // La conversación ya existe
-                        Toast.makeText(this, "La conversa ja existeix.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.OauthActExists), Toast.LENGTH_SHORT).show();
                     } else {
                         // Crear nueva conversación
                         Conversation novaConversa = new Conversation();
@@ -387,10 +385,5 @@ public class OauthAct extends AppCompatActivity {
                     Log.w(TAG, "Error comprobando existencia de la conversación", e);
                 });
     }
-
-
-
-
-
 
 }

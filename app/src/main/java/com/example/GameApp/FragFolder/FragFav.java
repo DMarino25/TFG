@@ -52,7 +52,7 @@ public class FragFav extends Fragment {
         cercadora = v.findViewById(R.id.cerca2);
 
         if (currentUser == null) {
-            Toast.makeText(getContext(), "Inicia sessió per a veure els favorits.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(), getString(R.string.FragFavUserNull), Toast.LENGTH_LONG).show();
             return v;
         }
 
@@ -91,7 +91,7 @@ public class FragFav extends Fragment {
                         @Override
                         public void onEvent(QuerySnapshot snapshots, com.google.firebase.firestore.FirebaseFirestoreException e) {
                             if (e != null) {
-                                Toast.makeText(getContext(), "Error al obtener los favoritos.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), getString(R.string.FragFavError), Toast.LENGTH_LONG).show();
                                 return;
                             }
 
