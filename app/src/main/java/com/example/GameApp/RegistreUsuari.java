@@ -25,6 +25,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -81,8 +82,26 @@ public class RegistreUsuari extends AppCompatActivity {
                                         startActivity(intent);
                                         finish();
                                     } else {
-                                        Toast.makeText(RegistreUsuari.this, "Error al crear l'usuari: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                                    }
+                                        Exception exception = task.getException();
+                                        if (exception instanceof FirebaseAuthException) {
+                                            FirebaseAuthException authException = (FirebaseAuthException) exception;
+                                            String errorCode = authException.getErrorCode();
+
+                                            switch (errorCode) {
+                                                case "ERROR_WEAK_PASSWORD":
+                                                    Toast.makeText(RegistreUsuari.this, "La contrasenya és massa curta. Ha de tenir almenys 6 caràcters.", Toast.LENGTH_LONG).show();
+                                                    break;
+                                                case "ERROR_EMAIL_ALREADY_IN_USE":
+                                                    Toast.makeText(RegistreUsuari.this, "Aquest correu ja està registrat. Prova amb un altre.", Toast.LENGTH_LONG).show();
+                                                    break;
+                                                case "ERROR_INVALID_EMAIL":
+                                                    Toast.makeText(RegistreUsuari.this, "El format del correu electrònic no és vàlid.", Toast.LENGTH_LONG).show();
+                                                    break;
+
+                                            }
+                                        } else {
+                                            Toast.makeText(RegistreUsuari.this, "Error desconegut: " + exception.getMessage(), Toast.LENGTH_LONG).show();
+                                        }                                    }
                                 }
                             });
                 }

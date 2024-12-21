@@ -9,9 +9,11 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -89,19 +91,33 @@ public class FragForum extends Fragment {
             currentSearchQuery = cercadora.getText().toString().trim();
             filtrarForums(currentSearchQuery);
         });
-        cercadora.setOnKeyListener((View,keycode,event) ->{
-            if(keycode == KeyEvent.KEYCODE_ENTER && event.getAction()== KeyEvent.ACTION_DOWN){
+        cercadora.setOnEditorActionListener((View,actionId,event) ->{
+            if(actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE){
                 go.performClick();
                 return true;
             }
             return false;
         });
 
+
         // Botón flotante para crear un nuevo foro
         fabCreateForum = view.findViewById(R.id.createForumButton);
         fabCreateForum.setOnClickListener(v -> showCreateForumDialog());
 
         loadForumsFromFirestore();
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Sortir de l'aplicació")
+                        .setMessage("Estàs segur que vols sortir o desloguejar?")
+                        .setPositiveButton("Sí", (dialog, which) -> {
+                            requireActivity().finishAffinity();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+        });
         return view;
     }
 

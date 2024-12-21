@@ -15,6 +15,7 @@
             android:id="@+id/searchUserEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:imeOptions="actionSearch"
             android:layout_toStartOf="@id/searchButton"
             android:layout_toLeftOf="@id/searchButton"
             android:hint="Cerca usuaris..."

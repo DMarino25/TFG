@@ -1,6 +1,9 @@
 package com.example.GameApp.FragFolder;
 
 import android.os.Bundle;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -71,12 +75,25 @@ public class FragFav extends Fragment {
                 filtraJocs(searchQuery);
             }
         });
-        cercadora.setOnKeyListener((View,keycode,event) ->{
-            if(keycode == KeyEvent.KEYCODE_ENTER && event.getAction()== KeyEvent.ACTION_DOWN){
+        cercadora.setOnEditorActionListener((View,actionId,event) ->{
+            if(actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE){
                 go.performClick();
                 return true;
             }
             return false;
+        });
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Sortir de l'aplicació")
+                        .setMessage("Estàs segur que vols sortir o desloguejar?")
+                        .setPositiveButton("Sí", (dialog, which) -> {
+                            requireActivity().finishAffinity();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
         });
 
         return v;

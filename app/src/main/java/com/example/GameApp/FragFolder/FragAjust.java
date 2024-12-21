@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -463,7 +464,19 @@ public class FragAjust extends Fragment {
                 });
             }
         });
-
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Sortir de l'aplicació")
+                        .setMessage("Estàs segur que vols sortir o desloguejar?")
+                        .setPositiveButton("Sí", (dialog, which) -> {
+                            requireActivity().finishAffinity();
+                        })
+                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                        .show();
+            }
+        });
         return v;
     }
 
