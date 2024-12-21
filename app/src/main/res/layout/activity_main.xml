@@ -69,17 +69,6 @@
         android:textSize="14sp"
         app:cornerRadius="8dp" />
 
-    <!-- Forgot Password Link -->
-    <TextView
-        android:id="@+id/forgotPasswordLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="24dp"
-        android:text="Has perdut la contrasenya?"
-        android:textColor="#6200EE"
-        android:textSize="14sp" />
-
     <!-- Divider -->
     <LinearLayout
         android:layout_width="match_parent"

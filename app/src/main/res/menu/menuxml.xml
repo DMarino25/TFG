@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/home"
-        android:title="Home"
+        android:title="Inici"
         android:icon="@drawable/home_selector" />
     <item
         android:id="@+id/favorits"
@@ -14,6 +14,6 @@
         android:icon="@drawable/forum_selector"/>
     <item
         android:id="@+id/profile"
-        android:title="Ajustaments"
+        android:title="Perfil"
         android:icon="@drawable/ajustaments_selector"/>
 </menu>

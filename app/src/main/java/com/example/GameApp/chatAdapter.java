@@ -52,7 +52,7 @@ public class chatAdapter extends RecyclerView.Adapter<chatAdapter.chatViewHolder
     public void onBindViewHolder(chatAdapter.chatViewHolder holder, int position) {
         Chat mensaje = mensajes.get(position);
         holder.textoUsers.setText(mensaje.getMessageText());
-        holder.dateat.setText(new SimpleDateFormat("HH:mm").format(new Date(mensaje.getTimestamp())));
+        //holder.dateat.setText(new SimpleDateFormat("HH:mm").format(new Date(mensaje.getTimestamp())));
     }
     public int getItemCount() {
         return mensajes.size();
