@@ -90,13 +90,17 @@ public class FragAjust extends Fragment {
 
                             // Display the selected image in the ImageView
                             ImageView ProfilePicture = v.findViewById(R.id.ProfilePicture);
-                            Glide.with(FragAjust.this)
-                                    .load(selectedImageUri)
-                                    .circleCrop()
-                                    .into(ProfilePicture);
-
-                            // Upload the image to Imgur
-                            uploadImageToImgur();
+                            String uriString = selectedImageUri.toString();
+                            if (!uriString.contains("webp")) {
+                                Glide.with(FragAjust.this)
+                                        .load(selectedImageUri)
+                                        .circleCrop()
+                                        .into(ProfilePicture);
+                                // Upload the image to Imgur
+                                uploadImageToImgur();
+                            }else{
+                                Toast.makeText(getContext(), "No s'ha pogut pujar la imatge, revisa la extensió d'aquesta", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });
@@ -480,11 +484,11 @@ public class FragAjust extends Fragment {
 
                     @Override
                     public void onUploadFailure(String errorMessage) {
-                        Toast.makeText(getContext(), "No s'ha pogut pujar la imatge", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getContext(), "No s'ha pogut pujar la imatge", Toast.LENGTH_SHORT).show();
                     }
                 });
             } catch (IOException e) {
-                Toast.makeText(getContext(), "No s'ha pogut pujar la imatge a Imgur", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getContext(), "No s'ha pogut pujar la imatge a Imgur", Toast.LENGTH_SHORT).show();
             }
         }
     }
