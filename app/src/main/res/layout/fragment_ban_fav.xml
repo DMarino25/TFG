@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Favorits no disponibles degut a baneig"
+            android:text="Favorits no disponibles degut a bloqueig"
             android:textAlignment="center"
             android:textColor="#000000"
             android:textSize="18sp" />
