@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,6 +52,8 @@ public class chatActivity extends AppCompatActivity {
     private String currentUsername = null;
     private chatAdapter chatAdapter;
 
+    private String conversationId;
+
     RecyclerView recyclerView;
 
     @Override
@@ -72,7 +75,9 @@ public class chatActivity extends AppCompatActivity {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         Bundle bundle = getIntent().getExtras();
-        String conversationId = bundle.getString("conversationId");
+        assert bundle != null;
+        conversationId = bundle.getString("conversationId");
+
         TextView ReceiverName = findViewById(R.id.ReceiverName);
         ImageView sendIcon = findViewById(R.id.send);
         ImageView ReceiverPicture = findViewById(R.id.ReceiverPicture);

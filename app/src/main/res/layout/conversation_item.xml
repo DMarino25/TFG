@@ -30,7 +30,7 @@
                 android:id="@+id/ultimoMensajeTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Últim missatge"
+                android:text=""
                 android:textColor="#666666"
                 android:textSize="14sp" />
         </LinearLayout>
