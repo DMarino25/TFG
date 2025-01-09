@@ -85,9 +85,13 @@ public class OauthAct extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //Fragmentos
+        setContentView(R.layout.activity_oauth);
+
         db = FirebaseFirestore.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
 
+        bottomNavigationView = findViewById(R.id.menuNav);
+        bottomNavigationView.setEnabled(false);
         handleHome();
 
         fragments = new Fragment[4];
@@ -96,9 +100,7 @@ public class OauthAct extends AppCompatActivity {
         fragments[1] = new FragFav();
         fragments[2] = new FragForum();
         fragments[3] = new FragAjust();
-        setContentView(R.layout.activity_oauth);
 
-        bottomNavigationView = findViewById(R.id.menuNav);
 
         missatge = findViewById(R.id.missatges);
         missatge.setOnClickListener(new View.OnClickListener() {
@@ -202,13 +204,16 @@ public class OauthAct extends AppCompatActivity {
                          noFor = documentSnapshot.getBoolean("noFor");
 
                         Log.d(TAG, "Valor de noGames obtenido: " + noGames);
-                        if(noGames){
-                            openFragment(new BannedFragment());
-                        }
-                        else{
-                            openFragment(new FragHome());
+                        if (bottomNavigationView.getSelectedItemId() == R.id.home) {
+                            if(noGames){
+                                openFragment(new BannedFragment());
+                            }
+                            else{
+                                openFragment(new FragHome());
+                            }
                         }
                     }
+                    bottomNavigationView.setEnabled(true);
                 }
             });
         }
