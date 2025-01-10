@@ -7,25 +7,7 @@ import java.util.List;
 public class Conversation {
     private String content;
     private List<String> participants;
-
-    public List<String> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(List<String> participants) {
-        this.participants = participants;
-    }
-
     private String conversationId;
-
-    public String getConversationId() {
-        return conversationId;
-    }
-
-    public void setConversationId(String conversationId) {
-        this.conversationId = conversationId;
-    }
-
     private boolean isRead;
     private Timestamp sentDate;
     private String userIdReceiver;
@@ -36,7 +18,7 @@ public class Conversation {
     public Conversation() {
         // Constructor vacío necesario para Firebase
     }
-    public Conversation(String conversationId, String userIdSender, String userIdReceiver, String receiverName, String content, boolean isRead) {
+    public Conversation(String conversationId, String userIdSender, String userIdReceiver, String receiverName, String content, boolean isRead, List<String> participants) {
         this.conversationId = conversationId;
         this.userIdSender = userIdSender;
         this.userIdReceiver = userIdReceiver;
@@ -95,6 +77,22 @@ public class Conversation {
 
     public void setReceiverName(String receiverName) {
         this.receiverName = receiverName;
+    }
+
+    public String getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(String conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    public List<String> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<String> participants) {
+        this.participants = participants;
     }
 }
 

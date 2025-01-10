@@ -39,6 +39,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -51,7 +52,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OauthAct extends AppCompatActivity {
 
@@ -368,13 +372,17 @@ public class OauthAct extends AppCompatActivity {
                         Toast.makeText(this, getString(R.string.OauthActExists), Toast.LENGTH_SHORT).show();
                     } else {
                         // Crear nueva conversación
-                        Conversation novaConversa = new Conversation();
+                        // Crear el objeto Reply con los datos necesarios
+                        Map<String, Object> novaConversa = new HashMap<>();
+                        novaConversa.put("participants", participants);
+
+                        /*Conversation novaConversa = new Conversation();
                         novaConversa.setContent("");
                         novaConversa.setIsRead(false);
                         novaConversa.setUserIdSender(currentUserId);
                         novaConversa.setUserIdReceiver(usuariReceptor.getUid());
                         novaConversa.setReceiverName(usuariReceptor.getName());
-                        novaConversa.setParticipants(participants);
+                        novaConversa.setParticipants(participants);*/
 
                         db.collection("messages").document(conversationId)
                                 .set(novaConversa)

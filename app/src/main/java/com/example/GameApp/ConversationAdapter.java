@@ -72,60 +72,46 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             if (documentSnapshot.exists()) {
                                 String otherUserName = documentSnapshot.getString("name");
-                                String myUserId = currentUserId;
                                 holder.nombreUsuarioTextView.setText(otherUserName);
-
-                                // Construct possible message document IDs
-                                String messageDoc1 = finalOtherUserId + "_" + myUserId;
-                                String messageDoc2 = myUserId + "_" + finalOtherUserId;
-
-                                // Check for the existence of the messages document
-                                db.collection("messages").document(messageDoc1).get()
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onSuccess(DocumentSnapshot messageDoc1Snapshot) {
-                                                if (messageDoc1Snapshot.exists()) {
-                                                    fetchLatestMessage(db, messageDoc1, holder);
-                                                } else {
-                                                    db.collection("messages").document(messageDoc2).get()
-                                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                                @Override
-                                                                public void onSuccess(DocumentSnapshot messageDoc2Snapshot) {
-                                                                    if (messageDoc2Snapshot.exists()) {
-                                                                        fetchLatestMessage(db, messageDoc2, holder);
-                                                                    } else {
-                                                                        holder.ultimoMensajeTextView.setText("No hi ha cap missatge");
-                                                                    }
-                                                                }
-                                                            })
-                                                            .addOnFailureListener(new OnFailureListener() {
-                                                                @Override
-                                                                public void onFailure(@NonNull Exception e) {
-                                                                    holder.ultimoMensajeTextView.setText("No hi ha cap missatge");
-                                                                }
-                                                            });
-                                                }
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                holder.ultimoMensajeTextView.setText("No hi ha cap missatge");
-                                            }
-                                        });
+                                holder.ultimoMensajeTextView.setText("Disponible");
                             } else {
-                                holder.nombreUsuarioTextView.setText("Usuario");
+                                holder.nombreUsuarioTextView.setText("Usuari");
+                                holder.ultimoMensajeTextView.setText("Usuari eliminat");
                             }
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            holder.nombreUsuarioTextView.setText("Usuario");
+                            holder.nombreUsuarioTextView.setText("Usuari");
+                            holder.ultimoMensajeTextView.setText("Usuari eliminat");
                         }
                     });
         } else {
-            holder.nombreUsuarioTextView.setText("Usuario");
+            // Fetch the other user's name from Firestore
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(currentUserId)
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            if (documentSnapshot.exists()) {
+                                String name = documentSnapshot.getString("name");
+                                holder.nombreUsuarioTextView.setText(name);
+                                holder.ultimoMensajeTextView.setText("Disponible");
+                            } else {
+                                holder.nombreUsuarioTextView.setText("Usuari");
+                                holder.ultimoMensajeTextView.setText("Usuari eliminat");
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            holder.nombreUsuarioTextView.setText("Usuari");
+                            holder.ultimoMensajeTextView.setText("Usuari eliminat");
+                        }
+                    });
         }
 
         holder.convLayout.setOnClickListener(new View.OnClickListener() {
@@ -144,38 +130,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                     }
                     Intent intent = new Intent(context, chatActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("uid", llistaConverses.get(position).getUserIdReceiver());
+                    //intent.putExtra("uid", llistaConverses.get(position).getUserIdReceiver());
                     intent.putExtra("conversationId", conversationId);
-                    ((Activity) context).startActivityForResult(intent, 100);
+                    context.startActivity(intent);
                 }
             }
         });
-    }
-
-    // Helper method to fetch the latest message from the chat subcollection
-    public static void fetchLatestMessage(FirebaseFirestore db, String messageDocId, ConversationViewHolder holder) {
-        db.collection("messages").document(messageDocId).collection("chat")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(1)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            DocumentSnapshot latestMessage = queryDocumentSnapshots.getDocuments().get(0);
-                            String latestMessageText = latestMessage.getString("messageText");
-                            holder.ultimoMensajeTextView.setText(latestMessageText);
-                        } else {
-                            holder.ultimoMensajeTextView.setText("No hi ha cap missatge");
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        holder.ultimoMensajeTextView.setText("No hi ha cap missatge");
-                    }
-                });
     }
 
     @Override

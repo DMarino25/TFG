@@ -48,7 +48,7 @@
                     android:id="@+id/rr83xc2vb0go"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Missatges"
+                    android:text="@string/activityChatTitle"
                     android:textColor="#4A4A4A"
                     android:textSize="20sp"
                     android:textStyle="bold"/>
@@ -121,7 +121,7 @@
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:hint="Write a message"
+                android:hint="@string/activityChatHint"
                 android:textColor="#4A4A4A"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"

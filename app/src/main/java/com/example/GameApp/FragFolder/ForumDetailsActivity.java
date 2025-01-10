@@ -122,15 +122,15 @@ public class ForumDetailsActivity extends AppCompatActivity {
     //Popup para insertar un comentario
     private void showReplyDialog(String forumId) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Añadir un comentario");
+        builder.setTitle("Afegir un comentari");
 
         // Añadir un campo de texto para el comentario
         final EditText input = new EditText(this);
-        input.setHint("Escribe tu comentario...");
+        input.setHint("Escriu el teu comentari...");
         builder.setView(input);
 
         // Botón de "Añadir"
-        builder.setPositiveButton("Añadir", (dialog, which) -> {
+        builder.setPositiveButton("Afegir", (dialog, which) -> {
             String commentText = input.getText().toString();
             if (!commentText.isEmpty()) {
                 Log.d("ToxicityCheck", "commentText: " + commentText);
@@ -144,7 +144,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
         });
 
         // Botón de "Cancelar"
-        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Cancel·lar", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
@@ -317,14 +317,14 @@ public class ForumDetailsActivity extends AppCompatActivity {
     //Popup para insertar una respuesta a un comentario
     public void showReplyDialogFromAdapter(Comment comment) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Responder comentario");
+        builder.setTitle("Respondre comentari");
 
         // Crear un campo de texto para la respuesta
         final EditText input = new EditText(this);
         builder.setView(input);
 
         // Botón de "Responder"
-        builder.setPositiveButton("Responder", (dialog, which) -> {
+        builder.setPositiveButton("Respondre", (dialog, which) -> {
             String replyText = input.getText().toString();
             if (!replyText.isEmpty()) {
                 checkReplyToxicity(replyText, comment.getId());  // Comprobar toxicidad antes de añadir la respuesta
@@ -332,7 +332,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
         });
 
         // Botón de "Cancelar"
-        builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Cancel·lar", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
@@ -341,7 +341,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
         // Crear un nuevo hilo para evitar bloquear la UI
         new Thread(() -> {
             OkHttpClient client = new OkHttpClient();
-            String apiKey = "AIzaSyCNGsAwGpJF2DOTricV1hFDCLuixbpEFpU"; // API Key
+            String apiKey = BuildConfig.API_PERSPECTIVE; // API Key
 
             // URL de la API Perspective
             String url = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + apiKey;

@@ -44,4 +44,8 @@
     <string name="FragFavUserNull">Inicia sessió per a veure els favorits</string>
     <string name="FragFavError">Error en obtenir els favorits</string>
     <string name="ForumDetailsActivityPerspective">Missatge no pèrmes</string>
+    <string name="activityChatHint">Escriu un missatge</string>
+    <string name="activityChatTitle">Missatges</string>
+    <string name="messageItemAutor">Nom de l\'autor</string>
+    <string name="messageItemConversa">Conversa</string>
 </resources>

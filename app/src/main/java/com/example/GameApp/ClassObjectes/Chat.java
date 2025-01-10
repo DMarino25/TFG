@@ -1,10 +1,12 @@
 package com.example.GameApp.ClassObjectes;
 
+import com.google.firebase.Timestamp;
+
 public class Chat {
 
     private String senderId;
     private String messageText;
-    private long timestamp;
+    private Timestamp timestamp;
 
     public String getSenderId() {
         return senderId;
@@ -22,11 +24,11 @@ public class Chat {
         this.messageText = messageText;
     }
 
-    public long getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -34,7 +36,7 @@ public class Chat {
 
     }
 
-    public Chat(String senderId, String messageText, long timestamp) {
+    public Chat(String senderId, String messageText, Timestamp timestamp) {
         this.senderId = senderId;
         this.messageText = messageText;
         this.timestamp = timestamp;

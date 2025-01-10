@@ -1,7 +1,6 @@
 package com.example.GameApp;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-import static androidx.core.content.ContentProviderCompat.requireContext;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,12 +10,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,6 +24,7 @@ import com.bumptech.glide.Glide;
 import com.example.GameApp.ClassObjectes.Chat;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -37,9 +35,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,10 +46,8 @@ public class chatActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private ArrayList<Chat> messageList;
     private FirebaseUser currentUser;
-    private String currentUsername = null;
-    private chatAdapter chatAdapter;
-
     private String conversationId;
+    private chatAdapter chatAdapter;
 
     RecyclerView recyclerView;
 
@@ -72,7 +67,7 @@ public class chatActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         firestore = FirebaseFirestore.getInstance();
-        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        currentUser = auth.getCurrentUser();
 
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
@@ -84,100 +79,21 @@ public class chatActivity extends AppCompatActivity {
         EditText Write = findViewById(R.id.write);
         LinearLayout info = findViewById(R.id.userInfo);
 
-        firestore.collection("messages").document(conversationId).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            List<String> participants = (List<String>) documentSnapshot.get("participants");
-                            if (participants != null && participants.size() > 1) {
-                                String currentUserId = currentUser.getUid();
-                                String receiverUserId;
-                                // Determine the peer ID
-                                if (participants.get(0).equals(currentUserId)) {
-                                    receiverUserId = participants.get(1); // Take the second ID
-                                } else {
-                                    receiverUserId = participants.get(0); // Take the first ID
-                                }
-                                // Fetch the name of the user from the "users" collection
-                                firestore.collection("users").document(receiverUserId).get()
-                                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onSuccess(DocumentSnapshot userDocument) {
-                                                if (userDocument.exists()) {
-                                                    String receiverName = userDocument.getString("name");
-                                                    String receiverPicture = userDocument.getString("photoUrl");
-                                                    // Load receiver's picture into ReceiverPicture using Glide
-                                                    if (receiverPicture != null && !receiverPicture.isEmpty()) {
-                                                        Glide.with(getApplicationContext())
-                                                                .load(receiverPicture)
-                                                                .circleCrop()
-                                                                .placeholder(R.mipmap.ic_launcher)
-                                                                .into(ReceiverPicture);
-                                                    } else {
-                                                        // Handle case where there is no picture URL, e.g., use a default image
-                                                        ReceiverPicture.setImageResource(R.mipmap.ic_launcher);
-                                                    }
-                                                    ReceiverName.setText(receiverName);
-                                                } else {
-                                                    Toast.makeText(getApplicationContext(), getString(R.string.chatActivityUserNotFound), Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            Log.e("ChatMD", "Error al obtenir el nom de l'usuari", e);
-                                        });
-                            } else {
-                                Toast.makeText(getApplicationContext(), getString(R.string.chatActivityParticipantsNotFound), Toast.LENGTH_SHORT).show();
-                            }
-                        } else{
-                            Toast.makeText(getApplicationContext(), getString(R.string.chatActivityMessagesNotFound), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+        // Load Receiver Information
+        loadReceiverInfo(ReceiverName, ReceiverPicture);
 
-                    }
-                });
-            sendIcon.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick (View v) {
-                        String messageText = Write.getText().toString().trim();
-                        if (!messageText.isEmpty()) {
+        // Send message on button click
+        sendIcon.setOnClickListener(v -> {
+            String messageText = Write.getText().toString().trim();
+            if (!messageText.isEmpty()) {
+                sendMessage(messageText);
+                Write.setText("");
+            } else {
+                Toast.makeText(getApplicationContext(), getString(R.string.chatActivityEmptyMessage), Toast.LENGTH_LONG).show();
+            }
+        });
 
-                            FirebaseFirestore db = FirebaseFirestore.getInstance();
-                            String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-                            // Crear un objeto Chat (mensaje)
-                            Chat nuevoMensaje = new Chat();
-                            nuevoMensaje.setSenderId(currentUserId);
-                            nuevoMensaje.setMessageText(messageText);
-                            nuevoMensaje.setTimestamp(System.currentTimeMillis());
-
-                            // Agregar el mensaje a la subcolección `chat` dentro del documento de la conversación
-                            db.collection("messages").document(conversationId).collection("chat")
-                                    .add(nuevoMensaje)
-                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                        @Override
-                                        public void onSuccess(DocumentReference documentReference) {
-                                            Log.d(TAG, "Mensaje añadido a la subcolección 'chat': " + documentReference.getId());
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG, "Error al agregar mensaje", e);
-                                        }
-                                    });
-                            Write.setText("");
-                        } else {
-                            Toast.makeText(getApplicationContext(), getString(R.string.chatActivityEmptyMessage), Toast.LENGTH_LONG).show();
-                        }
-                    }
-            });
-
+        // Listen for chat updates
         firestore.collection("messages").document(conversationId).collection("chat")
                 .orderBy("timestamp", Query.Direction.ASCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -185,107 +101,150 @@ public class chatActivity extends AppCompatActivity {
                     public void onEvent(@Nullable QuerySnapshot value,
                                         @Nullable FirebaseFirestoreException e) {
                         if (e != null) {
-                            // Manejar error
+                            Log.w(TAG, "Listen failed.", e);
                             return;
                         }
 
                         if (value != null) {
                             messageList.clear();
                             for (DocumentSnapshot doc : value.getDocuments()) {
-                                Chat message = doc.toObject(Chat.class);
-                                messageList.add(message);
+                                Map<String, Object> messageData = doc.getData();
+                                if (messageData != null) {
+                                    Chat message = new Chat();
+                                    message.setSenderId((String) messageData.get("senderId"));
+                                    message.setMessageText((String) messageData.get("messageText"));
+                                    message.setTimestamp((Timestamp) messageData.get("timestamp"));
+                                    messageList.add(message);
+                                }
                             }
                             chatAdapter.notifyDataSetChanged();
+                            scrollToBottom();
                         }
                     }
                 });
-        info.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View dialogView = LayoutInflater.from(v.getContext()).inflate(R.layout.info_user, null);
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setView(dialogView);
-                ImageView userPP = dialogView.findViewById(R.id.imageView);
-                ImageView userFG = dialogView.findViewById(R.id.imageView3);
 
-                TextView userName = dialogView.findViewById(R.id.nameInfo);
-                TextView description = dialogView.findViewById(R.id.editTextText3);
-                TextView nameFG = dialogView.findViewById(R.id.textView4);
+        // Show user info dialog
+        info.setOnClickListener(v -> showUserInfoDialog());
+    }
 
-                firestore.collection("messages").document(conversationId).get()
-                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                if (documentSnapshot.exists()) {
-                                    List<String> participants = (List<String>) documentSnapshot.get("participants");
-                                    if (participants != null && participants.size() > 1) {
-                                        String currentUserId = currentUser.getUid();
-                                        String receiverUserId;
-                                        if (participants.get(0).equals(currentUserId)) {
-                                            receiverUserId = participants.get(1); // Take the second ID
+    private void loadReceiverInfo(TextView ReceiverName, ImageView ReceiverPicture) {
+        firestore.collection("messages").document(conversationId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<String> participants = (List<String>) documentSnapshot.get("participants");
+                        if (participants != null && participants.size() > 1) {
+                            String currentUserId = currentUser.getUid();
+                            String receiverUserId = participants.get(0).equals(currentUserId) ? participants.get(1) : participants.get(0);
+
+                            firestore.collection("users").document(receiverUserId).get()
+                                    .addOnSuccessListener(userDocument -> {
+                                        if (userDocument.exists()) {
+                                            String receiverName = userDocument.getString("name");
+                                            String receiverPicture = userDocument.getString("photoUrl");
+
+                                            if (receiverPicture != null && !receiverPicture.isEmpty()) {
+                                                Glide.with(getApplicationContext())
+                                                        .load(receiverPicture)
+                                                        .circleCrop()
+                                                        .placeholder(R.mipmap.ic_launcher)
+                                                        .into(ReceiverPicture);
+                                            } else {
+                                                ReceiverPicture.setImageResource(R.mipmap.ic_launcher);
+                                            }
+                                            ReceiverName.setText(receiverName);
                                         } else {
-                                            receiverUserId = participants.get(0); // Take the first ID
+                                            Toast.makeText(getApplicationContext(), getString(R.string.chatActivityUserNotFound), Toast.LENGTH_SHORT).show();
                                         }
-                                        firestore.collection("users").document(receiverUserId).get()
-                                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                    @Override
-                                                    public void onSuccess(DocumentSnapshot userDocument) {
-                                                        if (userDocument.exists()) {
-                                                            String receiverName = userDocument.getString("name");
-                                                            String receiverPicture = userDocument.getString("photoUrl");
-                                                            String receiverdescription = userDocument.getString("description");
-                                                            String receiverMpGame = userDocument.getString("gameFav");
-                                                            String receiverMpphoto = userDocument.getString("gameFavImg");
+                                    })
+                                    .addOnFailureListener(e -> Log.e(TAG, "Error fetching user info", e));
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching conversation", e));
+    }
 
-                                                            if (receiverPicture != null && !receiverPicture.isEmpty()) {
-                                                                Glide.with(getApplicationContext())
-                                                                        .load(receiverPicture)
-                                                                        .circleCrop()
-                                                                        .placeholder(R.mipmap.ic_launcher)
-                                                                        .into(userPP);
-                                                            } else {
+    private void sendMessage(String messageText) {
+        Map<String, Object> nuevoMensaje = new HashMap<>();
+        nuevoMensaje.put("senderId", currentUser.getUid());
+        nuevoMensaje.put("messageText", messageText);
+        nuevoMensaje.put("timestamp", new Timestamp(new Date()));
 
-                                                                userPP.setImageResource(R.mipmap.ic_launcher);
-                                                            }
-                                                            if(receiverMpphoto != null){
-                                                                String imageId = CoverUtils.extractImageId(receiverMpphoto);
-                                                                String imageUrl = CoverUtils.constructImageUrl(imageId, "t_1080p");
-                                                                Glide.with(getApplicationContext())
-                                                                        .load(imageUrl)
-                                                                        .placeholder(R.mipmap.ic_launcher)
-                                                                        .into(userFG);
-                                                            } else {
-                                                                userFG.setImageResource(R.mipmap.ic_launcher);
-                                                            }
-                                                            userName.setText(receiverName);
-                                                            description.setText(receiverdescription);
-                                                            nameFG.setText(receiverMpGame);
-                                                        } else {
-                                                            Toast.makeText(getApplicationContext(), getString(R.string.chatActivityUserNotFound), Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    }
-                                                })
-                                                .addOnFailureListener(e -> {
-                                                    Log.e("ChatMD", "Error al obtenir el nom de l'usuari", e);
-                                                });
-                                    } else {
-                                        Toast.makeText(getApplicationContext(), getString(R.string.chatActivityParticipantsNotFound), Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                                else{
-                                    Toast.makeText(getApplicationContext(), getString(R.string.chatActivityMessagesNotFound), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
+        firestore.collection("messages").document(conversationId).collection("chat")
+                .add(nuevoMensaje)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d(TAG, "Message added to chat: " + documentReference.getId());
+                    scrollToBottom();
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Error adding message", e));
+    }
 
-                            }
-                        });
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-        });
+    private void showUserInfoDialog() {
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.info_user, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+
+        ImageView userPP = dialogView.findViewById(R.id.imageView);
+        ImageView userFG = dialogView.findViewById(R.id.imageView3);
+        TextView userName = dialogView.findViewById(R.id.nameInfo);
+        TextView description = dialogView.findViewById(R.id.editTextText3);
+        TextView nameFG = dialogView.findViewById(R.id.textView4);
+
+        firestore.collection("messages").document(conversationId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<String> participants = (List<String>) documentSnapshot.get("participants");
+                        if (participants != null && participants.size() > 1) {
+                            String currentUserId = currentUser.getUid();
+                            String receiverUserId = participants.get(0).equals(currentUserId) ? participants.get(1) : participants.get(0);
+
+                            firestore.collection("users").document(receiverUserId).get()
+                                    .addOnSuccessListener(userDocument -> {
+                                        if (userDocument.exists()) {
+                                            String receiverName = userDocument.getString("name");
+                                            String receiverPicture = userDocument.getString("photoUrl");
+                                            String receiverDescription = userDocument.getString("description");
+                                            String receiverGame = userDocument.getString("gameFav");
+                                            String receiverGameImg = userDocument.getString("gameFavImg");
+
+                                            if (receiverPicture != null && !receiverPicture.isEmpty()) {
+                                                Glide.with(getApplicationContext())
+                                                        .load(receiverPicture)
+                                                        .circleCrop()
+                                                        .placeholder(R.mipmap.ic_launcher)
+                                                        .into(userPP);
+                                            } else {
+                                                userPP.setImageResource(R.mipmap.ic_launcher);
+                                            }
+
+                                            if (receiverGameImg != null) {
+                                                Glide.with(getApplicationContext())
+                                                        .load(receiverGameImg)
+                                                        .placeholder(R.mipmap.ic_launcher)
+                                                        .into(userFG);
+                                            } else {
+                                                userFG.setImageResource(R.mipmap.ic_launcher);
+                                            }
+
+                                            userName.setText(receiverName);
+                                            description.setText(receiverDescription);
+                                            nameFG.setText(receiverGame);
+                                        } else {
+                                            Toast.makeText(getApplicationContext(), getString(R.string.chatActivityUserNotFound), Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .addOnFailureListener(e -> Log.e(TAG, "Error fetching user info", e));
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Error fetching conversation", e));
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private void scrollToBottom() {
+        if (messageList.size() > 0) {
+            recyclerView.scrollToPosition(messageList.size() - 1);
+        }
     }
 }
