@@ -113,7 +113,13 @@ public class chatActivity extends AppCompatActivity {
                                     Chat message = new Chat();
                                     message.setSenderId((String) messageData.get("senderId"));
                                     message.setMessageText((String) messageData.get("messageText"));
-                                    message.setTimestamp((Timestamp) messageData.get("timestamp"));
+                                    //message.setTimestamp((Timestamp) messageData.get("timestamp"));
+                                    Object timestampObj = messageData.get("timestamp");
+                                    if (timestampObj instanceof Timestamp) {
+                                        message.setTimestamp((Timestamp) timestampObj);
+                                    } else if (timestampObj instanceof Long) {
+                                        message.setTimestamp(new Timestamp(new Date((Long) timestampObj)));
+                                    }
                                     messageList.add(message);
                                 }
                             }
