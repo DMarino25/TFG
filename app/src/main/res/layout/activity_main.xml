@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:backgroundTint="#6200EE"
-        android:text="Iniciar Sessió"
+        android:text="Iniciar sessió"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         app:cornerRadius="8dp" />
@@ -105,7 +105,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="#4285F4"
-        android:text="Iniciar Sessió amb Google"
+        android:text="Iniciar sessió amb Google"
         android:textColor="#FFFFFF"
         android:textSize="14sp"
         app:cornerRadius="8dp" />
@@ -118,6 +118,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="24dp"
         android:text="No tens compte? Registra't"
+        android:textStyle="bold"
         android:textColor="#212121"
         android:textSize="14sp" />
 </LinearLayout>

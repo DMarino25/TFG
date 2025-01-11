@@ -151,24 +151,22 @@ public class ForumDetailsActivity extends AppCompatActivity {
     //Añadir un comentario a Firebase
     private void addCommentToFirestore(String commentText, String forumId) {
         String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-        // Crear el nuevo comentario
+        // New comment
         Map<String, Object> commentMap = new HashMap<>();
         commentMap.put("commentText", commentText);
         commentMap.put("commentUserNameId", userId);
         commentMap.put("lastModifiedDate", new Timestamp(new Date()));
 
-        // Añadir el comentario a la subcolección "comments" dentro del documento del foro
+        // Add new comment to the existent forum
         db.collection("forums")
             .document(forumId)
-            .collection("comments") // Aquí creas la subcolección
-            .add(commentMap) // Añade el comentario a la subcolección
+            .collection("comments")
+            .add(commentMap)
             .addOnSuccessListener(documentReference -> {
-                // El comentario se añadió con éxito
-                Log.d("FragForum", "Comentario añadido con ID: " + documentReference.getId());
+                Log.d("FragForum", "Added comment ID: " + documentReference.getId());
             })
             .addOnFailureListener(e -> {
-                // Ocurrió un error
-                Log.e("FragForum", "Error al añadir comentario", e);
+                Log.e("FragForum", "Error adding the new comment", e);
             });
     }
 
@@ -405,16 +403,16 @@ public class ForumDetailsActivity extends AppCompatActivity {
     //Añade la respuesta del comentario en Firebase
     private void addReplyToComment(String replyText, String commentId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         forumId = getIntent().getStringExtra("forumId");
 
-        // Crear el objeto Reply con los datos necesarios
+        // New reply
         Map<String, Object> reply = new HashMap<>();
         reply.put("replyText", replyText);
         reply.put("replyUserNameId", userId);
         reply.put("replyDate", new Timestamp(new Date()));
 
-        // Añadir la respuesta a la subcolección "replies" dentro del comentario
+        // Add new reply to the existent comment
         db.collection("forums")
             .document(forumId)
             .collection("comments")
@@ -422,12 +420,10 @@ public class ForumDetailsActivity extends AppCompatActivity {
             .collection("replies")
             .add(reply)
             .addOnSuccessListener(documentReference -> {
-                // Éxito al añadir la respuesta
-                Log.d("ForumDetails", "Respuesta añadida correctamente");
+                Log.d("ForumDetails", "Reply added successfully");
             })
             .addOnFailureListener(e -> {
-                // Error al añadir la respuesta
-                Log.e("ForumDetails", "Error al añadir la respuesta", e);
+                Log.e("ForumDetails", "Error adding the new reply", e);
             });
     }
 }

@@ -104,5 +104,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="24dp"
-            android:text="Ja tens un compte? Inicia sessió" />
+            android:text="Ja tens un compte? Inicia sessió"
+            android:textStyle="bold"/>
 </LinearLayout>

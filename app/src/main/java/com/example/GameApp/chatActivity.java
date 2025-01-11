@@ -170,13 +170,13 @@ public class chatActivity extends AppCompatActivity {
     }
 
     private void sendMessage(String messageText) {
-        Map<String, Object> nuevoMensaje = new HashMap<>();
-        nuevoMensaje.put("senderId", currentUser.getUid());
-        nuevoMensaje.put("messageText", messageText);
-        nuevoMensaje.put("timestamp", new Timestamp(new Date()));
+        Map<String, Object> newMsg = new HashMap<>();
+        newMsg.put("senderId", currentUser.getUid());
+        newMsg.put("messageText", messageText);
+        newMsg.put("timestamp", new Timestamp(new Date()));
 
         firestore.collection("messages").document(conversationId).collection("chat")
-                .add(nuevoMensaje)
+                .add(newMsg)
                 .addOnSuccessListener(documentReference -> {
                     Log.d(TAG, "Message added to chat: " + documentReference.getId());
                     scrollToBottom();

@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+
 import com.example.GameApp.ClassObjectes.Forum;
 import com.example.GameApp.ForumAdapter;
 import com.example.GameApp.R;
@@ -241,24 +243,17 @@ public class FragForum extends Fragment {
     }
 
     private void createForum(String title, String description) {
-        // Obtén el userId actual
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
-        // Consulta la información del usuario actual en la colección "users"
+        // Check users information
         db.collection("users")
                 .document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        // Obtén userName y userProfilePhoto del documento de usuario
-                        String userName = documentSnapshot.getString("name");
-                        String userProfilePhoto = documentSnapshot.getString("photoUrl");
-
-                        // Crea el mapa del nuevo foro con la información del usuario
+                        // Create forum
                         Map<String, Object> forum = new HashMap<>();
                         forum.put("userId", userId);
-                        //forum.put("userName", userName);
-                        //forum.put("userProfilePhoto", userProfilePhoto);
                         forum.put("title", title);
                         forum.put("description", description);
                         forum.put("creationDate", Timestamp.now());
@@ -268,13 +263,13 @@ public class FragForum extends Fragment {
                         forum.put("dislikeCount", 0);
                         forum.put("userLikes", new HashMap<String, Boolean>());
 
-                        // Agrega el nuevo foro a la colección "forums"
+                        // Add forum to collection
                         db.collection("forums").add(forum).addOnSuccessListener(documentReference -> {
-                            Log.d("FragForum", "Foro creado con ID: " + documentReference.getId());
-                            loadForumsFromFirestore();  // Recargar foros después de crear uno nuevo
+                            Log.d("FragForum", "Forum created ID: " + documentReference.getId());
+                            loadForumsFromFirestore();
                         });
                     } else {
-                        Log.e("FragForum", "Usuario no encontrado en la colección 'users'");
+                        Log.e("FragForum", "User not found in collection users");
                     }
                 });
     }
