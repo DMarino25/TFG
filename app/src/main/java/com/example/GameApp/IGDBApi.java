@@ -38,14 +38,4 @@ public interface IGDBApi {
             @retrofit2.http.Header("Authorization") String authToken
     );
 
-    @Headers({
-            "Content-Type: text/plain"
-    })
-    @POST("artworks")
-    Call<List<Artwork>> getArtwork(
-            @Body RequestBody body,
-            @retrofit2.http.Header("Client-ID") String clientId,
-            @retrofit2.http.Header("Authorization") String authToken
-    );
-
 }

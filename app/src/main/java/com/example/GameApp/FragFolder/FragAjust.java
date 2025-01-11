@@ -448,7 +448,6 @@ public class FragAjust extends Fragment {
                     ArrayList<FavoriteGame> filteredList = new ArrayList<>();
 
                     if (searchQuery.isEmpty()) {
-                        // Mostrar todos si no hay búsqueda
                         filteredList.addAll(favoriteGames);
                     } else {
                         for (FavoriteGame game : favoriteGames) {

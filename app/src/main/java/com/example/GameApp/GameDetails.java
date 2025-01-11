@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -259,8 +258,8 @@ public class GameDetails extends AppCompatActivity {
                             favoriteId = null;
                             Toast.makeText(GameDetails.this, getString(R.string.GameDetailsEraseFav), Toast.LENGTH_SHORT).show();
                             isStarSelected = false;
-                            setRatingStars(0); // Restablecer el rating visualmente a 0
-                            cambiaStar(); // Cambiar la estrella seleccionada
+                            setRatingStars(0);
+                            changeStar();
                         })
                         .addOnFailureListener(e -> Toast.makeText(GameDetails.this, getString(R.string.GameDetailsEraseFavError), Toast.LENGTH_SHORT).show());
             }
@@ -269,7 +268,7 @@ public class GameDetails extends AppCompatActivity {
             favoriteData.put("title", currentGame.getName());
             favoriteData.put("cover_url", currentGame.getCover() != null ? "https:" + currentGame.getCover().getUrl() : "");
             favoriteData.put("rating", currentRating);
-            favoriteData.put("coverId", currentGame.getCover().getId()); // Agregar coverId
+            favoriteData.put("coverId", currentGame.getCover().getId());
 
             firestore.collection("users").document(currentUser.getUid()).collection("favorits")
                     .add(favoriteData)
@@ -277,13 +276,13 @@ public class GameDetails extends AppCompatActivity {
                         favoriteId = documentReference.getId();
                         Toast.makeText(GameDetails.this, getString(R.string.GameDetailsAddFav), Toast.LENGTH_SHORT).show();
                         isStarSelected = true;
-                        cambiaStar(); // Cambiar la estrella seleccionada
+                        changeStar();
                     })
                     .addOnFailureListener(e -> Toast.makeText(GameDetails.this, getString(R.string.GameDetailsAddFavError), Toast.LENGTH_SHORT).show());
         }
     }
 
-    private void cambiaStar() {
+    private void changeStar() {
         if (isStarSelected) {
             starSelected.setVisibility(View.VISIBLE);
             starUnselected.setVisibility(View.GONE);

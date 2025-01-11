@@ -127,7 +127,6 @@ public class RegistreUsuari extends AppCompatActivity {
 
     private void saveUserInFirestore(FirebaseUser user, String userName) {
         DocumentReference documentReference = firestore.collection("users").document(user.getUid());
-
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

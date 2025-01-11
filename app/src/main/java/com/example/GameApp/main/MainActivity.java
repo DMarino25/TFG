@@ -220,19 +220,19 @@ public class MainActivity extends AppCompatActivity {
                         documentReference.set(userMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                Log.d(TAG, "Usuario guardado en Firestore con éxito");
+                                Log.d(TAG, "Usuari guardat en Firestore amb éxit");
 
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error al guardar el usuario en Firestore", e);
+                                Log.w(TAG, "Error al guardar l'usuari a Firestore", e);
 
                             }
                         });
                     }
                 } else {
-                    Log.w(TAG, "Error al verificar si el usuario existe en Firestore", task.getException());
+                    Log.w(TAG, "Error al verificar si l'usuari existeix en Firestore", task.getException());
                 }
             }
 
