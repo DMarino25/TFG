@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -374,6 +375,10 @@ public class OauthAct extends AppCompatActivity {
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d(TAG, "New chat added: " + conversationId);
                                     carregarConverses(conversationsAdapter);
+                                    Intent intent = new Intent(this, chatActivity.class);
+                                    intent.putExtra("conversationId", conversationId);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intent);
                                 })
                                 .addOnFailureListener(e -> {
                                     Log.w(TAG, "Error adding the new chat", e);
