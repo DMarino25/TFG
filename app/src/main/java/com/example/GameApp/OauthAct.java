@@ -56,6 +56,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class OauthAct extends AppCompatActivity {
 
@@ -352,51 +353,35 @@ public class OauthAct extends AppCompatActivity {
     }
     private void crearConversa(User usuariReceptor, final ConversationAdapter conversationsAdapter) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
+        String currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         List<String> participants = new ArrayList<>();
         participants.add(currentUserId);
         participants.add(usuariReceptor.getUid());
-
-        // Ordenar la lista para tener un orden consistente
         Collections.sort(participants);
 
-        // Crear un identificador único para la conversación basado en los IDs de los participantes
         String conversationId = participants.get(0) + "_" + participants.get(1);
-
-        // Comprobar si la conversación ya existe
+        // Check if chat exists
         db.collection("messages").document(conversationId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        // La conversación ya existe
                         Toast.makeText(this, getString(R.string.OauthActExists), Toast.LENGTH_SHORT).show();
                     } else {
-                        // Crear nueva conversación
-                        // Crear el objeto Reply con los datos necesarios
-                        Map<String, Object> novaConversa = new HashMap<>();
-                        novaConversa.put("participants", participants);
-
-                        /*Conversation novaConversa = new Conversation();
-                        novaConversa.setContent("");
-                        novaConversa.setIsRead(false);
-                        novaConversa.setUserIdSender(currentUserId);
-                        novaConversa.setUserIdReceiver(usuariReceptor.getUid());
-                        novaConversa.setReceiverName(usuariReceptor.getName());
-                        novaConversa.setParticipants(participants);*/
-
+                        // Create new chat
+                        Map<String, Object> newChat = new HashMap<>();
+                        newChat.put("participants", participants);
                         db.collection("messages").document(conversationId)
-                                .set(novaConversa)
+                                .set(newChat)
                                 .addOnSuccessListener(aVoid -> {
-                                    Log.d(TAG, "Conversa afegida: " + conversationId);
+                                    Log.d(TAG, "New chat added: " + conversationId);
                                     carregarConverses(conversationsAdapter);
                                 })
                                 .addOnFailureListener(e -> {
-                                    Log.w(TAG, "Error afegint conversa", e);
+                                    Log.w(TAG, "Error adding the new chat", e);
                                 });
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error comprobando existencia de la conversación", e);
+                    Log.w(TAG, "Error checking if chat exists", e);
                 });
     }
 

@@ -336,15 +336,13 @@ public class ForumDetailsActivity extends AppCompatActivity {
 
     //Construir el body de la respuesta del comentario para la llamada de Perspective
     private void checkReplyToxicity(String commentText, String commentId) {
-        // Crear un nuevo hilo para evitar bloquear la UI
         new Thread(() -> {
             OkHttpClient client = new OkHttpClient();
-            String apiKey = BuildConfig.API_PERSPECTIVE; // API Key
-
-            // URL de la API Perspective
+            String apiKey = BuildConfig.API_PERSPECTIVE;
+            // URL API Perspective
             String url = "https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + apiKey;
 
-            // Crear el cuerpo de la solicitud JSON
+            // JSON body
             String json = "{\n" +
                     "  'comment': { 'text': '" + commentText + "' },\n" +
                     "  'requestedAttributes': { 'TOXICITY': {} }\n" +
@@ -360,14 +358,13 @@ public class ForumDetailsActivity extends AppCompatActivity {
                 Response response = client.newCall(request).execute();
                 if (response.isSuccessful()) {
                     String responseData = response.body().string();
-                    // Procesar la respuesta
                     handleToxicityReply(responseData, commentText, commentId);
                 }else{
                     addReplyToComment(commentText, commentId);
-                    Log.d("ToxicityCheck", "response is not successful: " + response);
+                    Log.d("ToxicityCheck", "Response is not successful: " + response);
                 }
             } catch (IOException e) {
-                Log.e("PerspectiveAPI", "Error en la conexión: ", e);
+                Log.e("PerspectiveAPI", "Connexion lost: ", e);
             }
         }).start();
     }
@@ -388,7 +385,6 @@ public class ForumDetailsActivity extends AppCompatActivity {
             // Umbral para considerar el comentario como tóxico
             if (score < 0.7) {
                 // El comentario no es tóxico, se añade
-                //commentText = commentText + " Puntuación de toxicidad: " + score;
                 addReplyToComment(commentText, commentId);
             } else {
                 runOnUiThread(() -> Toast.makeText(ForumDetailsActivity.this, getString(R.string.ForumDetailsActivityPerspective), Toast.LENGTH_SHORT).show());
