@@ -12,7 +12,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +39,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -53,7 +51,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +134,7 @@ public class OauthAct extends AppCompatActivity {
                 UserAdapter userAdapter = new UserAdapter(v.getContext(), llistaUsuaris, new UserAdapter.OnUserClickListener() {
                     @Override
                     public void onConversaClick(User usuari) {
-                        crearConversa(usuari, conversationsAdapter);
+                        createConversa(usuari, conversationsAdapter);
                     }
                 });
                 usersRecyclerView.setAdapter(userAdapter);
@@ -352,7 +349,7 @@ public class OauthAct extends AppCompatActivity {
                     }
                 });
     }
-    private void crearConversa(User usuariReceptor, final ConversationAdapter conversationsAdapter) {
+    private void createConversa(User usuariReceptor, final ConversationAdapter conversationsAdapter) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
         List<String> participants = new ArrayList<>();
