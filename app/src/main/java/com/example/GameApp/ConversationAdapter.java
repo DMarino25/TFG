@@ -24,6 +24,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ConversationViewHolder> {
@@ -144,6 +145,15 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     public void updateList(ArrayList<Conversation> novaLlista) {
+        HashSet<String> conversationIds = new HashSet<>();
+        ArrayList<Conversation> filteredList = new ArrayList<>();
+
+        for (Conversation conversa : novaLlista) {
+            if (!conversationIds.contains(conversa.getConversationId())) {
+                conversationIds.add(conversa.getConversationId());
+                filteredList.add(conversa);
+            }
+        }
         this.llistaConverses.clear();
         this.llistaConverses.addAll(novaLlista);
         notifyDataSetChanged();
