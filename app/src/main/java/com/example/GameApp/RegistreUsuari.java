@@ -30,6 +30,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,47 +65,62 @@ public class RegistreUsuari extends AppCompatActivity {
 
                 if (strCorreu.isEmpty() || strUserName.isEmpty() || strPassword.isEmpty()) {
                     Toast.makeText(RegistreUsuari.this, "Completa tots els camps", Toast.LENGTH_SHORT).show();
-                } else {
-
-                    auth.createUserWithEmailAndPassword(strCorreu, strPassword)
-                            .addOnCompleteListener(RegistreUsuari.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        FirebaseUser user = auth.getCurrentUser();
-
-                                        saveUserInFirestore(user, strUserName);
-
-                                        Toast.makeText(RegistreUsuari.this, "Usuari creat", Toast.LENGTH_SHORT).show();
-
-                                        // Volver a MainActivity
-                                        Intent intent = new Intent(RegistreUsuari.this, MainActivity.class);
-                                        startActivity(intent);
-                                        finish();
-                                    } else {
-                                        Exception exception = task.getException();
-                                        if (exception instanceof FirebaseAuthException) {
-                                            FirebaseAuthException authException = (FirebaseAuthException) exception;
-                                            String errorCode = authException.getErrorCode();
-
-                                            switch (errorCode) {
-                                                case "ERROR_WEAK_PASSWORD":
-                                                    Toast.makeText(RegistreUsuari.this, "La contrasenya és massa curta. Ha de tenir almenys 6 caràcters.", Toast.LENGTH_LONG).show();
-                                                    break;
-                                                case "ERROR_EMAIL_ALREADY_IN_USE":
-                                                    Toast.makeText(RegistreUsuari.this, "Aquest correu ja està registrat. Prova amb un altre.", Toast.LENGTH_LONG).show();
-                                                    break;
-                                                case "ERROR_INVALID_EMAIL":
-                                                    Toast.makeText(RegistreUsuari.this, "El format del correu electrònic no és vàlid.", Toast.LENGTH_LONG).show();
-                                                    break;
-
-                                            }
-                                        } else {
-                                            Toast.makeText(RegistreUsuari.this, "Error desconegut: " + exception.getMessage(), Toast.LENGTH_LONG).show();
-                                        }                                    }
-                                }
-                            });
                 }
+                firestore.collection("bannedUsers")
+                        .whereEqualTo("email", strCorreu)
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if(task.isSuccessful()){
+                                    if(task.getResult()!= null && !task.getResult().isEmpty()){
+                                        Toast.makeText(RegistreUsuari.this, "Usari bloquejat", Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+
+                                        auth.createUserWithEmailAndPassword(strCorreu, strPassword)
+                                                .addOnCompleteListener(RegistreUsuari.this, new OnCompleteListener<AuthResult>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                                        if (task.isSuccessful()) {
+                                                            FirebaseUser user = auth.getCurrentUser();
+
+                                                            saveUserInFirestore(user, strUserName);
+
+                                                            Toast.makeText(RegistreUsuari.this, "Usuari creat", Toast.LENGTH_SHORT).show();
+
+
+                                                            Intent intent = new Intent(RegistreUsuari.this, MainActivity.class);
+                                                            startActivity(intent);
+                                                            finish();
+                                                        } else {
+                                                            Exception exception = task.getException();
+                                                            if (exception instanceof FirebaseAuthException) {
+                                                                FirebaseAuthException authException = (FirebaseAuthException) exception;
+                                                                String errorCode = authException.getErrorCode();
+
+                                                                switch (errorCode) {
+                                                                    case "ERROR_WEAK_PASSWORD":
+                                                                        Toast.makeText(RegistreUsuari.this, "La contrasenya és massa curta. Ha de tenir almenys 6 caràcters.", Toast.LENGTH_LONG).show();
+                                                                        break;
+                                                                    case "ERROR_EMAIL_ALREADY_IN_USE":
+                                                                        Toast.makeText(RegistreUsuari.this, "Aquest correu ja està registrat. Prova amb un altre.", Toast.LENGTH_LONG).show();
+                                                                        break;
+                                                                    case "ERROR_INVALID_EMAIL":
+                                                                        Toast.makeText(RegistreUsuari.this, "El format del correu electrònic no és vàlid.", Toast.LENGTH_LONG).show();
+                                                                        break;
+
+                                                                }
+                                                            } else {
+                                                                Toast.makeText(RegistreUsuari.this, "Error desconegut: " + exception.getMessage(), Toast.LENGTH_LONG).show();
+                                                            }                                    }
+                                                    }
+                                                });
+                                    }
+                                }
+                            }
+                        });
+
             }
         });
 

@@ -4,7 +4,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="default_web_client_id">26786737807-eklik3b4bobpkopivq8do99qfmavv8vt.apps.googleusercontent.com</string>
     <string name="signInSuccess">Has iniciat sessió amb èxit</string>
-    <string name="signInFailed">Error d\'inici de sessió</string>
+    <string name="signInFailed">Inici de sessió no complert</string>
     <string name="usrpwdEmpty">Completa tots els camps</string>
     <string name="usrMissing">Usuari no trobat</string>
     <string name="NavBarInici">Inici</string>

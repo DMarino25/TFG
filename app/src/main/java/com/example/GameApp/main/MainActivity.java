@@ -39,6 +39,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> startRegisterAct;
     private GoogleSignInClient googleSignInClient;
     private FirebaseAuth auth;
-    private TextInputEditText usuari, contrasenya;
+    private TextInputEditText correu, contrasenya;
     private FirebaseFirestore firestore;  // Añadido Firestore
 
     private final ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
@@ -95,46 +96,54 @@ public class MainActivity extends AppCompatActivity {
         MaterialButton iniciGoogle = findViewById(R.id.googleLoginButton);
         MaterialButton iniciNormal = findViewById(R.id.loginButton);
         TextView registre = findViewById(R.id.signUpLink);
-        usuari = findViewById(R.id.usernameInput);
+        correu = findViewById(R.id.usernameInput);
         contrasenya = findViewById(R.id.passwordInput);
         iniciNormal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String strUserName = usuari.getText().toString();  // Aquí el nombre de usuario
+                String strCorreu = correu.getText().toString();  // Aquí el nombre de usuario
                 String strPassword = contrasenya.getText().toString();
 
-                if (strUserName.isEmpty() || strPassword.isEmpty()) {
+                if (strCorreu.isEmpty() || strPassword.isEmpty()) {
                     Toast.makeText(MainActivity.this, getString(R.string.usrpwdEmpty), Toast.LENGTH_SHORT).show();
                 } else {
 
-                    firestore.collection("users")
-                            .whereEqualTo("name", strUserName)
-                            .get()
-                            .addOnCompleteListener(task -> {
-                                if (task.isSuccessful() && !task.getResult().isEmpty()) {
-                                    String email = task.getResult().getDocuments().get(0).getString("email");
-
-                                    auth.signInWithEmailAndPassword(email, strPassword)
-                                            .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                                    firestore.collection("bannedUsers")
+                                            .whereEqualTo("email", strCorreu)
+                                            .get()
+                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                 @Override
-                                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                     if (task.isSuccessful()) {
-                                                        FirebaseUser user = auth.getCurrentUser();
-                                                        if (user != null) {
-                                                            Toast.makeText(MainActivity.this, getString(R.string.signInSuccess), Toast.LENGTH_SHORT).show();
-                                                            Intent intent = new Intent(MainActivity.this, OauthAct.class);
-                                                            startActivity(intent);
+                                                        if (task.getResult() != null && !task.getResult().isEmpty()) {
+                                                            Toast.makeText(MainActivity.this, "Usari bloquejat", Toast.LENGTH_LONG).show();
+                                                        } else {
+                                                            auth.signInWithEmailAndPassword(strCorreu, strPassword)
+                                                                    .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<AuthResult> task) {
+                                                                            if (task.isSuccessful()) {
+                                                                                FirebaseUser user = auth.getCurrentUser();
+                                                                                if (user != null) {
+                                                                                    Toast.makeText(MainActivity.this, getString(R.string.signInSuccess), Toast.LENGTH_SHORT).show();
+                                                                                    Intent intent = new Intent(MainActivity.this, OauthAct.class);
+                                                                                    startActivity(intent);
+                                                                                }
+                                                                            } else {
+
+                                                                                Toast.makeText(MainActivity.this, getString(R.string.signInFailed), Toast.LENGTH_LONG).show();
+                                                                            }
+                                                                        }
+                                                                    });
                                                         }
+
                                                     } else {
-                                                        // Si el inicio de sesión falla, muestra un mensaje
-                                                        Toast.makeText(MainActivity.this, getString(R.string.signInFailed), Toast.LENGTH_LONG).show();
+                                                        Toast.makeText(MainActivity.this, getString(R.string.usrMissing), Toast.LENGTH_SHORT).show();
                                                     }
                                                 }
+
                                             });
-                                } else {
-                                    Toast.makeText(MainActivity.this, getString(R.string.usrMissing), Toast.LENGTH_SHORT).show();
-                                }
-                            });
+
                 }
             }
         });
@@ -160,13 +169,39 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
     }
+    private void checkBannedUser(final String email, final AuthCredential credential){
+            firestore.collection("bannedUsers")
+                    .whereEqualTo("email", email)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if(task.isSuccessful()){
+                                if(task.getResult()!= null && !task.getResult().isEmpty()){
+                                    Toast.makeText(MainActivity.this, "Usari bloquejat", Toast.LENGTH_LONG).show();
+                                    googleSignInClient.signOut();
+                                }
+                                else{
+                                    signInWithGoogle(credential);
+                                }
+                            }else{
+                                Toast.makeText(MainActivity.this,
+                                        "Error consultando baneados: " +
+                                                task.getException().getMessage(),
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+    }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             if (account != null) {
                 AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-                signInWithGoogle(credential);
+                String googleEmail = account.getEmail();
+                checkBannedUser(googleEmail,credential);
+
             }
         } catch (ApiException e) {
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode(), e);
