@@ -516,7 +516,8 @@ public class FragAjust extends Fragment {
             firestore.collection("users").document(userId)
                     .update("photoUrl", URL)
                     .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(getContext(), "Imatge de perfil actualitzada amb èxit", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(getContext(), "Imatge de perfil actualitzada amb èxit", Toast.LENGTH_SHORT).show();
+
                     })
                     .addOnFailureListener(e ->
                             Toast.makeText(getContext(), "Error en actualitzar la imatge de perfil", Toast.LENGTH_SHORT).show()
