@@ -54,6 +54,11 @@ public class ForumAdapter extends RecyclerView.Adapter<ForumAdapter.ForumViewHol
                     .load(forum.getUserProfilePhoto())
                     .circleCrop()
                     .into(holder.userProfileImageView);
+        } else {
+            Glide.with(holder.itemView.getContext())
+                    .load(R.drawable.block_user)
+                    .circleCrop()
+                    .into(holder.userProfileImageView);
         }
         // Actualizar los contadores
         holder.likeCount.setText(String.valueOf(forum.getLikeCount()));

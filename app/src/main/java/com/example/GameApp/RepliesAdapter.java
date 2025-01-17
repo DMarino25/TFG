@@ -71,6 +71,10 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
                         reply.setReplyUserName("Usuari eliminat");
                         reply.setReplyUserPicture("");
                         holder.replyUserNameTextView.setText(reply.getReplyUserName());
+                        Glide.with(holder.itemView.getContext())
+                                .load(R.drawable.block_user)
+                                .circleCrop()
+                                .into(holder.replyUserImageView);
                         Log.e("ReplyAdapter", "User not found for ID: " + replyUserNameId);
                     }
                 })

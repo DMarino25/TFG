@@ -32,7 +32,6 @@
             android:layout_height="50dp"
             android:layout_gravity="center"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_launcher_foreground"
             /> <!-- Clip a forma circular android:clipToOutline="true"  -->
 
         <LinearLayout

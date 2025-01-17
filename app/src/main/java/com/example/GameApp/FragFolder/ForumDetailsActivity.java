@@ -154,6 +154,11 @@ public class ForumDetailsActivity extends AppCompatActivity {
                     .load(userProfilePhoto)
                     .circleCrop()
                     .into(forumAuthorImageView);
+        } else {
+            Glide.with(this)
+                    .load(R.drawable.block_user)
+                    .circleCrop()
+                    .into(forumAuthorImageView);
         }
 
     }

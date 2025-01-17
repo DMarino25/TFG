@@ -59,10 +59,15 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         holder.commentTextView.setText(comment.getCommentText());
         holder.toggleRepliesTextView.setText(comment.areRepliesVisible() ? "Ocultar" : "Veure respostes");
 
-        if(!Objects.equals(comment.getCommentUserPicture(), "")) {
+        if(!Objects.equals(comment.getCommentUserName(), "Usuari eliminat")) {
             // Cargar la imagen de perfil con Glide
             Glide.with(holder.itemView.getContext())
                     .load(comment.getCommentUserPicture())
+                    .circleCrop()
+                    .into(holder.authorImageView);
+        } else {
+            Glide.with(holder.itemView.getContext())
+                    .load(R.drawable.block_user)
                     .circleCrop()
                     .into(holder.authorImageView);
         }
