@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.GameApp.ClassObjectes.Chat;
+import com.example.GameApp.main.MainActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
@@ -32,6 +34,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -46,6 +49,7 @@ public class chatActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private ArrayList<Chat> messageList;
     private FirebaseUser currentUser;
+    private ListenerRegistration banListener;
     private String conversationId;
     private chatAdapter chatAdapter;
 
@@ -131,6 +135,40 @@ public class chatActivity extends AppCompatActivity {
 
         // Show user info dialog
         info.setOnClickListener(v -> showUserInfoDialog());
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String email = currentUser.getEmail();
+
+            banListener = FirebaseFirestore.getInstance()
+                    .collection("bannedUsers")
+                    .whereEqualTo("email", email)
+                    .addSnapshotListener((querySnapshot, e) -> {
+                        if (e != null) {
+                            return;
+                        }
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            FirebaseAuth.getInstance().signOut();
+                            Toast.makeText(chatActivity.this,"Usuari bloquejat",Toast.LENGTH_LONG).show();
+
+                            Intent intent = new Intent(chatActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+        }
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (banListener != null) {
+            banListener.remove();
+            banListener = null;
+        }
     }
 
     private void loadReceiverInfo(TextView ReceiverName, ImageView ReceiverPicture) {
