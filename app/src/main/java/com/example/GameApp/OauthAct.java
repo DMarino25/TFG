@@ -1,6 +1,7 @@
 package com.example.GameApp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -28,10 +29,12 @@ import com.example.GameApp.ClassObjectes.User;
 import com.example.GameApp.FragFolder.BanFavFragment;
 import com.example.GameApp.FragFolder.BanForFragment;
 import com.example.GameApp.FragFolder.BannedFragment;
+import com.example.GameApp.FragFolder.ForumDetailsActivity;
 import com.example.GameApp.FragFolder.FragAjust;
 import com.example.GameApp.FragFolder.FragFav;
 import com.example.GameApp.FragFolder.FragForum;
 import com.example.GameApp.FragFolder.FragHome;
+import com.example.GameApp.main.MainActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,7 +46,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -62,6 +68,9 @@ public class OauthAct extends AppCompatActivity {
     private List<Cover> coverList = new ArrayList<>();
 
     private BottomNavigationView bottomNavigationView;
+
+
+    private ListenerRegistration banListener;
     private ImageButton missatge;
     private Fragment fragments[];
     RecyclerView recyclerView;
@@ -191,7 +200,40 @@ public class OauthAct extends AppCompatActivity {
 
 
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String email = currentUser.getEmail();
+
+            banListener = FirebaseFirestore.getInstance()
+                    .collection("bannedUsers")
+                    .whereEqualTo("email", email)
+                    .addSnapshotListener((querySnapshot, e) -> {
+                        if (e != null) {
+                            return;
+                        }
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            FirebaseAuth.getInstance().signOut();
+                            Toast.makeText(OauthAct.this,"Usuari bloquejat",Toast.LENGTH_LONG).show();
+
+                            Intent intent = new Intent(OauthAct.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+        }
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (banListener != null) {
+            banListener.remove();
+            banListener = null;
+        }
+    }
     private void handleHome(){
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null){
@@ -386,5 +428,7 @@ public class OauthAct extends AppCompatActivity {
                     Log.w(TAG, "Error checking if chat exists", e);
                 });
     }
+
+
 
 }

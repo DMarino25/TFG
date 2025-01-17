@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         iniciNormal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String strCorreu = correu.getText().toString();  // Aquí el nombre de usuario
+                String strCorreu = correu.getText().toString();
                 String strPassword = contrasenya.getText().toString();
 
                 if (strCorreu.isEmpty() || strPassword.isEmpty()) {

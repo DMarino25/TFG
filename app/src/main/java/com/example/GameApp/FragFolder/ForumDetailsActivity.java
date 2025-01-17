@@ -3,6 +3,7 @@ package com.example.GameApp.FragFolder;
 import static java.security.AccessController.getContext;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
@@ -17,12 +18,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.GameApp.BuildConfig;
 import com.example.GameApp.ClassObjectes.Forum;
+import com.example.GameApp.GameDetails;
+import com.example.GameApp.main.MainActivity;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -55,6 +60,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
     private ImageView forumAuthorImageView;
     private TextView forumAuthorTextView;
     private TextView forumDateTextView, replyText;
+    private ListenerRegistration banListener;
     private RecyclerView commentsRecyclerView;
     private CommentsAdapter commentsAdapter;
     private List<Comment> commentList;
@@ -94,7 +100,40 @@ public class ForumDetailsActivity extends AppCompatActivity {
         loadForumDetails();
         setupCommentListener();
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            String email = currentUser.getEmail();
+
+            banListener = FirebaseFirestore.getInstance()
+                    .collection("bannedUsers")
+                    .whereEqualTo("email", email)
+                    .addSnapshotListener((querySnapshot, e) -> {
+                        if (e != null) {
+                            return;
+                        }
+                        if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                            FirebaseAuth.getInstance().signOut();
+                            Toast.makeText(ForumDetailsActivity.this,"Usuari bloquejat",Toast.LENGTH_LONG).show();
+
+                            Intent intent = new Intent(ForumDetailsActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+        }
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (banListener != null) {
+            banListener.remove();
+            banListener = null;
+        }
+    }
     private void loadForumDetails() {
         // Cargar detalles del foro desde Firebase Firestore
         String title = getIntent().getStringExtra("forumTitle");
