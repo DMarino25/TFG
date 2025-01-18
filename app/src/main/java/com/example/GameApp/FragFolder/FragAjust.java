@@ -57,6 +57,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class FragAjust extends Fragment {
     private ActivityResultLauncher<Intent> pickImageLauncher;
@@ -159,7 +160,9 @@ public class FragAjust extends Fragment {
                             ProfilePicture.setImageResource(R.mipmap.ic_launcher);
                         }
                         UserName.setText(currentUsername);
-                        fgGame.setText(currentMPgame);
+                        if(currentMPgame != null && !Objects.equals(currentMPgame, "")){
+                            fgGame.setText(currentMPgame);
+                        }
                         if (_description != null){
                             description.setText(_description);
                         }
@@ -298,7 +301,6 @@ public class FragAjust extends Fragment {
         });
 
         logout.setOnClickListener(v1 -> {
-
             auth.signOut();
             googleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
                 Intent intent = new Intent(getActivity(), MainActivity.class);
@@ -315,37 +317,60 @@ public class FragAjust extends Fragment {
                     .setTitle("Confirmació d'eliminació")
                     .setMessage("Estàs segur que vols eliminar el teu compte? Aquesta acció no es pot desfer.")
                     .setPositiveButton("Sí", (dialog, which) -> {
-                        // Get the user ID
-                        String userIdToDelete = currentUser.getUid();
+                        // Sign out from Google first to avoid retaining the session
+                        googleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
+                            if (task.isSuccessful()) {
+                                // Get the user ID
+                                String userIdToDelete = currentUser.getUid();
 
-                        // Delete user data from Firestore
-                        firestore.collection("users").document(userIdToDelete).delete()
-                                .addOnSuccessListener(aVoid -> {
-                                    // Successfully deleted data from Firestore
-                                    // Proceed to delete the account from Firebase Authentication
-                                    currentUser.delete()
-                                            .addOnSuccessListener(aVoid1 -> {
-                                                Toast.makeText(v1.getContext(), "El compte s'ha eliminat correctament", Toast.LENGTH_SHORT).show();
+                                // First, delete all documents in the 'favorits' subcollection
+                                firestore.collection("users").document(userIdToDelete).collection("favorits")
+                                        .get()
+                                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                                            // Delete each document in the 'favorits' subcollection
+                                            for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                                document.getReference().delete();
+                                            }
 
-                                                // Log out and redirect to the login page
-                                                Intent intent = new Intent(getActivity(), MainActivity.class);
-                                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                startActivity(intent);
-                                                getActivity().finish();
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                // Error while deleting the account
-                                                Toast.makeText(v1.getContext(), "Error al eliminar el compte", Toast.LENGTH_SHORT).show();
-                                            });
-                                })
-                                .addOnFailureListener(e -> {
-                                    // Error while deleting Firestore data
-                                    Toast.makeText(v1.getContext(), "Error al eliminar dades del Firestore", Toast.LENGTH_SHORT).show();
-                                });
+                                            // After deleting the subcollection, delete the user document
+                                            firestore.collection("users").document(userIdToDelete).delete()
+                                                    .addOnSuccessListener(aVoid -> {
+                                                        // Successfully deleted data from Firestore
+                                                        // Proceed to delete the account from Firebase Authentication
+                                                        currentUser.delete()
+                                                                .addOnSuccessListener(aVoid1 -> {
+                                                                    Toast.makeText(v1.getContext(), "El compte s'ha eliminat correctament", Toast.LENGTH_SHORT).show();
+
+                                                                    // Log out and redirect to the login page
+                                                                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                                    startActivity(intent);
+                                                                    getActivity().finish();
+                                                                })
+                                                                .addOnFailureListener(e -> {
+                                                                    // Error while deleting the account
+                                                                    Toast.makeText(v1.getContext(), "Error al eliminar el compte", Toast.LENGTH_SHORT).show();
+                                                                });
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        // Error while deleting Firestore data
+                                                        Toast.makeText(v1.getContext(), "Error al eliminar dades del Firestore", Toast.LENGTH_SHORT).show();
+                                                    });
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            // Error while fetching the 'favorits' subcollection
+                                            Toast.makeText(v1.getContext(), "Error al eliminar la subcolecció de favorits", Toast.LENGTH_SHORT).show();
+                                        });
+                            } else {
+                                // Handle Google sign-out failure
+                                Toast.makeText(v1.getContext(), "Error al tancar sessió de Google", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     })
                     .setNegativeButton("No", null) // Do nothing on "No"
                     .show();
         });
+
 
         selectFG.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -413,35 +438,50 @@ public class FragAjust extends Fragment {
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
                 if (currentUser != null) {
-                    firestore.collection("users").document(currentUser.getUid()).collection("favorits")
+                    firestore.collection("users").document(currentUser.getUid())
                             .get()
-                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                @Override
-                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                    favoriteGames.clear();
-                                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                                        FavoriteGame game = document.toObject(FavoriteGame.class);
-                                        favoriteGames.add(game);
-                                    }
-                                    if (favoriteGames.isEmpty()) {
+                            .addOnSuccessListener(documentSnapshot -> {
+                                if (documentSnapshot.exists()) {
+                                    Boolean noFav = documentSnapshot.getBoolean("noFav");
+                                    if (Boolean.TRUE.equals(noFav)) {
+                                        // If the noFav field is true, show a toast and exit
+                                        Toast.makeText(v.getContext(), "Favorits bloquejats", Toast.LENGTH_SHORT).show();
                                         recyclerView.setVisibility(View.GONE);
                                         noFavoritesText.setVisibility(View.VISIBLE);
                                     } else {
-                                        recyclerView.setVisibility(View.VISIBLE);
-                                        noFavoritesText.setVisibility(View.GONE);
-                                        dialogAdapter.updateList(favoriteGames);
+                                        // Proceed to load the favorite games if noFav is false or null
+                                        firestore.collection("users").document(currentUser.getUid()).collection("favorits")
+                                                .get()
+                                                .addOnSuccessListener(queryDocumentSnapshots -> {
+                                                    favoriteGames.clear();
+                                                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                                                        FavoriteGame game = document.toObject(FavoriteGame.class);
+                                                        favoriteGames.add(game);
+                                                    }
+                                                    if (favoriteGames.isEmpty()) {
+                                                        recyclerView.setVisibility(View.GONE);
+                                                        noFavoritesText.setVisibility(View.VISIBLE);
+                                                    } else {
+                                                        recyclerView.setVisibility(View.VISIBLE);
+                                                        noFavoritesText.setVisibility(View.GONE);
+                                                        dialogAdapter.updateList(favoriteGames);
+                                                    }
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    Toast.makeText(v.getContext(), "Error al carregar els favorits", Toast.LENGTH_SHORT).show();
+                                                });
                                     }
+                                } else {
+                                    Toast.makeText(v.getContext(), "Document d'usuari no trobat", Toast.LENGTH_SHORT).show();
                                 }
                             })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(v.getContext(), "Error al carregar els favorits", Toast.LENGTH_SHORT).show();
-                                }
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(v.getContext(), "Error al carregar informació d'usuari", Toast.LENGTH_SHORT).show();
                             });
-                } else{
+                } else {
                     Toast.makeText(v.getContext(), "Usuari no autenticat", Toast.LENGTH_SHORT).show();
                 }
+
 
                 go2.setOnClickListener(v2 -> {
                     String searchQuery = cerca2.getText().toString().trim();
@@ -467,6 +507,7 @@ public class FragAjust extends Fragment {
                 });
             }
         });
+
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {

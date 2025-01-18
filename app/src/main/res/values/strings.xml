@@ -48,4 +48,5 @@
     <string name="activityChatTitle">Missatges</string>
     <string name="messageItemAutor">Nom de l\'autor</string>
     <string name="messageItemConversa">Conversa</string>
+    <string name="fragAjustHintFavG">Introdueix el teu joc més jugat</string>
 </resources>
