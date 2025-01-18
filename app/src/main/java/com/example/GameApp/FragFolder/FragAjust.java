@@ -381,58 +381,6 @@ public class FragAjust extends Fragment {
 
                 EditText cerca2 = dialogView.findViewById(R.id.cerca2);
                 ImageView go2 = dialogView.findViewById(R.id.go2);
-                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                builder.setView(dialogView);
-                AlertDialog dialog = builder.create();
-                dialog.show();
-
-                ArrayList<FavoriteGame> favoriteGames = new ArrayList<>();
-                FavAdapter dialogAdapter = new FavAdapter(v.getContext(), new ArrayList<>(), false, new FavAdapter.OnGameClickListener(){
-                    @Override
-                    public void onGameClick(FavoriteGame game) {
-                        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-                        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-                        if (currentUser != null) {
-                            Map<String, Object> updates = new HashMap<>();
-                            updates.put("gameFav", game.getTitle());
-                            updates.put("gameFavImg", game.getCover_url());
-                            firestore.collection("users")
-                                    .document(currentUser.getUid())
-                                    .update(updates)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            fgGame.setText(game.getTitle());
-
-                                            String imageId = CoverUtils.extractImageId(game.getCover_url());
-                                            String imageUrl = CoverUtils.constructImageUrl(imageId, "t_1080p");
-
-                                            Glide.with(v.getContext())
-                                                            .load(imageUrl)
-                                                            .placeholder(R.mipmap.ic_launcher)
-                                                            .into(gameFavImg);
-
-                                            Toast.makeText(v.getContext(), "Joc més jugat seleccionat", Toast.LENGTH_SHORT).show();
-                                            dialog.dismiss();
-                                        }
-
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(v.getContext(), "Joc més jugat no seleccionat", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                        }
-                        else{
-                            Toast.makeText(v.getContext(), "Usuari no trobat", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-                recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
-                recyclerView.setAdapter(dialogAdapter);
 
                 FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -446,10 +394,56 @@ public class FragAjust extends Fragment {
                                     if (Boolean.TRUE.equals(noFav)) {
                                         // If the noFav field is true, show a toast and exit
                                         Toast.makeText(v.getContext(), "Favorits bloquejats", Toast.LENGTH_SHORT).show();
-                                        recyclerView.setVisibility(View.GONE);
-                                        noFavoritesText.setVisibility(View.VISIBLE);
                                     } else {
-                                        // Proceed to load the favorite games if noFav is false or null
+                                        // Proceed to show the dialog
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                                        builder.setView(dialogView);
+                                        AlertDialog dialog = builder.create();
+                                        dialog.show();
+
+                                        ArrayList<FavoriteGame> favoriteGames = new ArrayList<>();
+                                        FavAdapter dialogAdapter = new FavAdapter(v.getContext(), new ArrayList<>(), false, new FavAdapter.OnGameClickListener() {
+                                            @Override
+                                            public void onGameClick(FavoriteGame game) {
+                                                if (currentUser != null) {
+                                                    Map<String, Object> updates = new HashMap<>();
+                                                    updates.put("gameFav", game.getTitle());
+                                                    updates.put("gameFavImg", game.getCover_url());
+                                                    firestore.collection("users")
+                                                            .document(currentUser.getUid())
+                                                            .update(updates)
+                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void unused) {
+                                                                    fgGame.setText(game.getTitle());
+
+                                                                    String imageId = CoverUtils.extractImageId(game.getCover_url());
+                                                                    String imageUrl = CoverUtils.constructImageUrl(imageId, "t_1080p");
+
+                                                                    Glide.with(v.getContext())
+                                                                            .load(imageUrl)
+                                                                            .placeholder(R.mipmap.ic_launcher)
+                                                                            .into(gameFavImg);
+
+                                                                    Toast.makeText(v.getContext(), "Joc més jugat seleccionat", Toast.LENGTH_SHORT).show();
+                                                                    dialog.dismiss();
+                                                                }
+                                                            })
+                                                            .addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception e) {
+                                                                    Toast.makeText(v.getContext(), "Joc més jugat no seleccionat", Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            });
+                                                } else {
+                                                    Toast.makeText(v.getContext(), "Usuari no trobat", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+
+                                        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+                                        recyclerView.setAdapter(dialogAdapter);
+
                                         firestore.collection("users").document(currentUser.getUid()).collection("favorits")
                                                 .get()
                                                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -470,6 +464,29 @@ public class FragAjust extends Fragment {
                                                 .addOnFailureListener(e -> {
                                                     Toast.makeText(v.getContext(), "Error al carregar els favorits", Toast.LENGTH_SHORT).show();
                                                 });
+
+                                        go2.setOnClickListener(v2 -> {
+                                            String searchQuery = cerca2.getText().toString().trim();
+                                            ArrayList<FavoriteGame> filteredList = new ArrayList<>();
+
+                                            if (searchQuery.isEmpty()) {
+                                                filteredList.addAll(favoriteGames);
+                                            } else {
+                                                for (FavoriteGame game : favoriteGames) {
+                                                    if (game.getTitle() != null && game.getTitle().toLowerCase().contains(searchQuery.toLowerCase())) {
+                                                        filteredList.add(game);
+                                                    }
+                                                }
+                                            }
+                                            dialogAdapter.updateList(filteredList);
+                                            if (filteredList.isEmpty()) {
+                                                recyclerView.setVisibility(View.GONE);
+                                                noFavoritesText.setVisibility(View.VISIBLE);
+                                            } else {
+                                                recyclerView.setVisibility(View.VISIBLE);
+                                                noFavoritesText.setVisibility(View.GONE);
+                                            }
+                                        });
                                     }
                                 } else {
                                     Toast.makeText(v.getContext(), "Document d'usuari no trobat", Toast.LENGTH_SHORT).show();
@@ -481,30 +498,6 @@ public class FragAjust extends Fragment {
                 } else {
                     Toast.makeText(v.getContext(), "Usuari no autenticat", Toast.LENGTH_SHORT).show();
                 }
-
-
-                go2.setOnClickListener(v2 -> {
-                    String searchQuery = cerca2.getText().toString().trim();
-                    ArrayList<FavoriteGame> filteredList = new ArrayList<>();
-
-                    if (searchQuery.isEmpty()) {
-                        filteredList.addAll(favoriteGames);
-                    } else {
-                        for (FavoriteGame game : favoriteGames) {
-                            if (game.getTitle() != null && game.getTitle().toLowerCase().contains(searchQuery.toLowerCase())) {
-                                filteredList.add(game);
-                            }
-                        }
-                    }
-                    dialogAdapter.updateList(filteredList);
-                    if (filteredList.isEmpty()) {
-                        recyclerView.setVisibility(View.GONE);
-                        noFavoritesText.setVisibility(View.VISIBLE);
-                    } else {
-                        recyclerView.setVisibility(View.VISIBLE);
-                        noFavoritesText.setVisibility(View.GONE);
-                    }
-                });
             }
         });
 
