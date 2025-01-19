@@ -246,7 +246,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                             if (description != null && !description.isEmpty()) {
                                 userDescription.setText(description);
                             } else {
-                                userDescription.setText("No s'ha afegit joc descripció");
+                                userDescription.setText("No s'ha afegit descripció");
                                 userDescription.setTypeface(userDescription.getTypeface(), Typeface.ITALIC);
                             }
                             gameName.setText(favoriteGame);
@@ -268,6 +268,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
                             } else {
                                 gameImage.setImageResource(R.mipmap.ic_launcher);
                             }
+                        }
+                        else{
+                            userName.setText("Usuari eliminat");
+                            userDescription.setText("Usuari eliminat");
+                            userDescription.setTypeface(userDescription.getTypeface(), Typeface.ITALIC);
+                            gameName.setText("Usuari eliminat");
+                            gameName.setTypeface(gameName.getTypeface(), Typeface.ITALIC);
                         }
                     })
                     .addOnFailureListener(e -> {

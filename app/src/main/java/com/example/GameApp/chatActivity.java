@@ -285,7 +285,12 @@ public class chatActivity extends AppCompatActivity {
                                                 nameFG.setTypeface(nameFG.getTypeface(), Typeface.ITALIC);
                                             }
                                         } else {
-                                            Toast.makeText(getApplicationContext(), getString(R.string.chatActivityUserNotFound), Toast.LENGTH_SHORT).show();
+                                            userName.setText("Usuari eliminat");
+                                            description.setText("Usuari eliminat");
+                                            description.setTypeface(nameFG.getTypeface(), Typeface.ITALIC);
+                                            nameFG.setText("Usuari eliminat");
+                                            nameFG.setTypeface(nameFG.getTypeface(), Typeface.ITALIC);
+                                            //Toast.makeText(getApplicationContext(), getString(R.string.chatActivityUserNotFound), Toast.LENGTH_SHORT).show();
                                         }
                                     })
                                     .addOnFailureListener(e -> Log.e(TAG, "Error fetching user info", e));

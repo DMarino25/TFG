@@ -106,28 +106,29 @@ public class ForumDetailsActivity extends AppCompatActivity {
         forumAuthorImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!Objects.equals (forumAuthorTextView.getText().toString(), "Usuari eliminat"))
+                if (Objects.equals(forumAuthorTextView.getText().toString(), "Usuari eliminat")){
+                    showUserInfoDialog(ForumDetailsActivity.this, null);
+                }
+                else {
                     FirebaseFirestore.getInstance().collection("users")
                             .whereEqualTo("name", forumAuthorTextView.getText().toString())
                             .get()
                             .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                 @Override
                                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                                    if (!queryDocumentSnapshots.isEmpty()){
+                                    if (!queryDocumentSnapshots.isEmpty()) {
                                         DocumentSnapshot userDocument = queryDocumentSnapshots.getDocuments().get(0);
                                         showUserInfoDialog(ForumDetailsActivity.this, userDocument);
-                                    }
-                                    else{
-                                        Toast.makeText(ForumDetailsActivity.this, "Autor no trobat", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(ForumDetailsActivity.this, "Error al carregar informació de l'autor", Toast.LENGTH_SHORT).show();
+                                    // Toast.makeText(ForumDetailsActivity.this, "Error al carregar informació de l'autor", Toast.LENGTH_SHORT).show();
                                 }
                             });
+                }
             }
         });
 
@@ -182,38 +183,48 @@ public class ForumDetailsActivity extends AppCompatActivity {
         TextView gameName = dialogView.findViewById(R.id.textView4);
         ImageView gameImage = dialogView.findViewById(R.id.imageView3);
 
-        String name = documentSnapshot.getString("name");
-        String description = documentSnapshot.getString("description");
-        String photoUrl = documentSnapshot.getString("photoUrl");
-        String favoriteGame = documentSnapshot.getString("gameFav");
-        String gameImageUrl = documentSnapshot.getString("gameFavImg");
-
-        userName.setText(name);
-        if (description != null && !description.isEmpty()) {
-            userDescription.setText(description);
-        } else {
-            userDescription.setText("No s'ha afegit joc descripció");
+        if (documentSnapshot == null || ! documentSnapshot.exists()){
+            userName.setText("Usuari eliminat");
+            userDescription.setText("Usuari eliminat");
             userDescription.setTypeface(userDescription.getTypeface(), Typeface.ITALIC);
-        }
-        gameName.setText(favoriteGame);
-        if (favoriteGame != null && !favoriteGame.isEmpty()) {
-            gameName.setText(favoriteGame);
-        } else {
-            gameName.setText("No s'ha afegit joc favorit");
+            gameName.setText("Usuari eliminat");
             gameName.setTypeface(gameName.getTypeface(), Typeface.ITALIC);
         }
+        else{
+            String name = documentSnapshot.getString("name");
+            String description = documentSnapshot.getString("description");
+            String photoUrl = documentSnapshot.getString("photoUrl");
+            String favoriteGame = documentSnapshot.getString("gameFav");
+            String gameImageUrl = documentSnapshot.getString("gameFavImg");
 
-        if (photoUrl != null && !photoUrl.isEmpty()) {
-            Glide.with(context).load(photoUrl).circleCrop().into(userPP);
-        } else {
-            userPP.setImageResource(R.mipmap.ic_launcher);
+            userName.setText(name);
+            if (description != null && !description.isEmpty()) {
+                userDescription.setText(description);
+            } else {
+                userDescription.setText("No s'ha afegit descripció");
+                userDescription.setTypeface(userDescription.getTypeface(), Typeface.ITALIC);
+            }
+            gameName.setText(favoriteGame);
+            if (favoriteGame != null && !favoriteGame.isEmpty()) {
+                gameName.setText(favoriteGame);
+            } else {
+                gameName.setText("No s'ha afegit joc favorit");
+                gameName.setTypeface(gameName.getTypeface(), Typeface.ITALIC);
+            }
+
+            if (photoUrl != null && !photoUrl.isEmpty()) {
+                Glide.with(context).load(photoUrl).circleCrop().into(userPP);
+            } else {
+                userPP.setImageResource(R.mipmap.ic_launcher);
+            }
+
+            if (gameImageUrl != null && !gameImageUrl.isEmpty()) {
+                Glide.with(context).load(gameImageUrl).into(gameImage);
+            } else {
+                gameImage.setImageResource(R.mipmap.ic_launcher);
+            }
         }
 
-        if (gameImageUrl != null && !gameImageUrl.isEmpty()) {
-            Glide.with(context).load(gameImageUrl).into(gameImage);
-        } else {
-            gameImage.setImageResource(R.mipmap.ic_launcher);
-        }
         // Crear y mostrar el diálogo
         AlertDialog dialog = builder.create();
         dialog.show();
