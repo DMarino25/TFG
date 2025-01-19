@@ -1,6 +1,8 @@
 package com.example.GameApp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -91,6 +93,10 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
             holder.showPopupMenu(holder.itemView, reply, holder.itemView.getContext());
             return true;
         });
+        holder.replyUserImageView.setOnClickListener(v -> {
+            Context context = holder.itemView.getContext();
+            holder.showUserInfoDialog(context, reply);
+        });
     }
 
 
@@ -130,6 +136,66 @@ public class RepliesAdapter extends RecyclerView.Adapter<RepliesAdapter.ReplyVie
 
             // Mostrar el PopupMenu
             popupMenu.show();
+        }
+        private void showUserInfoDialog(Context context, Reply reply) {
+            // Inflar el layout personalizado para el diálogo
+            View dialogView = LayoutInflater.from(context).inflate(R.layout.info_user, null);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setView(dialogView);
+
+            // Referencias a las vistas del diseño
+            ImageView userPP = dialogView.findViewById(R.id.imageView);
+            TextView userName = dialogView.findViewById(R.id.nameInfo);
+            TextView userDescription = dialogView.findViewById(R.id.editTextText3);
+            TextView gameName = dialogView.findViewById(R.id.textView4);
+            ImageView gameImage = dialogView.findViewById(R.id.imageView3);
+
+            FirebaseFirestore.getInstance().collection("users")
+                    .document(reply.getReplyUserNameId())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String name = documentSnapshot.getString("name");
+                            String description = documentSnapshot.getString("description");
+                            String photoUrl = documentSnapshot.getString("photoUrl");
+                            String favoriteGame = documentSnapshot.getString("gameFav");
+                            String gameImageUrl = documentSnapshot.getString("gameFavImg");
+
+                            userName.setText(name);
+                            if (description != null && !description.isEmpty()) {
+                                userDescription.setText(description);
+                            } else {
+                                userDescription.setText("No s'ha afegit joc descripció");
+                                userDescription.setTypeface(userDescription.getTypeface(), Typeface.ITALIC);
+                            }
+                            gameName.setText(favoriteGame);
+                            if (favoriteGame != null && !favoriteGame.isEmpty()) {
+                                gameName.setText(favoriteGame);
+                            } else {
+                                gameName.setText("No s'ha afegit joc favorit");
+                                gameName.setTypeface(gameName.getTypeface(), Typeface.ITALIC);
+                            }
+
+                            if (photoUrl != null && !photoUrl.isEmpty()) {
+                                Glide.with(context).load(photoUrl).circleCrop().into(userPP);
+                            } else {
+                                userPP.setImageResource(R.mipmap.ic_launcher);
+                            }
+
+                            if (gameImageUrl != null && !gameImageUrl.isEmpty()) {
+                                Glide.with(context).load(gameImageUrl).into(gameImage);
+                            } else {
+                                gameImage.setImageResource(R.mipmap.ic_launcher);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(context, "Error al carregar informació de l'usuari", Toast.LENGTH_SHORT).show();
+                    });
+
+            // Crear y mostrar el diálogo
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
 
         private void reportReply(Reply reply, Context context) {

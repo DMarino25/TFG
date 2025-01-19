@@ -3,14 +3,19 @@ package com.example.GameApp.FragFolder;
 import static java.security.AccessController.getContext;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +25,8 @@ import com.example.GameApp.BuildConfig;
 import com.example.GameApp.ClassObjectes.Forum;
 import com.example.GameApp.GameDetails;
 import com.example.GameApp.main.MainActivity;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -43,6 +50,7 @@ import java.util.Objects;
 import com.example.GameApp.ClassObjectes.Comment;
 import com.example.GameApp.CommentsAdapter;
 import com.example.GameApp.R;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -95,6 +103,33 @@ public class ForumDetailsActivity extends AppCompatActivity {
             // Lógica para abrir un campo de texto y permitir al usuario añadir un comentario
             showReplyDialog(forumId);
         });
+        forumAuthorImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!Objects.equals (forumAuthorTextView.getText().toString(), "Usuari eliminat"))
+                    FirebaseFirestore.getInstance().collection("users")
+                            .whereEqualTo("name", forumAuthorTextView.getText().toString())
+                            .get()
+                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                                    if (!queryDocumentSnapshots.isEmpty()){
+                                        DocumentSnapshot userDocument = queryDocumentSnapshots.getDocuments().get(0);
+                                        showUserInfoDialog(ForumDetailsActivity.this, userDocument);
+                                    }
+                                    else{
+                                        Toast.makeText(ForumDetailsActivity.this, "Autor no trobat", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Toast.makeText(ForumDetailsActivity.this, "Error al carregar informació de l'autor", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+            }
+        });
 
         // Cargar detalles del foro y comentarios
         loadForumDetails();
@@ -133,6 +168,55 @@ public class ForumDetailsActivity extends AppCompatActivity {
             banListener.remove();
             banListener = null;
         }
+    }
+    private void showUserInfoDialog(Context context, DocumentSnapshot documentSnapshot) {
+        // Inflar el layout personalizado para el diálogo
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.info_user, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setView(dialogView);
+
+        // Referencias a las vistas del diseño
+        ImageView userPP = dialogView.findViewById(R.id.imageView);
+        TextView userName = dialogView.findViewById(R.id.nameInfo);
+        TextView userDescription = dialogView.findViewById(R.id.editTextText3);
+        TextView gameName = dialogView.findViewById(R.id.textView4);
+        ImageView gameImage = dialogView.findViewById(R.id.imageView3);
+
+        String name = documentSnapshot.getString("name");
+        String description = documentSnapshot.getString("description");
+        String photoUrl = documentSnapshot.getString("photoUrl");
+        String favoriteGame = documentSnapshot.getString("gameFav");
+        String gameImageUrl = documentSnapshot.getString("gameFavImg");
+
+        userName.setText(name);
+        if (description != null && !description.isEmpty()) {
+            userDescription.setText(description);
+        } else {
+            userDescription.setText("No s'ha afegit joc descripció");
+            userDescription.setTypeface(userDescription.getTypeface(), Typeface.ITALIC);
+        }
+        gameName.setText(favoriteGame);
+        if (favoriteGame != null && !favoriteGame.isEmpty()) {
+            gameName.setText(favoriteGame);
+        } else {
+            gameName.setText("No s'ha afegit joc favorit");
+            gameName.setTypeface(gameName.getTypeface(), Typeface.ITALIC);
+        }
+
+        if (photoUrl != null && !photoUrl.isEmpty()) {
+            Glide.with(context).load(photoUrl).circleCrop().into(userPP);
+        } else {
+            userPP.setImageResource(R.mipmap.ic_launcher);
+        }
+
+        if (gameImageUrl != null && !gameImageUrl.isEmpty()) {
+            Glide.with(context).load(gameImageUrl).into(gameImage);
+        } else {
+            gameImage.setImageResource(R.mipmap.ic_launcher);
+        }
+        // Crear y mostrar el diálogo
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
     private void loadForumDetails() {
         // Cargar detalles del foro desde Firebase Firestore

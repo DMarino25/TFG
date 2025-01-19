@@ -221,12 +221,12 @@ public class FragAjust extends Fragment {
                             // Hide tick and cross buttons
                             tickButton.setVisibility(View.GONE);
                             crossButton.setVisibility(View.GONE);
+                            UserName.clearFocus();
                         })
                         .addOnFailureListener(e ->
                                 Toast.makeText(v.getContext(), "Error al actualitzar el nom", Toast.LENGTH_SHORT).show()
                         );
             }
-            UserName.clearFocus();
         });
 
         // Handle the cross button (Cancel changes)

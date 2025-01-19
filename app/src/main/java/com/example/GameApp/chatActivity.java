@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -270,8 +271,19 @@ public class chatActivity extends AppCompatActivity {
                                             }
 
                                             userName.setText(receiverName);
-                                            description.setText(receiverDescription);
+                                            if (receiverDescription != null && !receiverDescription.isEmpty()) {
+                                                description.setText(receiverDescription);
+                                            } else {
+                                                description.setText("No s'ha afegit descripció");
+                                                description.setTypeface(description.getTypeface(), Typeface.ITALIC);
+                                            }
                                             nameFG.setText(receiverGame);
+                                            if (receiverGame != null && !receiverGame.isEmpty()) {
+                                                nameFG.setText(receiverGame);
+                                            } else {
+                                                nameFG.setText("No s'ha afegit joc favorit");
+                                                nameFG.setTypeface(nameFG.getTypeface(), Typeface.ITALIC);
+                                            }
                                         } else {
                                             Toast.makeText(getApplicationContext(), getString(R.string.chatActivityUserNotFound), Toast.LENGTH_SHORT).show();
                                         }

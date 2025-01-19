@@ -35,7 +35,7 @@
             android:id="@+id/comentari"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Vols reportar algun error o comentari?"
+            android:text="Vols reportar algun error o fer un comentari?"
             android:textSize="16sp"
             android:paddingBottom="8dp" />
 
@@ -55,7 +55,7 @@
             android:id="@+id/sendFeedback"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Envía"
+            android:text="Envia"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="25dp"/>
 
