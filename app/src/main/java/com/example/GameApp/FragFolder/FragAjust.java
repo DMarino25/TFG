@@ -506,7 +506,7 @@ public class FragAjust extends Fragment {
             public void handleOnBackPressed() {
                 new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                         .setTitle("Sortir de l'aplicació")
-                        .setMessage("Estàs segur que vols sortir o desloguejar?")
+                        .setMessage("Estàs segur que vols sortir?")
                         .setPositiveButton("Sí", (dialog, which) -> {
                             requireActivity().finishAffinity();
                         })
