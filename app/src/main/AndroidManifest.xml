@@ -42,7 +42,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FragFolder.ForumDetailsActivity" />
+        <activity android:name=".FragFolder.ForumDetailsActivity"
+            android:screenOrientation="portrait"
+            android:exported="false"/>
     </application>
 
 </manifest>
