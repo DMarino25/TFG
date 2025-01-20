@@ -391,10 +391,14 @@ public class FragAjust extends Fragment {
                             .addOnSuccessListener(documentSnapshot -> {
                                 if (documentSnapshot.exists()) {
                                     Boolean noFav = documentSnapshot.getBoolean("noFav");
-                                    if (Boolean.TRUE.equals(noFav)) {
-                                        // If the noFav field is true, show a toast and exit
+                                    Boolean noGame = documentSnapshot.getBoolean("noGames");
+                                    if (Boolean.TRUE.equals(noFav) ) {
+
                                         Toast.makeText(v.getContext(), "Favorits bloquejats", Toast.LENGTH_SHORT).show();
-                                    } else {
+                                    } else if (noGame) {
+                                        Toast.makeText(v.getContext(), "Jocs bloquejats", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else {
                                         // Proceed to show the dialog
                                         AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                                         builder.setView(dialogView);
@@ -402,7 +406,7 @@ public class FragAjust extends Fragment {
                                         dialog.show();
 
                                         ArrayList<FavoriteGame> favoriteGames = new ArrayList<>();
-                                        FavAdapter dialogAdapter = new FavAdapter(v.getContext(), new ArrayList<>(), false, new FavAdapter.OnGameClickListener() {
+                                        FavAdapter dialogAdapter = new FavAdapter(v.getContext(), new ArrayList<>(), false,new FavAdapter.OnGameClickListener() {
                                             @Override
                                             public void onGameClick(FavoriteGame game) {
                                                 if (currentUser != null) {
@@ -439,7 +443,7 @@ public class FragAjust extends Fragment {
                                                     Toast.makeText(v.getContext(), "Usuari no trobat", Toast.LENGTH_SHORT).show();
                                                 }
                                             }
-                                        });
+                                        },true);
 
                                         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
                                         recyclerView.setAdapter(dialogAdapter);

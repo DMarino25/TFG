@@ -1,5 +1,6 @@
 package com.example.GameApp.FragFolder;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static java.security.AccessController.getContext;
 
 import android.app.AlertDialog;
@@ -31,6 +32,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -68,7 +70,7 @@ public class ForumDetailsActivity extends AppCompatActivity {
     private ImageView forumAuthorImageView;
     private TextView forumAuthorTextView;
     private TextView forumDateTextView, replyText;
-    private ListenerRegistration banListener;
+    private ListenerRegistration banListener, userListener;
     private RecyclerView commentsRecyclerView;
     private CommentsAdapter commentsAdapter;
     private List<Comment> commentList;
@@ -160,6 +162,21 @@ public class ForumDetailsActivity extends AppCompatActivity {
                             finish();
                         }
                     });
+            String uid = currentUser.getUid();
+            DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(uid);
+            userRef.addSnapshotListener((snapshot, e) -> {
+                if (e != null) {
+                    Log.w(TAG, "Error al obtener restricciones", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Boolean noForums = snapshot.getBoolean("noFor");
+                    if (Boolean.TRUE.equals(noForums)) {
+                        finish();
+                    }
+                }
+            });
         }
     }
     @Override
@@ -168,6 +185,10 @@ public class ForumDetailsActivity extends AppCompatActivity {
         if (banListener != null) {
             banListener.remove();
             banListener = null;
+        }
+        if (userListener != null) {
+            userListener.remove();
+            userListener = null;
         }
     }
     private void showUserInfoDialog(Context context, DocumentSnapshot documentSnapshot) {

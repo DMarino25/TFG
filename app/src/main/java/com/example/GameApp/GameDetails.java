@@ -18,10 +18,12 @@ import com.example.GameApp.ClassObjectes.Genres;
 import com.example.GameApp.ClassObjectes.InvolvedCompanies;
 import com.example.GameApp.ClassObjectes.Platforms;
 import com.example.GameApp.ClassObjectes.Keywords;
+import com.example.GameApp.FragFolder.BannedFragment;
 import com.example.GameApp.main.MainActivity;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 
@@ -135,6 +137,21 @@ public class GameDetails extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String email = currentUser.getEmail();
+            String uid = currentUser.getUid();
+            DocumentReference userRef = FirebaseFirestore.getInstance().collection("users").document(uid);
+            userRef.addSnapshotListener((snapshot, e) -> {
+                if (e != null) {
+                    Log.w(TAG, "Error al obtener restricciones", e);
+                    return;
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    Boolean noGames = snapshot.getBoolean("noGames");
+                    if (Boolean.TRUE.equals(noGames)) {
+                        finish();
+                    }
+                }
+            });
 
             banListener = FirebaseFirestore.getInstance()
                     .collection("bannedUsers")

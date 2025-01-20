@@ -70,7 +70,7 @@ public class OauthAct extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
 
 
-    private ListenerRegistration banListener;
+    private ListenerRegistration banListener, userListener;
     private ImageButton missatge;
     private Fragment fragments[];
     RecyclerView recyclerView;
@@ -113,6 +113,7 @@ public class OauthAct extends AppCompatActivity {
         fragments[2] = new FragForum();
         fragments[3] = new FragAjust();
 
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
 
         missatge = findViewById(R.id.missatges);
         missatge.setOnClickListener(new View.OnClickListener() {
@@ -207,7 +208,7 @@ public class OauthAct extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
             String email = currentUser.getEmail();
-
+            String uid = currentUser.getUid();
             banListener = FirebaseFirestore.getInstance()
                     .collection("bannedUsers")
                     .whereEqualTo("email", email)
@@ -224,6 +225,44 @@ public class OauthAct extends AppCompatActivity {
                             finish();
                         }
                     });
+            userListener = db.collection("users")
+                    .document(uid)
+                    .addSnapshotListener((snapshot, e) -> {
+                        if (e != null) {
+                            Log.w(TAG, "Error escuchando userBans: ", e);
+                            return;
+                        }
+                        if (snapshot != null && snapshot.exists()) {
+                            noGames = snapshot.getBoolean("noGames");
+                            noFav   = snapshot.getBoolean("noFav");
+                            noFor   = snapshot.getBoolean("noFor");
+
+
+                            int selectedItem = bottomNavigationView.getSelectedItemId();
+
+                            if (selectedItem == R.id.home) {
+                                if (noGames != null && noGames) {
+                                    openFragment(new BannedFragment());
+                                } else {
+                                    openFragment(new FragHome());
+                                }
+                            } else if (selectedItem == R.id.favorits) {
+                                if (noFav != null && noFav) {
+                                    openFragment(new BanFavFragment());
+                                } else {
+                                    openFragment(new FragFav());
+                                }
+                            } else if (selectedItem == R.id.forums) {
+                                if (noFor != null && noFor) {
+                                    openFragment(new BanForFragment());
+                                } else {
+                                    openFragment(new FragForum());
+                                }
+                            } else if (selectedItem == R.id.profile) {
+                                openFragment(new FragAjust());
+                            }
+                        }
+                    });
         }
     }
     @Override
@@ -233,7 +272,12 @@ public class OauthAct extends AppCompatActivity {
             banListener.remove();
             banListener = null;
         }
+        if (userListener != null) {
+            userListener.remove();
+            userListener = null;
+        }
     }
+
     private void handleHome(){
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
         if (currentUser != null){
@@ -315,10 +359,18 @@ public class OauthAct extends AppCompatActivity {
 
     }
     private void openFragment(Fragment fragment) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragmentContainerView2, fragment);
-        fragmentTransaction.commit();
+        if (fragment != null) {
+            Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragmentContainerView2);
+
+            if (currentFragment != null && currentFragment.getClass().equals(fragment.getClass())) {
+                return;
+            }
+
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fragmentContainerView2, fragment);
+            fragmentTransaction.commit();
+        }
     }
 
     private void cercaUsuaris(String textCerca, final UserAdapter userAdapter) {

@@ -21,24 +21,29 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
 
     private ArrayList<FavoriteGame> lgames;
     private Context context;
-    private boolean yesDescription;
+    private boolean yesDescription, isGamesAllowed;
     private OnGameClickListener listener;
 
     public interface OnGameClickListener {
         void onGameClick(FavoriteGame game);
     }
 
-    public FavAdapter(Context context, ArrayList<FavoriteGame> lgames, boolean yesDescription, OnGameClickListener listener ) {
+    public FavAdapter(Context context, ArrayList<FavoriteGame> lgames, boolean yesDescription, OnGameClickListener listener, boolean isGamesAllowed ) {
         this.lgames = lgames;
         this.context = context;
         this.yesDescription= yesDescription;
         this.listener = listener;
+        this.isGamesAllowed = isGamesAllowed;
     }
 
     @Override
     public FavViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.fav_item, parent, false);
         return new FavViewHolder(view);
+    }
+    public void setGamesAllowed(boolean isAllowed) {
+        this.isGamesAllowed = isAllowed;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -56,19 +61,25 @@ public class FavAdapter extends RecyclerView.Adapter<FavAdapter.FavViewHolder> {
             holder.game_IMG.setImageResource(R.drawable.ic_launcher_background);
         }
 
-        // Manejar clic en la tarjeta
+
         holder.itemView.setOnClickListener(v -> {
-            if (yesDescription && game.getCoverId() != 0) {
-                Intent intent = new Intent(context, GameDetails.class);
-                intent.putExtra("coverId", game.getCoverId());
-                context.startActivity(intent);
+            if(isGamesAllowed){
+                if (yesDescription && game.getCoverId() != 0) {
+                    Intent intent = new Intent(context, GameDetails.class);
+                    intent.putExtra("coverId", game.getCoverId());
+                    context.startActivity(intent);
+                }
+                else if(!yesDescription && game.getCoverId() !=0){
+                    listener.onGameClick(game);
+                }
+                else {
+                    Toast.makeText(context, context.getString(R.string.FavAdapterError), Toast.LENGTH_SHORT).show();
+                }
+            }else {
+
+                Toast.makeText(context, "Jocs bloquejats", Toast.LENGTH_SHORT).show();
             }
-            else if(!yesDescription && game.getCoverId() !=0){
-                listener.onGameClick(game);
-            }
-            else {
-                Toast.makeText(context, context.getString(R.string.FavAdapterError), Toast.LENGTH_SHORT).show();
-            }
+
         });
     }
 

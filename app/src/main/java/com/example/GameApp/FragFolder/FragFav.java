@@ -1,5 +1,7 @@
 package com.example.GameApp.FragFolder;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -8,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +36,8 @@ public class FragFav extends Fragment {
 
     private RecyclerView favList;
     private FavAdapter favAdapter;
+    private ListenerRegistration restrictionsListener;
+    private boolean isGamesAllowed = true;
     private ArrayList<FavoriteGame> favoriteGames; // Lista completa de favoritos
     private FirebaseFirestore firestore;
     private FirebaseUser currentUser;
@@ -65,7 +70,7 @@ public class FragFav extends Fragment {
 
         favoriteGames = new ArrayList<>();
         favList.setLayoutManager(new LinearLayoutManager(getContext()));
-        favAdapter = new FavAdapter(getContext(), new ArrayList<FavoriteGame>(),true,null);
+        favAdapter = new FavAdapter(getContext(), new ArrayList<FavoriteGame>(),true,game -> {},isGamesAllowed);
         favList.setAdapter(favAdapter);
 
         go.setOnClickListener(new View.OnClickListener() {
@@ -103,6 +108,20 @@ public class FragFav extends Fragment {
     public void onStart() {
         super.onStart();
         if (currentUser != null) {
+            String uid = currentUser.getUid();
+
+            restrictionsListener = firestore.collection("users").document(uid)
+                    .addSnapshotListener((snapshot, e) -> {
+                        if (e != null) {
+                            Log.w(TAG, "Error:", e);
+                            return;
+                        }
+                        if (snapshot != null && snapshot.exists()) {
+                            Boolean noGames = snapshot.getBoolean("noGames");
+                            isGamesAllowed = !(noGames != null && noGames);
+                            favAdapter.setGamesAllowed(isGamesAllowed);
+                        }
+                    });
             favoritesListener = firestore.collection("users").document(currentUser.getUid()).collection("favorits")
                     .addSnapshotListener(new com.google.firebase.firestore.EventListener<QuerySnapshot>() {
                         @Override
@@ -133,6 +152,7 @@ public class FragFav extends Fragment {
                             }
                         }
                     });
+
         }
     }
 
@@ -142,6 +162,10 @@ public class FragFav extends Fragment {
         if (favoritesListener != null) {
             favoritesListener.remove();
             favoritesListener = null;
+        }
+        if (restrictionsListener != null) {
+            restrictionsListener.remove();
+            restrictionsListener = null;
         }
     }
 
