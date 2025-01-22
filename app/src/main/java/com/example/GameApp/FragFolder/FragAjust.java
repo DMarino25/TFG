@@ -33,17 +33,20 @@ import com.example.GameApp.FavAdapter;
 import com.example.GameApp.ImgurApiClient;
 import com.example.GameApp.R;
 import com.example.GameApp.main.MainActivity;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -313,62 +316,81 @@ public class FragAjust extends Fragment {
         });
 
         delete.setOnClickListener(v1 -> {
-            // Show a confirmation dialog to prevent accidental deletions
             new AlertDialog.Builder(v1.getContext())
                     .setTitle("Confirmació d'eliminació")
                     .setMessage("Estàs segur que vols eliminar el teu compte? Aquesta acció no es pot desfer.")
                     .setPositiveButton("Sí", (dialog, which) -> {
-                        // Sign out from Google first to avoid retaining the session
-                        googleSignInClient.signOut().addOnCompleteListener(getActivity(), task -> {
-                            if (task.isSuccessful()) {
-                                // Get the user ID
-                                String userIdToDelete = currentUser.getUid();
 
-                                // First, delete all documents in the 'favorits' subcollection
-                                firestore.collection("users").document(userIdToDelete).collection("favorits")
-                                        .get()
-                                        .addOnSuccessListener(queryDocumentSnapshots -> {
-                                            // Delete each document in the 'favorits' subcollection
-                                            for (DocumentSnapshot document : queryDocumentSnapshots) {
-                                                document.getReference().delete();
-                                            }
+                        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireContext());
 
-                                            // After deleting the subcollection, delete the user document
-                                            firestore.collection("users").document(userIdToDelete).delete()
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        // Successfully deleted data from Firestore
-                                                        // Proceed to delete the account from Firebase Authentication
-                                                        currentUser.delete()
-                                                                .addOnSuccessListener(aVoid1 -> {
-                                                                    Toast.makeText(v1.getContext(), "El compte s'ha eliminat correctament", Toast.LENGTH_SHORT).show();
+                        if (account != null) {
+                            String idToken = account.getIdToken();
 
-                                                                    // Log out and redirect to the login page
-                                                                    Intent intent = new Intent(getActivity(), MainActivity.class);
-                                                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                                    startActivity(intent);
-                                                                    getActivity().finish();
+                            if (idToken != null) {
+                                AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+
+                                currentUser.reauthenticate(credential)
+                                        .addOnSuccessListener(aVoid -> {
+                                            // Reautenticación exitosa
+
+                                            String userIdToDelete = currentUser.getUid();
+
+                                            firestore.collection("users")
+                                                    .document(userIdToDelete)
+                                                    .collection("favorits")
+                                                    .get()
+                                                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                                                        for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                                            document.getReference().delete();
+                                                        }
+
+                                                        firestore.collection("users").document(userIdToDelete).delete()
+                                                                .addOnSuccessListener(aVoid2 -> {
+
+                                                                    currentUser.delete()
+                                                                            .addOnSuccessListener(aVoid1 -> {
+                                                                                Toast.makeText(v1.getContext(),"El compte s'ha eliminat correctament", Toast.LENGTH_SHORT).show();
+
+                                                                                googleSignInClient.signOut()
+                                                                                        .addOnCompleteListener(task -> {
+                                                                                            // Redirigir al MainActivity
+                                                                                            Intent intent = new Intent(getActivity(), MainActivity.class);
+                                                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                                                            startActivity(intent);
+                                                                                            getActivity().finish();
+                                                                                        });
+                                                                            })
+                                                                            .addOnFailureListener(e -> {
+                                                                                Log.e("AUTENTICACION", "Abduscan:" + e.getMessage());
+                                                                                Toast.makeText(v1.getContext(), "Error al eliminar el compte", Toast.LENGTH_SHORT).show();
+                                                                            });
+
                                                                 })
                                                                 .addOnFailureListener(e -> {
-                                                                    // Error while deleting the account
-                                                                    Toast.makeText(v1.getContext(), "Error al eliminar el compte", Toast.LENGTH_SHORT).show();
+                                                                    Toast.makeText(v1.getContext(),"Error al eliminar dades del Firestore", Toast.LENGTH_SHORT).show();
                                                                 });
                                                     })
                                                     .addOnFailureListener(e -> {
-                                                        // Error while deleting Firestore data
-                                                        Toast.makeText(v1.getContext(), "Error al eliminar dades del Firestore", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(v1.getContext(), "Error al eliminar la subcolecció de favorits", Toast.LENGTH_SHORT).show();
                                                     });
+
                                         })
                                         .addOnFailureListener(e -> {
-                                            // Error while fetching the 'favorits' subcollection
-                                            Toast.makeText(v1.getContext(), "Error al eliminar la subcolecció de favorits", Toast.LENGTH_SHORT).show();
+                                            // Error reautenticando
+                                            Toast.makeText(v1.getContext(), "Error al reautenticar l'usuari", Toast.LENGTH_SHORT).show();
                                         });
+
                             } else {
-                                // Handle Google sign-out failure
-                                Toast.makeText(v1.getContext(), "Error al tancar sessió de Google", Toast.LENGTH_SHORT).show();
+                                // No se pudo obtener el token de Google
+                                Toast.makeText(v1.getContext(), "No s'ha pogut obtenir el token de Google", Toast.LENGTH_SHORT).show();
                             }
-                        });
+                        } else {
+                            // No hay cuenta de Google iniciada
+                            Toast.makeText(v1.getContext(), "No hi ha cap compte de Google iniciada", Toast.LENGTH_SHORT).show();
+                        }
+
                     })
-                    .setNegativeButton("No", null) // Do nothing on "No"
+                    .setNegativeButton("No", null)
                     .show();
         });
 
