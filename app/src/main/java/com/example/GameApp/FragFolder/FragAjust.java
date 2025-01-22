@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -456,6 +457,7 @@ public class FragAjust extends Fragment {
                                                         FavoriteGame game = document.toObject(FavoriteGame.class);
                                                         favoriteGames.add(game);
                                                     }
+                                                    favoriteGames.sort((o1, o2) -> Integer.compare(o2.getRating(), o1.getRating()));
                                                     if (favoriteGames.isEmpty()) {
                                                         recyclerView.setVisibility(View.GONE);
                                                         noFavoritesText.setVisibility(View.VISIBLE);
@@ -482,6 +484,7 @@ public class FragAjust extends Fragment {
                                                     }
                                                 }
                                             }
+                                            favoriteGames.sort((o1, o2) -> Integer.compare(o2.getRating(), o1.getRating()));
                                             dialogAdapter.updateList(filteredList);
                                             if (filteredList.isEmpty()) {
                                                 recyclerView.setVisibility(View.GONE);
@@ -490,6 +493,13 @@ public class FragAjust extends Fragment {
                                                 recyclerView.setVisibility(View.VISIBLE);
                                                 noFavoritesText.setVisibility(View.GONE);
                                             }
+                                        });
+                                        cerca2.setOnEditorActionListener((View,actionId,event) ->{
+                                            if(actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE){
+                                                go2.performClick();
+                                                return true;
+                                            }
+                                            return false;
                                         });
                                     }
                                 } else {

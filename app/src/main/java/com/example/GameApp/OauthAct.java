@@ -70,7 +70,7 @@ public class OauthAct extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
 
 
-    private ListenerRegistration banListener, userListener;
+    private ListenerRegistration banListener, userListener, conversesListener;
     private ImageButton missatge;
     private Fragment fragments[];
     RecyclerView recyclerView;
@@ -276,6 +276,10 @@ public class OauthAct extends AppCompatActivity {
             userListener.remove();
             userListener = null;
         }
+        if (conversesListener != null) {
+            conversesListener.remove();
+            conversesListener = null;
+        }
     }
 
     private void handleHome(){
@@ -423,22 +427,28 @@ public class OauthAct extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        db.collection("messages")
+        if (conversesListener != null) {
+            conversesListener.remove();
+        }
+
+
+        conversesListener= db.collection("messages")
                 .whereArrayContains("participants", currentUserId)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            Log.d(TAG, "Error obtenint converses: ", error);
+                            return;
+                        }
+                        if (value != null) {
                             ArrayList<Conversation> llistaConverses = new ArrayList<>();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
+                            for (QueryDocumentSnapshot document : value) {
                                 Conversation conversa = document.toObject(Conversation.class);
                                 conversa.setConversationId(document.getId());
                                 llistaConverses.add(conversa);
                             }
                             conversationsAdapter.updateList(llistaConverses);
-                        } else {
-                            Log.d(TAG, "Error obtenint converses: ", task.getException());
                         }
                     }
                 });
