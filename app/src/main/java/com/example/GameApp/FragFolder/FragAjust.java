@@ -41,6 +41,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -328,7 +329,7 @@ public class FragAjust extends Fragment {
 
                             if (idToken != null) {
                                 AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-
+                                reauthenticateAndDelete(credential);
                                 currentUser.reauthenticate(credential)
                                         .addOnSuccessListener(aVoid -> {
                                             // Reautenticación exitosa
@@ -386,8 +387,7 @@ public class FragAjust extends Fragment {
                             }
                         } else {
                             // No hay cuenta de Google iniciada
-                            Toast.makeText(v1.getContext(), "No hi ha cap compte de Google iniciada", Toast.LENGTH_SHORT).show();
-                        }
+                            showPasswordDialogAndReauthenticate();                        }
 
                     })
                     .setNegativeButton("No", null)
@@ -593,6 +593,79 @@ public class FragAjust extends Fragment {
                             Toast.makeText(getContext(), "Error en actualitzar la imatge de perfil", Toast.LENGTH_SHORT).show()
                     );
         }
+    }
+    private void showPasswordDialogAndReauthenticate() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Reautenticar");
+        builder.setMessage("Introdueix la contrasenya:");
+
+        final EditText input = new EditText(requireContext());
+        input.setInputType(EditorInfo.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        builder.setPositiveButton("Confirmar", (dialog, which) -> {
+            String typedPassword = input.getText().toString().trim();
+            if (!typedPassword.isEmpty()) {
+                String email = currentUser.getEmail();
+                if (email != null) {
+                    AuthCredential credential = EmailAuthProvider.getCredential(email, typedPassword);
+                    reauthenticateAndDelete(credential);
+                } else {
+                    Toast.makeText(requireContext(), "No es pot obtenir el mail", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(requireContext(), "Contrasenya buida ", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.setNegativeButton("Cancel·lar", null);
+        builder.show();
+    }
+    private void reauthenticateAndDelete(AuthCredential credential) {
+        currentUser.reauthenticate(credential)
+                .addOnSuccessListener(aVoid -> {
+                    // Aquí ya podemos eliminar Firestore y cuenta
+                    String userIdToDelete = currentUser.getUid();
+
+                    firestore.collection("users")
+                            .document(userIdToDelete)
+                            .collection("favorits")
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                // Borra la subcolección
+                                for (DocumentSnapshot document : queryDocumentSnapshots) {
+                                    document.getReference().delete();
+                                }
+
+                                // Borra el documento principal
+                                firestore.collection("users").document(userIdToDelete).delete()
+                                        .addOnSuccessListener(aVoid2 -> {
+                                            // Finalmente, elimina la cuenta de Firebase Auth
+                                            currentUser.delete()
+                                                    .addOnSuccessListener(aVoid3 -> {
+                                                        Toast.makeText(getContext(), "La cuenta se ha eliminat correctament", Toast.LENGTH_SHORT).show();
+                                                        // Cerrar sesión y redirigir
+                                                        googleSignInClient.signOut().addOnCompleteListener(task -> {
+                                                            startActivity(new Intent(getActivity(), MainActivity.class)
+                                                                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                                                            getActivity().finish();
+                                                        });
+                                                    })
+                                                    .addOnFailureListener(e -> {
+                                                        Toast.makeText(getContext(), "Error al eliminar el compte", Toast.LENGTH_SHORT).show();
+                                                    });
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(getContext(), "Error al eliminar dades de Firestore", Toast.LENGTH_SHORT).show();
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getContext(), "Error al eliminar la subcolecció de favorits", Toast.LENGTH_SHORT).show();
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Error al reautenticar l'usuari", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void createFeedback(String userId, String comment, String report) {
