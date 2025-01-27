@@ -51,10 +51,17 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @Override
     public void onBindViewHolder(ConversationViewHolder holder, int position) {
         Conversation conversa = llistaConverses.get(position);
+        String conversationId = conversa.getConversationId();
+        holder.setBoundConversationId(conversationId);
+
         List<String> participants = conversa.getParticipants();
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String otherUserId = null;
 
+        // Log para identificar en qué posición estamos
+        Log.d("ConversationAdapter", "onBindViewHolder - position: " + position);
+
+        // Recorremos los participantes para encontrar el "otro" usuario (que no sea el currentUser)
         for (String participantId : participants) {
             if (!participantId.equals(currentUserId)) {
                 otherUserId = participantId;
@@ -62,53 +69,75 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             }
         }
 
+        // Log del currentUserId y del otro, si existe
+        Log.d("ConversationAdapter", "currentUserId: " + currentUserId);
+        Log.d("ConversationAdapter", "otherUserId: " + otherUserId);
+
         final String finalOtherUserId = otherUserId;
         if (finalOtherUserId != null) {
-            // Fetch the other user's name from Firestore
+            // Fetch del otro usuario
             FirebaseFirestore db = FirebaseFirestore.getInstance();
-            db.collection("users").document(otherUserId)
+            db.collection("users").document(finalOtherUserId)
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                String otherUserName = documentSnapshot.getString("name");
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Obtenemos el nombre
+                            String otherUserName = documentSnapshot.getString("name");
+                            // Log con la info obtenida
+                            Log.d("ConversationAdapter",
+                                    "Documento para " + finalOtherUserId + " existe. Nombre: " + otherUserName);
+
+                            if (holder.getBoundConversationId().equals(conversationId)) {
                                 holder.nombreUsuarioTextView.setText(otherUserName);
                                 holder.ultimoMensajeTextView.setText("Disponible");
                             } else {
+                                Log.d("ConversationAdapter", "El holder ya está reciclado para otra conversación");
+                            }
+                        } else {
+                            Log.d("ConversationAdapter",
+                                    "No existe documento para userId " + finalOtherUserId);
+                            if (holder.getBoundConversationId().equals(conversationId)) {
                                 holder.nombreUsuarioTextView.setText("Usuari");
                                 holder.ultimoMensajeTextView.setText("Usuari eliminat");
                             }
                         }
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
+                    .addOnFailureListener(e -> {
+                        Log.e("ConversationAdapter",
+                                "Error al obtener documento de userId " + finalOtherUserId, e);
+                        if (holder.getBoundConversationId().equals(conversationId)) {
                             holder.nombreUsuarioTextView.setText("Usuari");
                             holder.ultimoMensajeTextView.setText("Usuari eliminat");
                         }
                     });
         } else {
-            // Fetch the other user's name from Firestore
+            // Si no hay otro userId, utilizamos el currentUser (caso raro pero contemplado)
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             db.collection("users").document(currentUserId)
                     .get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                String name = documentSnapshot.getString("name");
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String name = documentSnapshot.getString("name");
+                            Log.d("ConversationAdapter",
+                                    "Documento para currentUserId " + currentUserId + " existe. Nombre: " + name);
+
+                            if (holder.getBoundConversationId().equals(conversationId)) {
                                 holder.nombreUsuarioTextView.setText(name);
                                 holder.ultimoMensajeTextView.setText("Disponible");
-                            } else {
+                            }
+                        } else {
+                            Log.d("ConversationAdapter",
+                                    "No existe documento para currentUserId " + currentUserId);
+                            if (holder.getBoundConversationId().equals(conversationId)) {
                                 holder.nombreUsuarioTextView.setText("Usuari");
                                 holder.ultimoMensajeTextView.setText("Usuari eliminat");
                             }
                         }
                     })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
+                    .addOnFailureListener(e -> {
+                        Log.e("ConversationAdapter",
+                                "Error al obtener documento de currentUserId " + currentUserId, e);
+                        if (holder.getBoundConversationId().equals(conversationId)) {
                             holder.nombreUsuarioTextView.setText("Usuari");
                             holder.ultimoMensajeTextView.setText("Usuari eliminat");
                         }
@@ -163,12 +192,21 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         private TextView nombreUsuarioTextView;
         private TextView ultimoMensajeTextView;
         private LinearLayout convLayout;
+        private String boundConversationId;
 
         public ConversationViewHolder(View itemView) {
             super(itemView);
             nombreUsuarioTextView = itemView.findViewById(R.id.nomUser);
             convLayout = itemView.findViewById(R.id.layoutCon);
             ultimoMensajeTextView = itemView.findViewById(R.id.ultimoMensajeTextView);
+        }
+        public void setBoundConversationId(String conversationId) {
+            this.boundConversationId = conversationId;
+        }
+
+        // Getter para recuperarlo en el callback
+        public String getBoundConversationId() {
+            return boundConversationId;
         }
     }
 }
