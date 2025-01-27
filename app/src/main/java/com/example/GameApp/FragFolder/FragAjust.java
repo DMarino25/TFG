@@ -330,57 +330,6 @@ public class FragAjust extends Fragment {
                             if (idToken != null) {
                                 AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
                                 reauthenticateAndDelete(credential);
-                                currentUser.reauthenticate(credential)
-                                        .addOnSuccessListener(aVoid -> {
-                                            // Reautenticación exitosa
-
-                                            String userIdToDelete = currentUser.getUid();
-
-                                            firestore.collection("users")
-                                                    .document(userIdToDelete)
-                                                    .collection("favorits")
-                                                    .get()
-                                                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                                                        for (DocumentSnapshot document : queryDocumentSnapshots) {
-                                                            document.getReference().delete();
-                                                        }
-
-                                                        firestore.collection("users").document(userIdToDelete).delete()
-                                                                .addOnSuccessListener(aVoid2 -> {
-
-                                                                    currentUser.delete()
-                                                                            .addOnSuccessListener(aVoid1 -> {
-                                                                                Toast.makeText(v1.getContext(),"El compte s'ha eliminat correctament", Toast.LENGTH_SHORT).show();
-
-                                                                                googleSignInClient.signOut()
-                                                                                        .addOnCompleteListener(task -> {
-                                                                                            // Redirigir al MainActivity
-                                                                                            Intent intent = new Intent(getActivity(), MainActivity.class);
-                                                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                                                            startActivity(intent);
-                                                                                            getActivity().finish();
-                                                                                        });
-                                                                            })
-                                                                            .addOnFailureListener(e -> {
-                                                                                Log.e("AUTENTICACION", "Abduscan:" + e.getMessage());
-                                                                                Toast.makeText(v1.getContext(), "Error al eliminar el compte", Toast.LENGTH_SHORT).show();
-                                                                            });
-
-                                                                })
-                                                                .addOnFailureListener(e -> {
-                                                                    Toast.makeText(v1.getContext(),"Error al eliminar dades del Firestore", Toast.LENGTH_SHORT).show();
-                                                                });
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        Toast.makeText(v1.getContext(), "Error al eliminar la subcolecció de favorits", Toast.LENGTH_SHORT).show();
-                                                    });
-
-                                        })
-                                        .addOnFailureListener(e -> {
-                                            // Error reautenticando
-                                            Toast.makeText(v1.getContext(), "Error al reautenticar l'usuari", Toast.LENGTH_SHORT).show();
-                                        });
-
                             } else {
                                 // No se pudo obtener el token de Google
                                 Toast.makeText(v1.getContext(), "No s'ha pogut obtenir el token de Google", Toast.LENGTH_SHORT).show();
@@ -643,7 +592,7 @@ public class FragAjust extends Fragment {
                                             // Finalmente, elimina la cuenta de Firebase Auth
                                             currentUser.delete()
                                                     .addOnSuccessListener(aVoid3 -> {
-                                                        Toast.makeText(getContext(), "La cuenta se ha eliminat correctament", Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(getContext(), "El compte se ha eliminat correctament", Toast.LENGTH_SHORT).show();
                                                         // Cerrar sesión y redirigir
                                                         googleSignInClient.signOut().addOnCompleteListener(task -> {
                                                             startActivity(new Intent(getActivity(), MainActivity.class)
